@@ -1,35 +1,40 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import LoginUser from "./Components/AuthenticationComponents/UserLogin";
+import RegisterUser from "./Components/AuthenticationComponents/UserRegistration";
+import ResendAndVerifyOTP from "./Components/AuthenticationComponents/HandleOTP";
+import Dashboard from "./Components/Dashboard";
+import ProtectedRoute from "./Components/AuthenticationComponents/ProtectedRoute";
+import SplashScreen from "./Components/SplashScreen";
 
 function App() {
-  const [count, setCount] = useState(0)
+  function Logout() {
+    return;
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SplashScreen />} />
+        <Route
+          path="/auth/register"
+          element={<RegisterUser route="api/register/" />}
+        />
+        <Route path="/auth/login" element={<LoginUser route="api/login/" />} />
+        <Route
+          path="/auth/otp"
+          element={<ResendAndVerifyOTP route="api/verify-otp-token/" />}
+        />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
