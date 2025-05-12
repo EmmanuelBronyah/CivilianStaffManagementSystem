@@ -46,11 +46,18 @@ INSTALLED_APPS = [
     "api",
     # third-party apps
     "rest_framework",
+    "rest_framework.authtoken",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
     "django_otp",
     "django_otp.plugins.otp_email",
+    "django.contrib.sites",
+    "dj_rest_auth",
+    "allauth",
+    "allauth.account",
 ]
+
+SITE_ID = 1
 
 AUTH_USER_MODEL = "api.CustomUser"
 
@@ -60,6 +67,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "allauth.account.middleware.AccountMiddleware",
     "django_otp.middleware.OTPMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
@@ -113,7 +121,19 @@ CACHES = {
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework_simplejwt.authentication.JWTAuthentication",
-    )
+    ),
+    "EXCEPTION_HANDLER": "Backend.exception_handler.custom_exception_handler",
+    "DEFAULT_THROTTLE_CLASSES": [
+        "rest_framework.throttling.AnonRateThrottle",
+        "rest_framework.throttling.UserRateThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon": "10/hour",
+        "user": "6/minute",
+        # custom throttles
+        "custom_user": "6/minute",
+        "custom_anon": "3/minute",
+    },
 }
 
 SIMPLE_JWT = {
@@ -122,6 +142,11 @@ SIMPLE_JWT = {
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
+
+
+PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = (
+    "http://localhost:5173/password/reset/confirm/"
+)
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

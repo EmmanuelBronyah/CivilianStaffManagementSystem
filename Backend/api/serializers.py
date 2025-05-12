@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import CustomUser
+from django.contrib.auth.models import Group
 
 
 class ListCreateUserSerializer(serializers.ModelSerializer):
@@ -20,6 +21,10 @@ class ListCreateUserSerializer(serializers.ModelSerializer):
         )
         user.set_password(validated_data["password"])
         user.save()
+
+        group = Group.objects.get(name__iexact=validated_data["role"])
+        user.groups.add(group)
+        print("ALL USER PERMISSIONS -> ", user.get_all_permissions())
 
         return user
 

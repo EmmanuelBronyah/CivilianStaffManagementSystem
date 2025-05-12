@@ -1,7 +1,8 @@
 import { useState } from "react";
-import api from "../../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants";
+import api from "../../../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../../constants";
 import { useNavigate } from "react-router-dom";
+import { extractErrorMessages, checkInternetConnection } from "../../../utils";
 
 function RegisterUser({ route }) {
   const [fullname, setFullname] = useState("");
@@ -15,6 +16,14 @@ function RegisterUser({ route }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const hasInternetConnection = await checkInternetConnection();
+
+    if (!hasInternetConnection) {
+      console.log(
+        "Network issue detected. Please ensure you are connected to the internet and try again."
+      );
+      return;
+    }
 
     try {
       const res = await api.post(route, {
@@ -30,11 +39,11 @@ function RegisterUser({ route }) {
         navigate("/auth/login");
       }
     } catch (error) {
-      alert(
-        `ERROR STATUS: ${error.response.status}|ERROR DATA: ${JSON.stringify(
-          error.response.data
-        )}`
-      );
+      let errorData = error.response.data;
+      const messages = extractErrorMessages(errorData);
+      for (const message of messages) {
+        console.log("Error message:", message);
+      }
     }
   };
 

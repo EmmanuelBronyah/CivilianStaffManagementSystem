@@ -1,7 +1,8 @@
 import { useState } from "react";
-import api from "../../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../constants";
+import api from "../../../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../../constants";
 import { useNavigate } from "react-router-dom";
+import { extractErrorMessages, checkInternetConnection } from "../../../utils";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
@@ -11,6 +12,14 @@ function ResendAndVerifyOTP({ route }) {
     e.preventDefault();
     const temp_token = localStorage.getItem(TEMP_TOKEN);
     const tokenData = { tokens: { temp_token: temp_token, otp_token: otp } };
+    const hasInternetConnection = await checkInternetConnection();
+
+    if (!hasInternetConnection) {
+      console.log(
+        "Network issue detected. Please ensure you are connected to the internet and try again."
+      );
+      return;
+    }
 
     try {
       const res = await api.post(route, tokenData);
@@ -21,11 +30,11 @@ function ResendAndVerifyOTP({ route }) {
         navigate("/dashboard");
       }
     } catch (error) {
-      alert(
-        `ERROR STATUS: ${error.response.status}|ERROR DATA: ${JSON.stringify(
-          error.response.data
-        )}`
-      );
+      let errorData = error.response.data;
+      const messages = extractErrorMessages(errorData);
+      for (const message of messages) {
+        console.log("Error message:", message);
+      }
     }
   };
 
@@ -34,6 +43,14 @@ function ResendAndVerifyOTP({ route }) {
     const otpResendRoute = "api/resend-otp/";
     const temp_token = localStorage.getItem(TEMP_TOKEN);
     const tempTokenData = { tokens: { temp_token: temp_token } };
+    const hasInternetConnection = await checkInternetConnection();
+
+    if (!hasInternetConnection) {
+      console.log(
+        "Network issue detected. Please ensure you are connected to the internet and try again."
+      );
+      return;
+    }
 
     try {
       const res = await api.post(otpResendRoute, tempTokenData);
@@ -42,11 +59,11 @@ function ResendAndVerifyOTP({ route }) {
         handleSubmit();
       }
     } catch (error) {
-      alert(
-        `ERROR STATUS: ${error.response.status}|ERROR DATA: ${JSON.stringify(
-          error.response.data
-        )}`
-      );
+      let errorData = error.response.data;
+      const messages = extractErrorMessages(errorData);
+      for (const message of messages) {
+        console.log("Error message:", message);
+      }
     }
   };
 

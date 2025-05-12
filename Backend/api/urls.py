@@ -1,13 +1,30 @@
 from django.urls import path
 from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
+from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView
 
 
 urlpatterns = [
-    path("register/", views.ListCreateUserView.as_view(), name="register-user"),
+    # Register
+    path("register/", views.CreateUserView.as_view(), name="register-user"),
+    # Login
     path("login/", views.LoginView.as_view(), name="user-login"),
+    # Tokens
     path("verify-otp-token/", views.VerifyOTPView.as_view(), name="token-verification"),
     path("resend-otp/", views.ResendOTPView.as_view(), name="otp-resend"),
     path("token-refresh/", TokenRefreshView.as_view(), name="refresh-tokens"),
-    path("users/", views.ListCreateAPIView.as_view(), name="lists-users"),
+    # Password
+    path("password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
+    path(
+        "password/reset/confirm/redirect/<str:uidb64>/<str:token>/",
+        views.PasswordResetConfirmRedirectView.as_view(),
+        name="password_reset_confirm",
+    ),
+    path(
+        "password/reset/confirm/",
+        PasswordResetConfirmView.as_view(),
+        name="password_reset_confirm",
+    ),
+    # Users
+    path("users/", views.ListUsersView.as_view(), name="lists-users"),
 ]
