@@ -9,7 +9,7 @@ function ResendAndVerifyOTP({ route }) {
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     const temp_token = localStorage.getItem(TEMP_TOKEN);
     const tokenData = { tokens: { temp_token: temp_token, otp_token: otp } };
     const hasInternetConnection = await checkInternetConnection();
@@ -30,11 +30,12 @@ function ResendAndVerifyOTP({ route }) {
         navigate("/dashboard");
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
-      }
+      // let errorData = error.response;
+      console.log("Error message:", error.response.data);
+      // const messages = extractErrorMessages(errorData);
+      // for (const message of messages) {
+      //   console.log("Error message:", message);
+      // }
     }
   };
 
@@ -55,15 +56,17 @@ function ResendAndVerifyOTP({ route }) {
     try {
       const res = await api.post(otpResendRoute, tempTokenData);
       if (res.status === 200) {
-        localStorage.setItem(TEMP_TOKEN);
-        handleSubmit();
+        const tempToken = res.data.temp_token;
+        localStorage.setItem(TEMP_TOKEN, tempToken);
+        console.log(res.data);
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
-      }
+      // let errorData = error.response;
+      console.log("Error message:", error.response.data);
+      // const messages = extractErrorMessages(errorData);
+      // for (const message of messages) {
+      //   console.log("Error message:", message);
+      // }
     }
   };
 

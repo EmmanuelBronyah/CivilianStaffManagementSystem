@@ -79,7 +79,7 @@ ROOT_URLCONF = "Backend.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -147,6 +147,8 @@ SIMPLE_JWT = {
 PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = (
     "http://localhost:5173/password/reset/confirm/"
 )
+
+OTP_EMAIL_BODY_HTML_TEMPLATE_PATH = "otp/email_otp.html"
 
 
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
