@@ -9,6 +9,8 @@ urlpatterns = [
     path("register/", views.CreateUserView.as_view(), name="register-user"),
     # Login
     path("login/", views.LoginView.as_view(), name="user-login"),
+    # Logout
+    path("logout/", views.LogoutView.as_view(), name="user-logout"),
     # Tokens
     path("verify-otp-token/", views.VerifyOTPView.as_view(), name="token-verification"),
     path("resend-otp/", views.ResendOTPView.as_view(), name="otp-resend"),

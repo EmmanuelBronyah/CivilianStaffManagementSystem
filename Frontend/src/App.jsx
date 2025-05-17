@@ -1,6 +1,7 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import RegisterUser from "./Components/Authentication/Registration/UserRegistration";
 import LoginUser from "./Components/Authentication/Login/UserLogin";
+import LogoutUser from "./Components/Logout/UserLogout";
 import ResendAndVerifyOTP from "./Components/Authentication/OTP/HandleOTP";
 import ResetPassword from "./Components/Authentication/Password/ResetPassword";
 import ConfirmPasswordReset from "./Components/Authentication/Password/ConfirmPasswordReset";
@@ -9,10 +10,6 @@ import SplashScreen from "./Components/SplashScreen";
 import Dashboard from "./Components/Dashboard";
 
 function App() {
-  function Logout() {
-    return;
-  }
-
   return (
     <BrowserRouter>
       <Routes>
@@ -41,6 +38,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/auth/logout"
+          element={
+            <ProtectedRoute>
+              <LogoutUser route="api/logout/" />
             </ProtectedRoute>
           }
         />

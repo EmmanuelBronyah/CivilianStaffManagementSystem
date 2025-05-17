@@ -136,6 +136,8 @@ REST_FRAMEWORK = {
     },
 }
 
+ACCOUNT_ADAPTER = "api.adapters.CustomDefaultAccountAdapter"
+
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
@@ -148,6 +150,7 @@ PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL = (
     "http://localhost:5173/password/reset/confirm/"
 )
 
+OTP_EMAIL_SUBJECT = "Your CiviBase One-Time Password (OTP)"
 OTP_EMAIL_BODY_HTML_TEMPLATE_PATH = "otp/email_otp.html"
 
 

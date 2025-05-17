@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import CustomUser
 from django.contrib.auth.models import Group
+from dj_rest_auth.serializers import PasswordResetSerializer
 
 
 class ListCreateUserSerializer(serializers.ModelSerializer):
@@ -24,7 +25,6 @@ class ListCreateUserSerializer(serializers.ModelSerializer):
 
         group = Group.objects.get(name__iexact=validated_data["role"])
         user.groups.add(group)
-        print("ALL USER PERMISSIONS -> ", user.get_all_permissions())
 
         return user
 
@@ -47,6 +47,10 @@ class ListCreateUserSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+
+
+class LogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
 
 
 class VerifyOTPSerializer(serializers.Serializer):

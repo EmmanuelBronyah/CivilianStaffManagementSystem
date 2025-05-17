@@ -1,6 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework import generics
-from .serializers import ListCreateUserSerializer, LoginSerializer, VerifyOTPSerializer
+from . import serializers
 from .models import CustomUser
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,6 +9,7 @@ from django_otp.plugins.otp_email.models import EmailDevice
 from django.core.cache import cache
 import uuid
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from django.views.generic.base import RedirectView
 from django.conf import settings
@@ -17,14 +18,14 @@ from .throttles import CustomAnonRateThrottle, CustomUserRateThrottle
 
 
 class ListUsersView(generics.ListAPIView):
-    serializer_class = ListCreateUserSerializer
+    serializer_class = serializers.ListCreateUserSerializer
     queryset = CustomUser.objects.all()
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated]
 
 
 class CreateUserView(generics.CreateAPIView):
-    serializer_class = ListCreateUserSerializer
+    serializer_class = serializers.ListCreateUserSerializer
     queryset = CustomUser.objects.all()
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [AllowAny]
@@ -36,7 +37,7 @@ class LoginView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = LoginSerializer(data=request.data)
+        serializer = serializers.LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         username = serializer.validated_data.get("username", None)
         password = serializer.validated_data.get("password", None)
@@ -84,7 +85,7 @@ class VerifyOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = VerifyOTPSerializer(data=request.data)
+        serializer = serializers.VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tokens = serializer.validated_data.get("tokens", None)
         temp_token = tokens.get("temp_token", None)
@@ -151,7 +152,7 @@ class ResendOTPView(APIView):
     permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
-        serializer = VerifyOTPSerializer(data=request.data)
+        serializer = serializers.VerifyOTPSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         tokens = serializer.validated_data.get("tokens", None)
         temp_token = tokens.get("temp_token", None)
@@ -209,6 +210,38 @@ class PasswordResetConfirmRedirectView(RedirectView):
 
             return (
                 f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
+            )
+
+        except network_exceptions.NETWORK_EXCEPTIONS as e:
+            return Response(
+                {
+                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
+                },
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+
+class LogoutView(APIView):
+
+    def post(self, request, *args, **kwargs):
+        serializer = serializers.LogoutSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        refresh_token = serializer.validated_data.get("refresh_token", None)
+
+        try:
+
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+
+            return Response(
+                {"detail": "You have been successfully logged out."},
+                status=status.HTTP_200_OK,
+            )
+
+        except TokenError as e:
+            return Response(
+                {"detail": "Invalid or expired token."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
         except network_exceptions.NETWORK_EXCEPTIONS as e:

@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
 import { extractErrorMessages, checkInternetConnection } from "../../../utils";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const navigate = useNavigate();
   const { uid, token } = useParams();
 
   const handleSubmit = async (e) => {
@@ -28,6 +29,7 @@ function ConfirmPasswordReset({ route }) {
       });
       if (res.status === 200) {
         console.log("Password successfully changed.");
+        navigate("/auth/login");
       }
     } catch (error) {
       let errorData = error.response.data;
