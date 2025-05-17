@@ -14,13 +14,17 @@ export default function LogoutUser({ route }) {
         localStorage.removeItem(ACCESS_TOKEN);
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(TEMP_TOKEN);
-        console.log(res.data.detail);
+        console.log("Response: ", res.data.detail);
         setTimeout(() => {
           navigate("/auth/login/");
         }, 900);
       }
     } catch (error) {
-      console.log(error.response);
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
+      }
     }
   };
 

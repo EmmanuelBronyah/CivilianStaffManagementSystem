@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
-import { extractErrorMessages, checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../../../utils";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");
@@ -28,14 +28,14 @@ function ConfirmPasswordReset({ route }) {
         new_password2: confirmPassword,
       });
       if (res.status === 200) {
-        console.log("Password successfully changed.");
+        console.log("Response: ", res.data.detail);
         navigate("/auth/login");
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
       }
     }
   };

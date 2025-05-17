@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../../../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../../constants";
 import { useNavigate } from "react-router-dom";
-import { extractErrorMessages, checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../../../utils";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
@@ -24,18 +24,20 @@ function ResendAndVerifyOTP({ route }) {
     try {
       const res = await api.post(route, tokenData);
       if (res.status === 200) {
+        console.log("Response: ", res.data.detail);
+
         localStorage.setItem(ACCESS_TOKEN, res.data.access_token);
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token);
         localStorage.removeItem(TEMP_TOKEN);
+
         navigate("/dashboard");
       }
     } catch (error) {
-      // let errorData = error.response;
-      console.log("Error message:", error.response.data);
-      // const messages = extractErrorMessages(errorData);
-      // for (const message of messages) {
-      //   console.log("Error message:", message);
-      // }
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
+      }
     }
   };
 

@@ -47,7 +47,8 @@ class LoginView(APIView):
 
             if not user:
                 return Response(
-                    {"Invalid credentials."}, status=status.HTTP_400_BAD_REQUEST
+                    {"detail": "Invalid credentials."},
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
 
             device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
@@ -65,7 +66,7 @@ class LoginView(APIView):
         except network_exceptions.REDIS_ERRORS as e:
             device.delete()
             return Response(
-                {"error": "Temporary server issue. Please try again shortly."},
+                {"detail": "Temporary server issue. Please try again shortly."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
@@ -133,7 +134,7 @@ class VerifyOTPView(APIView):
 
         except network_exceptions.REDIS_ERRORS as e:
             return Response(
-                {"error": "Temporary server issue. Please try again shortly."},
+                {"detail": "Temporary server issue. Please try again shortly."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
@@ -185,7 +186,7 @@ class ResendOTPView(APIView):
         except network_exceptions.REDIS_ERRORS as e:
             device.delete()
             return Response(
-                {"error": "Temporary server issue. Please try again shortly."},
+                {"detail": "Temporary server issue. Please try again shortly."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 

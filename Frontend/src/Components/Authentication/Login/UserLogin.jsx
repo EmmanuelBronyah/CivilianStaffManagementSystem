@@ -1,13 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../../../api";
 import { TEMP_TOKEN } from "../../../constants";
 import { useNavigate, Link } from "react-router-dom";
-import { extractErrorMessages, checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../../../utils";
 
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+
+  useEffect(() => {
+    localStorage.clear();
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,15 +31,15 @@ function LoginUser({ route }) {
       });
       if (res.status === 200) {
         localStorage.setItem(TEMP_TOKEN, res.data.temp_token);
-        console.log(res.data);
+        console.log("Response: ", res.data.detail);
 
         navigate("/auth/otp");
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
       }
     }
   };

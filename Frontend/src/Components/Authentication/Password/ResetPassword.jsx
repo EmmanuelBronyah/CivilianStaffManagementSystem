@@ -1,6 +1,6 @@
 import { useState } from "react";
 import api from "../../../api";
-import { extractErrorMessages, checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../../../utils";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");
@@ -19,13 +19,18 @@ function ResetPassword({ route }) {
     try {
       const res = await api.post(route, { email: email });
       if (res.status === 200) {
-        console.log(res.data.detail);
+        console.log("Response: ", res.data.detail);
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
+      if (error.response.status === 429) {
+        console.log(
+          "Too many requests were made. Please try again after sometime."
+        );
+      }
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
       }
     }
   };

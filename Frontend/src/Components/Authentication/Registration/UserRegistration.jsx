@@ -2,7 +2,7 @@ import { useState } from "react";
 import api from "../../../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../../constants";
 import { useNavigate } from "react-router-dom";
-import { extractErrorMessages, checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../../../utils";
 
 function RegisterUser({ route }) {
   const [fullname, setFullname] = useState("");
@@ -36,13 +36,15 @@ function RegisterUser({ route }) {
         division,
       });
       if (res.status === 201) {
+        console.log("Response: ", "User created successfully.");
+
         navigate("/auth/login");
       }
     } catch (error) {
-      let errorData = error.response.data;
-      const messages = extractErrorMessages(errorData);
-      for (const message of messages) {
-        console.log("Error message:", message);
+      if (error.response) {
+        console.log("Error: ", error.response.data);
+      } else {
+        console.log("Unexpected Error: ", error);
       }
     }
   };
