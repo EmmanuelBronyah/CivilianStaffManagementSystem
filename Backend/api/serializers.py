@@ -1,7 +1,10 @@
 from rest_framework import serializers
 from .models import CustomUser
 from django.contrib.auth.models import Group
-from dj_rest_auth.serializers import PasswordResetSerializer
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class ListCreateUserSerializer(serializers.ModelSerializer):
@@ -21,10 +24,14 @@ class ListCreateUserSerializer(serializers.ModelSerializer):
             role=validated_data["role"],
         )
         user.set_password(validated_data["password"])
+        logger.debug(f"User({user}) password has been set.")
         user.save()
+        logger.debug(f"User({user}) has been saved.")
 
         group = Group.objects.get(name__iexact=validated_data["role"])
+        logger.debug(f"User({user}) group({group}).")
         user.groups.add(group)
+        logger.debug(f"User({user}) added to group({group}).")
 
         return user
 
@@ -59,6 +66,8 @@ class VerifyOTPSerializer(serializers.Serializer):
     def validate(self, data):
         tokens = data["tokens"]
         invalid_keys = [key for key in tokens if key not in ["temp_token", "otp_token"]]
+        logger.debug(f"Invalid keys ({invalid_keys}).")
+
         for key in invalid_keys:
             del tokens[key]
         return data

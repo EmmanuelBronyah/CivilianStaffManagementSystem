@@ -18,6 +18,7 @@ function ResetPassword({ route }) {
 
     try {
       const res = await api.post(route, { email: email });
+
       if (res.status === 200) {
         console.log("Response: ", res.data.detail);
       }

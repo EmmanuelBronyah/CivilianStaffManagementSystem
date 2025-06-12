@@ -1,6 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from .choices import ROLES, DIVISIONS, GRADES
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 class UserManager(BaseUserManager):
@@ -22,6 +26,7 @@ class UserManager(BaseUserManager):
             raise ValueError("User must have a password.")
 
         email = self.normalize_email(email)
+        logger.debug("User email has been set.")
         user = self.model(
             fullname=fullname,
             username=username,
@@ -31,7 +36,9 @@ class UserManager(BaseUserManager):
             division=division,
         )
         user.set_password(password)
+        logger.debug("User password has been set.")
         user.save(using=self._db)
+        logger.debug(f"User({user}) saved to database.")
 
         return user
 
@@ -41,9 +48,11 @@ class UserManager(BaseUserManager):
         user = self.create_user(
             fullname, username, email, role, grade, division, password
         )
+        logger.debug("Superuser user instance has been created.")
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
+        logger.debug(f"Superuser({user}) saved to database.")
 
         return user
 

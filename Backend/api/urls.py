@@ -16,7 +16,11 @@ urlpatterns = [
     path("resend-otp/", views.ResendOTPView.as_view(), name="otp-resend"),
     path("token-refresh/", TokenRefreshView.as_view(), name="refresh-tokens"),
     # Password
-    path("password/reset/", PasswordResetView.as_view(), name="rest_password_reset"),
+    path(
+        "password/reset/",
+        PasswordResetView.as_view(),
+        name="rest_password_reset",
+    ),
     path(
         "password/reset/confirm/redirect/<str:uidb64>/<str:token>/",
         views.PasswordResetConfirmRedirectView.as_view(),
