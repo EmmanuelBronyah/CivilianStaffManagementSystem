@@ -14,6 +14,13 @@ class ListCreateUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {"password": {"write_only": True}}
 
+    def validate_email(self, value):
+        value = value.strip().lower()
+        if not serializers.EmailField().run_validation(value):
+            raise serializers.ValidationError("Enter a valid email address.")
+
+        return value
+
     def create(self, validated_data):
         user = CustomUser(
             fullname=validated_data["fullname"],

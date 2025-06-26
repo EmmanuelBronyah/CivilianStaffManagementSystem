@@ -249,6 +249,9 @@ class PasswordResetConfirmRedirectView(RedirectView):
 
 
 class LogoutView(APIView):
+    http_method_names = ["post"]
+    throttle_classes = [CustomAnonRateThrottle, CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.LogoutSerializer(data=request.data)
@@ -263,7 +266,7 @@ class LogoutView(APIView):
             logger.info("You have been successfully logged out.")
             return Response(
                 {"detail": "You have been successfully logged out."},
-                status=status.HTTP_200_OK,
+                status=status.HTTP_204_NO_CONTENT,
             )
 
         except TokenError as e:
