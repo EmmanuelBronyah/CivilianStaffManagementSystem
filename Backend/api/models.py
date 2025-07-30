@@ -1,10 +1,17 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from .choices import ROLES, DIVISIONS, GRADES
 import logging
+from employees.models import Grades
 
 
 logger = logging.getLogger(__name__)
+
+
+ROLES = [
+    ("ADMINISTRATOR", "Administrator"),
+    ("STANDARD USER", "Standard User"),
+    ("VIEWER", "Viewer"),
+]
 
 
 class UserManager(BaseUserManager):
@@ -27,6 +34,12 @@ class UserManager(BaseUserManager):
 
         email = self.normalize_email(email)
         logger.debug("User email has been set.")
+
+        if isinstance(grade, int):
+            grade = Grades.objects.get(pk=grade)
+        if isinstance(division, int):
+            division = Divisions.objects.get(pk=division)
+
         user = self.model(
             fullname=fullname,
             username=username,
@@ -58,18 +71,33 @@ class UserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    fullname = models.CharField(max_length=255, blank=False, null=False)
-    username = models.CharField(max_length=50, blank=False, null=False, unique=True)
-    email = models.CharField(max_length=255, blank=False, null=False, unique=True)
-    role = models.CharField(max_length=50, blank=False, null=False, choices=ROLES)
-    grade = models.CharField(max_length=50, blank=False, null=False, choices=GRADES)
-    division = models.CharField(
-        max_length=50, blank=False, null=False, choices=DIVISIONS
-    )
+    fullname = models.CharField(max_length=255)
+    username = models.CharField(max_length=100, unique=True)
+    email = models.CharField(max_length=255, unique=True)
+    role = models.CharField(max_length=50, choices=ROLES)
+    grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
+    division = models.ForeignKey("Divisions", on_delete=models.PROTECT)
 
     REQUIRED_FIELDS = ["fullname", "email", "role", "grade", "division"]
 
     objects = UserManager()
 
+    class Meta:
+        db_table = "Users"
+        verbose_name = "User"
+        verbose_name_plural = "Users"
+
     def __str__(self):
         return f"{self.fullname}"
+
+
+class Divisions(models.Model):
+    division = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        db_table = "Divisions"
+        verbose_name = "Division"
+        verbose_name_plural = "Divisions"
+
+    def __str__(self):
+        return f"{self.division}"

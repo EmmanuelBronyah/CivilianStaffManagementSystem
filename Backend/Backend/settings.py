@@ -45,6 +45,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "api",
+    "employees",
+    "abscences",
+    "children",
+    "courses",
+    "identity",
+    "marriage",
+    "next_of_kin",
+    "occurance",
+    "previous_government_service",
+    "service_with_forces",
+    "termination_of_appointment",
     # third-party apps
     "rest_framework",
     "rest_framework.authtoken",
@@ -56,6 +67,7 @@ INSTALLED_APPS = [
     "dj_rest_auth",
     "allauth",
     "allauth.account",
+    "django_seed",
 ]
 
 SITE_ID = 1
