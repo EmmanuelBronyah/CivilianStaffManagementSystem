@@ -3,6 +3,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from api import network_exceptions
 import logging
+from rest_framework.exceptions import ValidationError
+from .utils import handle_validation_error
 
 logger = logging.getLogger(__name__)
 
@@ -75,6 +77,13 @@ def custom_exception_handler(exc, context):
             {"error": "Temporary server issue. Please try again shortly."},
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
+
+    # Handles all validation errors
+    elif isinstance(exc, ValidationError):
+        message = handle_validation_error(exc)
+        logger.exception(message)
+        return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+
     else:
         # Fall back to default handler
         logger.exception(f"An Exception({exc}) has occurred.")

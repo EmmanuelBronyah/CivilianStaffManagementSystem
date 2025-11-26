@@ -15,7 +15,7 @@ class CreateUserAPITest(APITestCase):
             "fullname": "Savior Miles",
             "password": "lovesogreat",
             "username": "Saviour",
-            "email": "Saviour@email.com",
+            "user_email": "Saviour@email.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",
@@ -23,11 +23,11 @@ class CreateUserAPITest(APITestCase):
         Group.objects.create(name="Viewer")
 
     @staticmethod
-    def modify_user_data(fullname, username, email, user_data):
+    def modify_user_data(fullname, username, user_email, user_data):
         """
         User data dict is modified to avoid unique constraint errors on fields.
         """
-        user_data.update(fullname=fullname, username=username, email=email)
+        user_data.update(fullname=fullname, username=username, user_email=user_email)
         return user_data
 
     def test_create_user(self):
@@ -50,13 +50,13 @@ class CreateUserAPITest(APITestCase):
 
     def test_invalid_email_format(self):
         user_data_copy = self.user_data.copy()
-        user_data_copy["email"] = "abc"
+        user_data_copy["user_email"] = "abc"
         response = self.client.post(self.url, user_data_copy, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_registration_without_required_field(self):
         user_data_copy = self.user_data.copy()
-        del user_data_copy["email"]
+        del user_data_copy["user_email"]
         response = self.client.post(self.url, user_data_copy, format="json")
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
@@ -79,7 +79,7 @@ class LoginAPITest(APITestCase):
             "fullname": "Savior Miles",
             "password": "lovesogreat",
             "username": "Saviour",
-            "email": "Saviour@email.com",
+            "user_email": "Saviour@email.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",
@@ -117,7 +117,7 @@ class VerifyOTPAPITest(APITestCase):
             "fullname": "Savior Miles",
             "password": "lovesogreat",
             "username": "Saviour",
-            "email": "Saviour@email.com",
+            "user_email": "Saviour@email.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",
@@ -168,7 +168,7 @@ class ResendOTPAPITest(APITestCase):
             "fullname": "Savior Miles",
             "password": "lovesogreat",
             "username": "Saviour",
-            "email": "Saviour@email.com",
+            "user_email": "Saviour@email.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",
@@ -210,7 +210,7 @@ class PasswordResetConfirmAPITest(APITestCase):
             "fullname": "Emmanuel Bronyah",
             "password": "lovesogreat",
             "username": "Emmanuel",
-            "email": "emmanuelbronyah@yahoo.com",
+            "user_email": "emmanuelbronyah@yahoo.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",
@@ -219,7 +219,9 @@ class PasswordResetConfirmAPITest(APITestCase):
         self.client.post(self.register_url, self.user_data, format="json")
 
     def retrieve_uidb64_and_token(self):
-        email = CustomUser.objects.get(email="emmanuelbronyah@yahoo.com").email
+        email = CustomUser.objects.get(
+            user_email="emmanuelbronyah@yahoo.com"
+        ).user_email
         response = self.client.post(
             self.password_reset_url, {"email": email}, format="json"
         )
@@ -260,7 +262,7 @@ class LogoutViewAPITest(APITestCase):
             "fullname": "Emmanuel Bronyah",
             "password": "lovesogreat",
             "username": "Emmanuel",
-            "email": "emmanuelbronyah@yahoo.com",
+            "user_email": "emmanuelbronyah@yahoo.com",
             "role": "VIEWER",
             "grade": "COMPUTER TECHNICIAN GRADE III",
             "division": "DCE-IT",

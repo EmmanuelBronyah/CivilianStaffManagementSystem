@@ -10,7 +10,7 @@ export default function LogoutUser({ route }) {
 
     try {
       const res = await api.post(route, { refresh_token: refreshToken });
-      if (res.status === 200) {
+      if (res.status === 204) {
         localStorage.removeItem(ACCESS_TOKEN);
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(TEMP_TOKEN);

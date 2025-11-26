@@ -32,5 +32,56 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     # Users
-    path("users/", views.ListUsersView.as_view(), name="lists-users"),
+    path("users/", views.RetrieveAllUsersView.as_view(), name="retrieve-all-users"),
+    path(
+        "users/<int:pk>/",
+        views.RetrieveUserView.as_view(),
+        name="retrieve-user",
+    ),
+    path(
+        "users/update/<int:pk>/",
+        views.UpdateUserView.as_view(),
+        name="update-user",
+    ),
+    path(
+        "users/deactivate/<int:pk>/",
+        views.DeactivateUserView.as_view(),
+        name="deactivate-user",
+    ),
+    path(
+        "users/restore/<int:pk>/",
+        views.RestoreUserAccountView.as_view(),
+        name="restore-user-account",
+    ),
+    path(
+        "users/delete/<int:pk>/",
+        views.DeleteUserView.as_view(),
+        name="delete-user",
+    ),
+    # Division
+    path(
+        "divisions/create/",
+        views.CreateDivisionAPIView.as_view(),
+        name="create-division",
+    ),
+    path(
+        "divisions/",
+        views.ListDivisionsAPIView.as_view(),
+        name="retrieve-all-divisions",
+    ),
+    path(
+        "divisions/<int:pk>/detail/",
+        views.RetrieveDivisionAPIView.as_view(),
+        name="retrieve-division",
+    ),
+    path(
+        "divisions/<int:pk>/update/",
+        views.EditDivisionAPIView.as_view(),
+        name="update-division",
+    ),
+    path(
+        "divisions/<int:pk>/delete/",
+        views.DeleteDivisionAPIView.as_view(),
+        name="delete-division",
+    ),
 ]

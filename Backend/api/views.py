@@ -14,24 +14,119 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from django.views.generic.base import RedirectView
 from django.conf import settings
 from . import network_exceptions
-from .throttles import CustomAnonRateThrottle, CustomUserRateThrottle
+from .throttles import CustomAnonRateThrottle, CustomUserRateThrottle, UserRateThrottle
 import logging
+from . import models
 
 logger = logging.getLogger(__name__)
 
 
-class ListUsersView(generics.ListAPIView):
-    serializer_class = serializers.ListCreateUserSerializer
+# * USER
+class CreateUserView(generics.CreateAPIView):
+    serializer_class = serializers.RetrieveCreateUserSerializer
+    queryset = CustomUser.objects.all()
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated & IsAdminUser]
+
+
+class RetrieveUserView(generics.RetrieveAPIView):
+    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
+    queryset = CustomUser.objects.all()
+    lookup_field = "pk"
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+
+class RetrieveAllUsersView(generics.ListAPIView):
+    serializer_class = serializers.RetrieveCreateUserSerializer
     queryset = CustomUser.objects.all()
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated]
 
 
-class CreateUserView(generics.CreateAPIView):
-    serializer_class = serializers.ListCreateUserSerializer
+class UpdateUserView(generics.UpdateAPIView):
+    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
+    lookup_field = "pk"
     throttle_classes = [CustomUserRateThrottle]
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated & IsAdminUser]
+
+
+class DeactivateUserView(generics.DestroyAPIView):
+    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
+    queryset = CustomUser.objects.all()
+    lookup_field = "pk"
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated & IsAdminUser]
+
+    def delete(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_active = False
+        instance.save()
+        return Response(
+            {"detail": "User account deactivated."}, status=status.HTTP_200_OK
+        )
+
+
+class RestoreUserAccountView(generics.UpdateAPIView):
+    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
+    queryset = CustomUser.objects.all()
+    lookup_field = "pk"
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated & IsAdminUser]
+
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        instance.is_active = True
+        instance.save()
+        return Response({"detail": "User account restored."}, status=status.HTTP_200_OK)
+
+
+class DeleteUserView(generics.DestroyAPIView):
+    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
+    queryset = CustomUser.objects.all()
+    lookup_field = "pk"
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated & IsAdminUser]
+
+
+# * DIVISION
+class CreateDivisionAPIView(generics.CreateAPIView):
+    queryset = models.Divisions.objects.all()
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated & IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+
+class RetrieveDivisionAPIView(generics.RetrieveAPIView):
+    queryset = models.Divisions.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class ListDivisionsAPIView(generics.ListAPIView):
+    queryset = models.Divisions.objects.all()
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class EditDivisionAPIView(generics.UpdateAPIView):
+    queryset = models.Divisions.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated & IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+
+class DeleteDivisionAPIView(generics.DestroyAPIView):
+    queryset = models.Divisions.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.DivisionSerializer
+    permission_classes = [IsAuthenticated & IsAdminUser]
+    throttle_classes = [UserRateThrottle]
 
 
 class LoginView(APIView):

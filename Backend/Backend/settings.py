@@ -168,8 +168,8 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_THROTTLE_RATES": {
         "anon": "10/hour",
-        "user": "6/minute",
-        # custom throttles
+        "user": "12/minute",
+        # login throttles
         "custom_user": "6/minute",
         "custom_anon": "3/minute",
     },
@@ -178,7 +178,7 @@ REST_FRAMEWORK = {
 ACCOUNT_ADAPTER = "api.adapters.CustomDefaultAccountAdapter"
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=14),
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,

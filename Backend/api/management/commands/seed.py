@@ -35,6 +35,7 @@ from occurance.models import InvalidOccurrenceRecord
 from employees.models import UnregisteredEmployees
 from courses.models import InvalidCourseRecords
 from children.models import InvalidChildRecords
+from employees.models import Employee
 
 
 class Command(BaseCommand):
@@ -53,16 +54,16 @@ class Command(BaseCommand):
         employees = []
 
         for i in range(number):
-            employees.append(InvalidChildFactory.build())
+            employees.append(EmployeeFactory.build())
 
             if len(employees) >= batch_size:
-                InvalidChildRecords.objects.bulk_create(employees)
+                Employee.objects.bulk_create(employees)
                 employees = []
                 self.stdout.write(f"Inserted {i + 1} records...")
 
         # Insert any remaining records
         if employees:
-            InvalidChildRecords.objects.bulk_create(employees)
+            Employee.objects.bulk_create(employees)
 
         self.stdout.write(
             self.style.SUCCESS(f"Successfully seeded {number} employees.")

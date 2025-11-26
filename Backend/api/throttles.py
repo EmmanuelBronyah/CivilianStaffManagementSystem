@@ -93,3 +93,15 @@ class CustomUserRateThrottle(UserRateThrottle):
         logger.debug(f"Attempts({attempts}).")
         self.cache.set(self.key, {"attempts": attempts, "locked_until": 0}, 180)
         return True
+
+
+# class FixedLockoutUserThrottle(UserRateThrottle):
+#     rate = "12/minute"
+#     lockout_period = 60  # seconds to wait after exceeding
+
+#     def allow_request(self, request, view):
+#         allowed = super().allow_request(request, view)
+#         if not allowed:
+#             self.wait = self.lockout_period
+#             raise Throttled(detail=f"Rate limit exceeded. Try again in {self.lockout_period} seconds.")
+#         return True

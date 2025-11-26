@@ -1,0 +1,262 @@
+from django.urls import path
+from . import views
+
+
+urlpatterns = [
+    # employees
+    path("staff/", views.ListEmployeesAPIView.as_view(), name="list-all-employees"),
+    path(
+        "staff/create/", views.CreateEmployeeAPIView.as_view(), name="create-employee"
+    ),
+    path(
+        "staff/<str:pk>/detail/",
+        views.RetrieveEmployeeAPIView.as_view(),
+        name="retrieve-employee",
+    ),
+    path(
+        "staff/<str:pk>/edit/",
+        views.EditEmployeeAPIView.as_view(),
+        name="edit-employee",
+    ),
+    path(
+        "staff/<str:pk>/delete/",
+        views.DeleteEmployeeAPIView.as_view(),
+        name="delete-employee",
+    ),
+    # grades
+    path("grades/", views.ListGradesAPIView.as_view(), name="list-all-grades"),
+    path("grades/create/", views.CreateGradeAPIView.as_view(), name="create-grade"),
+    path(
+        "grades/<int:pk>/detail/",
+        views.RetrieveGradeAPIView.as_view(),
+        name="retrieve-grade",
+    ),
+    path(
+        "grades/<int:pk>/edit/",
+        views.EditGradeAPIView.as_view(),
+        name="edit-grade",
+    ),
+    path(
+        "grades/<int:pk>/delete/",
+        views.DeleteGradeAPIView.as_view(),
+        name="delete-grade",
+    ),
+    # units
+    path("units/", views.ListUnitsAPIView.as_view(), name="list-all-units"),
+    path("units/create/", views.CreateUnitAPIView.as_view(), name="create-unit"),
+    path(
+        "units/<int:pk>/detail/",
+        views.RetrieveUnitAPIView.as_view(),
+        name="retrieve-unit",
+    ),
+    path(
+        "units/<int:pk>/edit/",
+        views.EditUnitAPIView.as_view(),
+        name="edit-unit",
+    ),
+    path(
+        "units/<int:pk>/delete/",
+        views.DeleteUnitAPIView.as_view(),
+        name="delete-unit",
+    ),
+    # gender
+    path("genders/", views.ListGendersAPIView.as_view(), name="list-all-genders"),
+    path("genders/create/", views.CreateGenderAPIView.as_view(), name="create-gender"),
+    path(
+        "genders/<int:pk>/detail/",
+        views.RetrieveGenderAPIView.as_view(),
+        name="retrieve-gender",
+    ),
+    path(
+        "genders/<int:pk>/edit/",
+        views.EditGenderAPIView.as_view(),
+        name="edit-gender",
+    ),
+    path(
+        "genders/<int:pk>/delete/",
+        views.DeleteGenderAPIView.as_view(),
+        name="delete-gender",
+    ),
+    # marital status
+    path(
+        "marital-status/",
+        views.ListMaritalStatusAPIView.as_view(),
+        name="list-all-marital-statuses",
+    ),
+    path(
+        "marital-status/create/",
+        views.CreateMaritalStatusAPIView.as_view(),
+        name="create-marital-status",
+    ),
+    path(
+        "marital-status/<int:pk>/detail/",
+        views.RetrieveMaritalStatusAPIView.as_view(),
+        name="retrieve-marital-status",
+    ),
+    path(
+        "marital-status/<int:pk>/edit/",
+        views.EditMaritalStatusAPIView.as_view(),
+        name="edit-marital-status",
+    ),
+    path(
+        "marital-status/<int:pk>/delete/",
+        views.DeleteMaritalStatusAPIView.as_view(),
+        name="delete-marital-status",
+    ),
+    # region
+    path(
+        "regions/",
+        views.ListRegionsAPIView.as_view(),
+        name="list-all-regions",
+    ),
+    path(
+        "regions/create/",
+        views.CreateRegionAPIView.as_view(),
+        name="create-region",
+    ),
+    path(
+        "regions/<int:pk>/detail/",
+        views.RetrieveRegionAPIView.as_view(),
+        name="retrieve-region",
+    ),
+    path(
+        "regions/<int:pk>/edit/",
+        views.EditRegionAPIView.as_view(),
+        name="edit-region",
+    ),
+    path(
+        "regions/<int:pk>/delete/",
+        views.DeleteRegionAPIView.as_view(),
+        name="delete-region",
+    ),
+    # religion
+    path(
+        "religions/",
+        views.ListReligionsAPIView.as_view(),
+        name="list-all-religions",
+    ),
+    path(
+        "religions/create/",
+        views.CreateReligionAPIView.as_view(),
+        name="create-religion",
+    ),
+    path(
+        "religions/<int:pk>/detail/",
+        views.RetrieveReligionAPIView.as_view(),
+        name="retrieve-religion",
+    ),
+    path(
+        "religions/<int:pk>/edit/",
+        views.EditReligionAPIView.as_view(),
+        name="edit-religion",
+    ),
+    path(
+        "religions/<int:pk>/delete/",
+        views.DeleteReligionAPIView.as_view(),
+        name="delete-religion",
+    ),
+    # structure
+    path(
+        "structures/",
+        views.ListStructuresAPIView.as_view(),
+        name="list-all-structures",
+    ),
+    path(
+        "structures/create/",
+        views.CreateStructureAPIView.as_view(),
+        name="create-structure",
+    ),
+    path(
+        "structures/<int:pk>/detail/",
+        views.RetrieveStructureAPIView.as_view(),
+        name="retrieve-structure",
+    ),
+    path(
+        "structures/<int:pk>/edit/",
+        views.EditStructureAPIView.as_view(),
+        name="edit-structure",
+    ),
+    path(
+        "structures/<int:pk>/delete/",
+        views.DeleteStructureAPIView.as_view(),
+        name="delete-structure",
+    ),
+    # blood group
+    path(
+        "blood-groups/",
+        views.ListBloodGroupsAPIView.as_view(),
+        name="list-all-blood-groups",
+    ),
+    path(
+        "blood-groups/create/",
+        views.CreateBloodGroupAPIView.as_view(),
+        name="create-blood-group",
+    ),
+    path(
+        "blood-groups/<int:pk>/detail/",
+        views.RetrieveBloodGroupAPIView.as_view(),
+        name="retrieve-blood-group",
+    ),
+    path(
+        "blood-groups/<int:pk>/edit/",
+        views.EditBloodGroupAPIView.as_view(),
+        name="edit-blood-group",
+    ),
+    path(
+        "blood-groups/<int:pk>/delete/",
+        views.DeleteBloodGroupAPIView.as_view(),
+        name="delete-blood-group",
+    ),
+    # document file
+    path(
+        "files/",
+        views.ListDocumentFileAPIView.as_view(),
+        name="list-all-files",
+    ),
+    path(
+        "files/create/",
+        views.CreateDocumentFileAPIView.as_view(),
+        name="create-file",
+    ),
+    path(
+        "files/<int:pk>/detail/",
+        views.RetrieveDocumentFileAPIView.as_view(),
+        name="retrieve-file",
+    ),
+    path(
+        "files/<int:pk>/edit/",
+        views.EditDocumentFileAPIView.as_view(),
+        name="edit-file",
+    ),
+    path(
+        "files/<int:pk>/delete/",
+        views.DeleteDocumentFileAPIView.as_view(),
+        name="delete-file",
+    ),
+    # unregistered staff
+    path(
+        "unregistered-staff/",
+        views.ListUnregisteredEmployeesAPIView.as_view(),
+        name="list-all-unregistered-employees",
+    ),
+    path(
+        "unregistered-staff/create/",
+        views.CreateUnregisteredEmployeeAPIView.as_view(),
+        name="create-unregistered-employee",
+    ),
+    path(
+        "unregistered-staff/<str:pk>/detail/",
+        views.RetrieveUnregisteredEmployeeAPIView.as_view(),
+        name="retrieve-unregistered-employee",
+    ),
+    path(
+        "unregistered-staff/<str:pk>/edit/",
+        views.EditUnregisteredEmployeeAPIView.as_view(),
+        name="edit-unregistered-employee",
+    ),
+    path(
+        "unregistered-staff/<str:pk>/delete/",
+        views.DeleteUnregisteredEmployeeAPIView.as_view(),
+        name="delete-unregistered-employee",
+    ),
+]

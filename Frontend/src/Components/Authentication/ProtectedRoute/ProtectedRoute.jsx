@@ -19,7 +19,6 @@ function ProtectedRoute({ children }) {
     console.log("RUN REFRESH FUNCTION");
 
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-    console.log("REFRESH TOKEN", refreshToken);
 
     try {
       const res = await api.post("/api/token-refresh/", {
@@ -28,14 +27,11 @@ function ProtectedRoute({ children }) {
 
       if (res.status === 200) {
         localStorage.setItem(ACCESS_TOKEN, res.data.access);
-        console.log("NEW ACCESS TOKEN RETRIEVED");
         setIsAuthorized(true);
       } else {
-        console.log("COULD NOT RETRIEVE ACCESS TOKEN");
         setIsAuthorized(false);
       }
     } catch (error) {
-      console.log("REFRESH TOKEN ERROR", error);
       localStorage.clear(ACCESS_TOKEN);
       localStorage.clear(REFRESH_TOKEN);
       setIsAuthorized(false);
@@ -44,28 +40,21 @@ function ProtectedRoute({ children }) {
 
   const auth = async () => {
     const token = localStorage.getItem(ACCESS_TOKEN);
-    console.log("TOKEN IN AUTH FUNCTION", token);
 
     if (!token) {
-      console.log("THERE IS NO TOKEN");
       setIsAuthorized(false);
       return;
     }
 
     const decoded = jwtDecode(token);
-    console.log("DECODED TOKEN", decoded);
 
     const tokenExpiration = decoded.exp;
-    console.log("TOKEN EXPIRATION", tokenExpiration);
 
     const now = Date.now() / 1000;
-    console.log("NOW", now);
 
     if (tokenExpiration < now) {
-      console.log("TOKEN HAS EXPIRED");
       await refreshToken();
     } else {
-      console.log("TOKEN HAS NOT EXPIRED");
       setIsAuthorized(true);
     }
   };

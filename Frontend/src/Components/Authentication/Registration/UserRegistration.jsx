@@ -7,7 +7,7 @@ import { checkInternetConnection } from "../../../utils";
 function RegisterUser({ route }) {
   const [fullname, setFullname] = useState("");
   const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
+  const [user_email, setUserEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("");
   const [grade, setGrade] = useState("");
@@ -29,7 +29,7 @@ function RegisterUser({ route }) {
       const res = await api.post(route, {
         fullname,
         username,
-        email,
+        user_email,
         password,
         role,
         grade,
@@ -75,8 +75,8 @@ function RegisterUser({ route }) {
       <div>
         <input
           type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          value={user_email}
+          onChange={(e) => setUserEmail(e.target.value)}
           placeholder="Email address"
         />
       </div>

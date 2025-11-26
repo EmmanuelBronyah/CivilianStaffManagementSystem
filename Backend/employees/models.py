@@ -1,5 +1,7 @@
 from django.db import models
 
+# TODO: Check against saving an Unregistered Employee model instance with all it's values set to Null
+
 
 class Employee(models.Model):
     service_id = models.CharField(primary_key=True, max_length=7)
@@ -8,19 +10,27 @@ class Employee(models.Model):
     gender = models.ForeignKey("Gender", on_delete=models.PROTECT)
     dob = models.DateField()
     hometown = models.CharField(max_length=255, null=True, blank=True)
-    region = models.ForeignKey("Region", on_delete=models.PROTECT)
-    religion = models.ForeignKey("Religion", on_delete=models.PROTECT)
+    region = models.ForeignKey(
+        "Region", on_delete=models.PROTECT, null=True, blank=True
+    )
+    religion = models.ForeignKey(
+        "Religion", on_delete=models.PROTECT, null=True, blank=True
+    )
     nationality = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
     email = models.CharField(max_length=255, null=True, blank=True)
-    marital_status = models.ForeignKey("MaritalStatus", on_delete=models.PROTECT)
+    marital_status = models.ForeignKey(
+        "MaritalStatus", on_delete=models.PROTECT, null=True, blank=True
+    )
     unit = models.ForeignKey("Units", on_delete=models.PROTECT)
     grade = models.ForeignKey("Grades", on_delete=models.PROTECT)
     station = models.CharField(max_length=100)
     structure = models.ForeignKey("Structure", on_delete=models.PROTECT)
-    blood_group = models.ForeignKey("BloodGroup", on_delete=models.PROTECT)
-    disable = models.BooleanField()
-    social_security = models.CharField(max_length=13, null=True, blank=True)
+    blood_group = models.ForeignKey(
+        "BloodGroup", on_delete=models.PROTECT, null=True, blank=True
+    )
+    disable = models.BooleanField(null=True, blank=True)
+    social_security = models.CharField(max_length=13)
     category = models.CharField(max_length=25, null=True, blank=True)
     appointment_date = models.DateField()
     confirmation_date = models.DateField(null=True, blank=True)
@@ -37,7 +47,7 @@ class Employee(models.Model):
 
 
 class Grades(models.Model):
-    grade = models.CharField(max_length=255)
+    grade_name = models.CharField(max_length=255)
 
     class Meta:
         db_table = "Grades"
@@ -45,11 +55,11 @@ class Grades(models.Model):
         verbose_name_plural = "Grades"
 
     def __str__(self):
-        return f"{self.grade}"
+        return f"{self.grade_name}"
 
 
 class Units(models.Model):
-    unit = models.CharField(max_length=100)
+    unit_name = models.CharField(max_length=100)
     city = models.CharField(max_length=25)
 
     class Meta:
@@ -74,7 +84,7 @@ class Gender(models.Model):
 
 
 class MaritalStatus(models.Model):
-    marital_status = models.CharField(max_length=50, null=True, blank=True)
+    marital_status_name = models.CharField(max_length=50)
 
     class Meta:
         db_table = "MaritalStatus"
@@ -82,11 +92,11 @@ class MaritalStatus(models.Model):
         verbose_name_plural = "MaritalStatuses"
 
     def __str__(self):
-        return f"{self.marital_status}"
+        return f"{self.marital_status_name}"
 
 
 class Region(models.Model):
-    region = models.CharField(max_length=100, null=True, blank=True)
+    region_name = models.CharField(max_length=100)
 
     class Meta:
         db_table = "Region"
@@ -94,11 +104,11 @@ class Region(models.Model):
         verbose_name_plural = "Regions"
 
     def __str__(self):
-        return f"{self.region}"
+        return f"{self.region_name}"
 
 
 class Religion(models.Model):
-    religion = models.CharField(max_length=100, null=True, blank=True)
+    religion_name = models.CharField(max_length=100)
 
     class Meta:
         db_table = "Religion"
@@ -106,11 +116,11 @@ class Religion(models.Model):
         verbose_name_plural = "Religions"
 
     def __str__(self):
-        return f"{self.religion}"
+        return f"{self.religion_name}"
 
 
 class Structure(models.Model):
-    structure = models.CharField(max_length=50)
+    structure_name = models.CharField(max_length=50)
 
     class Meta:
         db_table = "Structure"
@@ -118,11 +128,11 @@ class Structure(models.Model):
         verbose_name_plural = "Structures"
 
     def __str__(self):
-        return f"{self.structure}"
+        return f"{self.structure_name}"
 
 
 class BloodGroup(models.Model):
-    blood_group = models.CharField(max_length=3, null=True, blank=True)
+    blood_group_name = models.CharField(max_length=3)
 
     class Meta:
         db_table = "BloodGroup"
@@ -130,12 +140,27 @@ class BloodGroup(models.Model):
         verbose_name_plural = "BloodGroups"
 
     def __str__(self):
-        return f"{self.blood_group}"
+        return f"{self.blood_group_name}"
+
+
+class DocumentFile(models.Model):
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="files"
+    )
+    file_data = models.FileField(upload_to="documents/", null=False, blank=False)
+
+    class Meta:
+        db_table = "DocumentFile"
+        verbose_name = "DocumentFile"
+        verbose_name_plural = "DocumentFiles"
+
+    def __str__(self):
+        return f"{self.file_data.name}"
 
 
 class UnregisteredEmployees(models.Model):
     service_id = models.CharField(max_length=7, null=True, blank=True)
-    last_name = models.CharField(max_length=255, null=True, blank=True)
+    lastname = models.CharField(max_length=255, null=True, blank=True)
     other_names = models.CharField(max_length=255, null=True, blank=True)
     unit = models.ForeignKey(Units, on_delete=models.PROTECT, null=True, blank=True)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT, null=True, blank=True)
@@ -147,4 +172,4 @@ class UnregisteredEmployees(models.Model):
         verbose_name_plural = "UnregisteredEmployees"
 
     def __str__(self):
-        return f"{self.service_id} - {self.last_name, self.other_names}"
+        return f"{self.service_id} - {self.lastname, self.other_names}"
