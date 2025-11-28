@@ -31,6 +31,8 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
             grade=validated_data["grade"],
             division=validated_data["division"],
             role=validated_data["role"],
+            created_by=validated_data["created_by"],
+            updated_by=validated_data["updated_by"],
         )
         user.set_password(validated_data["password"])
         logger.debug(f"User({user}) password has been set.")
@@ -58,6 +60,17 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
         grade_id = representation.pop("grade", None)
         grade_name = Grades.objects.get(id=grade_id).grade_name
 
+        created_by_id = representation.pop("created_by", None)
+        updated_by_id = representation.pop("updated_by", None)
+
+        if created_by_id:
+            created_by = CustomUser.objects.get(id=created_by_id).username
+            representation.update({"created_by": created_by})
+
+        if updated_by_id:
+            updated_by = CustomUser.objects.get(id=updated_by_id).username
+            representation.update({"updated_by": updated_by})
+
         representation.pop("id", None)
         representation.pop("password", None)
         representation.pop("first_name", None)
@@ -68,6 +81,8 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
         representation.pop("date_joined", None)
         representation.pop("groups", None)
         representation.pop("user_permissions", None)
+        representation.pop("created_at", None)
+        representation.pop("updated_at", None)
 
         representation.update({"grade": grade_name})
         representation.update({"division": division_name})
@@ -118,6 +133,17 @@ class RetrieveUpdateDestroyUserSerializer(serializers.ModelSerializer):
         grade_id = representation.pop("grade", None)
         grade_name = Grades.objects.get(id=grade_id).grade_name
 
+        created_by_id = representation.pop("created_by", None)
+        updated_by_id = representation.pop("updated_by", None)
+
+        if created_by_id:
+            created_by = CustomUser.objects.get(id=created_by_id).username
+            representation.update({"created_by": created_by})
+
+        if updated_by_id:
+            updated_by = CustomUser.objects.get(id=updated_by_id).username
+            representation.update({"updated_by": updated_by})
+
         representation.pop("id", None)
         representation.pop("password", None)
         representation.pop("first_name", None)
@@ -128,6 +154,8 @@ class RetrieveUpdateDestroyUserSerializer(serializers.ModelSerializer):
         representation.pop("date_joined", None)
         representation.pop("groups", None)
         representation.pop("user_permissions", None)
+        representation.pop("created_at", None)
+        representation.pop("updated_at", None)
 
         representation.update({"grade": grade_name})
         representation.update({"division": division_name})

@@ -3,7 +3,7 @@ from . import views
 
 
 urlpatterns = [
-    # employees
+    # ----- EMPLOYEES -----
     path("staff/", views.ListEmployeesAPIView.as_view(), name="list-all-employees"),
     path(
         "staff/create/", views.CreateEmployeeAPIView.as_view(), name="create-employee"
@@ -12,6 +12,11 @@ urlpatterns = [
         "staff/<str:pk>/detail/",
         views.RetrieveEmployeeAPIView.as_view(),
         name="retrieve-employee",
+    ),
+    path(
+        "staff/total/",
+        views.TotalNumberOfEmployeesAPIView.as_view(),
+        name="employee-total-number",
     ),
     path(
         "staff/<str:pk>/edit/",
@@ -23,7 +28,12 @@ urlpatterns = [
         views.DeleteEmployeeAPIView.as_view(),
         name="delete-employee",
     ),
-    # grades
+    path(
+        "staff/pension/",
+        views.ForecastedRetireesAPIView.as_view(),
+        name="employee-pension",
+    ),
+    # ----- GRADES -----
     path("grades/", views.ListGradesAPIView.as_view(), name="list-all-grades"),
     path("grades/create/", views.CreateGradeAPIView.as_view(), name="create-grade"),
     path(
@@ -41,7 +51,7 @@ urlpatterns = [
         views.DeleteGradeAPIView.as_view(),
         name="delete-grade",
     ),
-    # units
+    # ----- UNITS -----
     path("units/", views.ListUnitsAPIView.as_view(), name="list-all-units"),
     path("units/create/", views.CreateUnitAPIView.as_view(), name="create-unit"),
     path(
@@ -59,7 +69,12 @@ urlpatterns = [
         views.DeleteUnitAPIView.as_view(),
         name="delete-unit",
     ),
-    # gender
+    path(
+        "units/employees/",
+        views.TotalEmployeesPerUnitAPIView.as_view(),
+        name="list-employees-per-unit",
+    ),
+    # ----- GENDER -----
     path("genders/", views.ListGendersAPIView.as_view(), name="list-all-genders"),
     path("genders/create/", views.CreateGenderAPIView.as_view(), name="create-gender"),
     path(
@@ -76,6 +91,11 @@ urlpatterns = [
         "genders/<int:pk>/delete/",
         views.DeleteGenderAPIView.as_view(),
         name="delete-gender",
+    ),
+    path(
+        "genders/total/",
+        views.TotalMaleAndFemaleAPIView.as_view(),
+        name="total-gender",
     ),
     # marital status
     path(

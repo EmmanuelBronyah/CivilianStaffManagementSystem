@@ -119,5 +119,5 @@ def handle_field_validation_error(detail):
         return message
 
     elif error_code == "unique":
-        message = f"{field} is already exists."
+        message = f"{field} already exists."
         return message

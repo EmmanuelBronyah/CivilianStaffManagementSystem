@@ -16,9 +16,9 @@ class Occurrence(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "Occurrence"
-        verbose_name = "Occurrence"
-        verbose_name_plural = "Occurrences"
+        db_table = "occurrence"
+        verbose_name = "occurrence"
+        verbose_name_plural = "occurrences"
 
     def __str__(self):
         return f"{self.employee} - {self.event}"
@@ -29,9 +29,9 @@ class LevelStep(models.Model):
     monthly_salary = models.DecimalField(decimal_places=4, max_digits=15)
 
     class Meta:
-        db_table = "LevelStep"
-        verbose_name = "LevelStep"
-        verbose_name_plural = "LevelStep"
+        db_table = "levelStep"
+        verbose_name = "levelStep"
+        verbose_name_plural = "levelStep"
 
     def __str__(self):
         return f"{self.level_step}"
@@ -41,9 +41,9 @@ class Event(models.Model):
     event = models.CharField(max_length=255)
 
     class Meta:
-        db_table = "Event"
-        verbose_name = "Event"
-        verbose_name_plural = "Events"
+        db_table = "event"
+        verbose_name = "event"
+        verbose_name_plural = "events"
 
     def __str__(self):
         return f"{self.event}"
@@ -52,6 +52,14 @@ class Event(models.Model):
 class SalaryPercentageAdjustment(models.Model):
     percentage_adjustment = models.CharField()
     formula = models.CharField()
+
+    class Meta:
+        db_table = "salaryPercentageAdjustment"
+        verbose_name = "salaryPercentageAdjustment"
+        verbose_name_plural = "salaryPercentageAdjustments"
+
+    def __str__(self):
+        return f"{self.percentage_adjustment} - {self.formula}"
 
 
 class InvalidOccurrenceRecord(models.Model):

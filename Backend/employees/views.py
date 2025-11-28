@@ -8,6 +8,11 @@ import logging
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+from django.db.models import Count
+from datetime import datetime
+from django.db.models import F
+from django.db.models.functions import ExtractYear
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +68,47 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
     serializer_class = serializers.EmployeeSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+
+class TotalNumberOfEmployeesAPIView(APIView):
+
+    def get(self, request):
+        total = models.Employee.objects.count()
+        return Response({"results": total})
+
+
+class ForecastedRetireesAPIView(APIView):
+
+    def get(self, request):
+        current_year = datetime.now().year
+        number_of_years = 11
+
+        # Computes and associates retirement year to each employee
+        employees_and_retirement_year = models.Employee.objects.annotate(
+            retirement_year=ExtractYear(F("dob")) + 60
+        )
+
+        results = []
+
+        for offset in range(number_of_years):
+
+            year = current_year + offset
+
+            retirees_queryset = employees_and_retirement_year.filter(
+                retirement_year=year
+            )
+
+            employees = list(retirees_queryset.values("service_id"))
+
+            results.append(
+                {
+                    "year": year,
+                    "count": retirees_queryset.count(),
+                    "employees": [employee["service_id"] for employee in employees],
+                }
+            )
+
+        return Response({"results": results}, status=status.HTTP_200_OK)
 
 
 # * GRADE
@@ -129,6 +175,15 @@ class ListUnitsAPIView(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
 
+class TotalEmployeesPerUnitAPIView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        units = models.Units.objects.annotate(total_employees=Count("employee"))
+        results = [{unit.unit_name: unit.total_employees} for unit in units]
+
+        return Response({"results": results}, status=status.HTTP_200_OK)
+
+
 class EditUnitAPIView(generics.UpdateAPIView):
     queryset = models.Units.objects.all()
     lookup_field = "pk"
@@ -182,6 +237,15 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
     serializer_class = serializers.GenderSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+
+class TotalMaleAndFemaleAPIView(APIView):
+
+    def get(self, request, *args, **kwargs):
+        genders = models.Gender.objects.annotate(total_employees=Count("employee"))
+        results = [{gender.sex: gender.total_employees} for gender in genders]
+
+        return Response({"results": results}, status=status.HTTP_200_OK)
 
 
 # * MARITAL STATUS

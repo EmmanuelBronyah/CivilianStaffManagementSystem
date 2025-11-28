@@ -77,10 +77,36 @@ class CustomUser(AbstractUser):
 
     fullname = models.CharField(max_length=255)
     username = models.CharField(max_length=100, unique=True)
+
+    profile_picture = models.ImageField(
+        upload_to="profile-pictures/",
+        default="profile-pictures/default.png",
+        null=True,
+        blank=True,
+    )
     user_email = models.EmailField(max_length=255, unique=True)
     role = models.CharField(max_length=50, choices=ROLES)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
     division = models.ForeignKey("Divisions", on_delete=models.PROTECT)
+
+    created_by = models.ForeignKey(
+        "CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_records",
+    )
+
+    updated_by = models.ForeignKey(
+        "CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_records",
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     REQUIRED_FIELDS = ["fullname", "user_email", "role", "grade", "division"]
 

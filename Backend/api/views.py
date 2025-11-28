@@ -28,6 +28,9 @@ class CreateUserView(generics.CreateAPIView):
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated & IsAdminUser]
 
+    def perform_create(self, serializer):
+        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+
 
 class RetrieveUserView(generics.RetrieveAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
@@ -50,6 +53,9 @@ class UpdateUserView(generics.UpdateAPIView):
     lookup_field = "pk"
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated & IsAdminUser]
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
 
 
 class DeactivateUserView(generics.DestroyAPIView):

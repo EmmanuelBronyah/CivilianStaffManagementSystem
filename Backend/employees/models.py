@@ -68,7 +68,7 @@ class Units(models.Model):
         verbose_name_plural = "Units"
 
     def __str__(self):
-        return f"{self.unit} - {self.city}"
+        return f"{self.unit_name} - {self.city}"
 
 
 class Gender(models.Model):
