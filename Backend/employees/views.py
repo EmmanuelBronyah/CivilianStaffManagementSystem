@@ -13,6 +13,8 @@ from django.db.models import Count
 from datetime import datetime
 from django.db.models import F
 from django.db.models.functions import ExtractYear
+from activity_feeds.models import ActivityFeeds
+from . import utils
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +38,14 @@ class CreateEmployeeAPIView(generics.CreateAPIView):
     serializer_class = serializers.EmployeeSerializer
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        employee = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new employee: {employee.service_id} — {employee.lastname} {employee.other_names}",
+        )
 
 
 class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
@@ -61,6 +71,17 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_employee = self.get_object()
+        employee = serializer.save()
+
+        changes = utils.get_records_changed(previous_employee, employee)
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated employee '{previous_employee.service_id}': {changes}",
+        )
+
 
 class DeleteEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.Employee.objects.all()
@@ -68,6 +89,15 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
     serializer_class = serializers.EmployeeSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        service_id = instance.service_id
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"Employee record with Service ID '{service_id}' was deleted by {self.request.user}",
+        )
 
 
 class TotalNumberOfEmployeesAPIView(APIView):
@@ -118,6 +148,14 @@ class CreateGradeAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_create(self, serializer):
+        grade = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new grade: '{grade.grade_name}'",
+        )
+
 
 class RetrieveGradeAPIView(generics.RetrieveAPIView):
     queryset = models.Grades.objects.all()
@@ -142,6 +180,15 @@ class EditGradeAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_grade = self.get_object()
+        grade = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated grade '{previous_grade.grade_name}': {previous_grade.grade_name} → {grade.grade_name}",
+        )
+
 
 class DeleteGradeAPIView(generics.DestroyAPIView):
     queryset = models.Grades.objects.all()
@@ -150,6 +197,15 @@ class DeleteGradeAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        grade = instance.grade_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The grade '{grade}' was deleted by {self.request.user}",
+        )
+
 
 # * UNITS
 class CreateUnitAPIView(generics.CreateAPIView):
@@ -157,6 +213,14 @@ class CreateUnitAPIView(generics.CreateAPIView):
     serializer_class = serializers.UnitSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        unit = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new unit: '{unit.unit_name}'",
+        )
 
 
 class RetrieveUnitAPIView(generics.RetrieveAPIView):
@@ -191,6 +255,15 @@ class EditUnitAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_unit = self.get_object()
+        unit = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated unit '{previous_unit.unit_name}': {previous_unit.unit_name} → {unit.unit_name}",
+        )
+
 
 class DeleteUnitAPIView(generics.DestroyAPIView):
     queryset = models.Units.objects.all()
@@ -199,6 +272,15 @@ class DeleteUnitAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        unit = instance.unit_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The unit '{unit}' was deleted by {self.request.user}",
+        )
+
 
 # * GENDER
 class CreateGenderAPIView(generics.CreateAPIView):
@@ -206,6 +288,14 @@ class CreateGenderAPIView(generics.CreateAPIView):
     serializer_class = serializers.GenderSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        gender = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new gender: '{gender.sex}'",
+        )
 
 
 class RetrieveGenderAPIView(generics.RetrieveAPIView):
@@ -230,6 +320,15 @@ class EditGenderAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_gender = self.get_object()
+        gender = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated gender '{previous_gender.sex}': {previous_gender.sex} → {gender.sex}",
+        )
+
 
 class DeleteGenderAPIView(generics.DestroyAPIView):
     queryset = models.Gender.objects.all()
@@ -237,6 +336,15 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
     serializer_class = serializers.GenderSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        gender = instance.sex
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The gender '{gender}' was deleted by {self.request.user}",
+        )
 
 
 class TotalMaleAndFemaleAPIView(APIView):
@@ -254,6 +362,14 @@ class CreateMaritalStatusAPIView(generics.CreateAPIView):
     serializer_class = serializers.MaritalStatusSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        marital_status = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new marital status: '{marital_status.marital_status_name}'",
+        )
 
 
 class RetrieveMaritalStatusAPIView(generics.RetrieveAPIView):
@@ -278,6 +394,15 @@ class EditMaritalStatusAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_marital_status = self.get_object()
+        marital_status = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated marital status '{previous_marital_status.marital_status_name}': {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}",
+        )
+
 
 class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
     queryset = models.MaritalStatus.objects.all()
@@ -286,6 +411,15 @@ class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        marital_status = instance.marital_status_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The marital status '{marital_status}' was deleted by {self.request.user}",
+        )
+
 
 # * REGION
 class CreateRegionAPIView(generics.CreateAPIView):
@@ -293,6 +427,14 @@ class CreateRegionAPIView(generics.CreateAPIView):
     serializer_class = serializers.RegionSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        region = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new region: '{region.region_name}'",
+        )
 
 
 class RetrieveRegionAPIView(generics.RetrieveAPIView):
@@ -317,6 +459,15 @@ class EditRegionAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_region = self.get_object()
+        region = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated region '{previous_region.region_name}': {previous_region.region_name} → {region.region_name}",
+        )
+
 
 class DeleteRegionAPIView(generics.DestroyAPIView):
     queryset = models.Region.objects.all()
@@ -325,6 +476,15 @@ class DeleteRegionAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        region = instance.region_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The region '{region}' was deleted by {self.request.user}",
+        )
+
 
 # * RELIGION
 class CreateReligionAPIView(generics.CreateAPIView):
@@ -332,6 +492,14 @@ class CreateReligionAPIView(generics.CreateAPIView):
     serializer_class = serializers.ReligionSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        religion = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new religion: '{religion.religion_name}'",
+        )
 
 
 class RetrieveReligionAPIView(generics.RetrieveAPIView):
@@ -356,6 +524,15 @@ class EditReligionAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_religion = self.get_object()
+        religion = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated religion '{previous_religion.religion_name}': {previous_religion.religion_name} → {religion.religion_name}",
+        )
+
 
 class DeleteReligionAPIView(generics.DestroyAPIView):
     queryset = models.Religion.objects.all()
@@ -364,6 +541,15 @@ class DeleteReligionAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        religion = instance.religion_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The religion '{religion}' was deleted by {self.request.user}",
+        )
+
 
 # * STRUCTURE
 class CreateStructureAPIView(generics.CreateAPIView):
@@ -371,6 +557,14 @@ class CreateStructureAPIView(generics.CreateAPIView):
     serializer_class = serializers.StructureSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        structure = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new structure: '{structure.structure_name}'",
+        )
 
 
 class RetrieveStructureAPIView(generics.RetrieveAPIView):
@@ -395,6 +589,15 @@ class EditStructureAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_structure = self.get_object()
+        structure = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated structure '{previous_structure.structure_name}': {previous_structure.structure_name} → {structure.structure_name}",
+        )
+
 
 class DeleteStructureAPIView(generics.DestroyAPIView):
     queryset = models.Structure.objects.all()
@@ -403,6 +606,15 @@ class DeleteStructureAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        structure = instance.structure_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The structure '{structure}' was deleted by {self.request.user}",
+        )
+
 
 # * BLOOD GROUP
 class CreateBloodGroupAPIView(generics.CreateAPIView):
@@ -410,6 +622,14 @@ class CreateBloodGroupAPIView(generics.CreateAPIView):
     serializer_class = serializers.BloodGroupSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        blood_group = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new blood group: '{blood_group.blood_group_name}'",
+        )
 
 
 class RetrieveBloodGroupAPIView(generics.RetrieveAPIView):
@@ -434,6 +654,15 @@ class EditBloodGroupAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_blood_group = self.get_object()
+        blood_group = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated blood group '{previous_blood_group.blood_group_name}': {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}",
+        )
+
 
 class DeleteBloodGroupAPIView(generics.DestroyAPIView):
     queryset = models.BloodGroup.objects.all()
@@ -442,6 +671,15 @@ class DeleteBloodGroupAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        blood_group = instance.blood_group_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The blood group '{blood_group}' was deleted by {self.request.user}",
+        )
+
 
 # * DOCUMENT FILE
 class CreateDocumentFileAPIView(generics.CreateAPIView):
@@ -449,6 +687,14 @@ class CreateDocumentFileAPIView(generics.CreateAPIView):
     serializer_class = serializers.DocumentFileSerializer
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        document_file = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new document file: '{document_file.file_data}'",
+        )
 
 
 class RetrieveDocumentFileAPIView(generics.RetrieveAPIView):
@@ -473,6 +719,15 @@ class EditDocumentFileAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_document_file = self.get_object()
+        document_file = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated document file '{previous_document_file.file_data}': {previous_document_file.file_data} → {document_file.file_data}",
+        )
+
 
 class DeleteDocumentFileAPIView(generics.DestroyAPIView):
     queryset = models.DocumentFile.objects.all()
@@ -481,6 +736,15 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_destroy(self, instance):
+        document_file = instance.file_data
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The document file '{document_file}' was deleted by {self.request.user}",
+        )
+
 
 # * UNREGISTERED EMPLOYEES
 class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
@@ -488,6 +752,14 @@ class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
     serializer_class = serializers.UnregisteredEmployeesSerializer
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        employee = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new incomplete employee record: 'Service id: {employee.service_id or 'None'}' — 'Last name: {employee.last_name or 'None'}' — 'Other names: {employee.other_names or 'None'}' — 'Unit: {employee.unit.unit_name if employee.unit else 'None'}' — 'Grade: {employee.grade.grade_name if employee.grade else 'None'}' — 'Social Security: {employee.social_security or 'None'}'",
+        )
 
 
 class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
@@ -513,6 +785,17 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_employee = self.get_object()
+        employee = serializer.save()
+
+        changes = utils.get_records_changed(previous_employee, employee)
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated incomplete employee record with ID '{employee.id}': {changes}",
+        )
+
 
 class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
@@ -520,3 +803,12 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
     serializer_class = serializers.UnregisteredEmployeesSerializer
     permission_classes = [IsAuthenticated & IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        employee_id = instance.id
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The incomplete employee record with ID '{employee_id}' was deleted by {self.request.user}",
+        )

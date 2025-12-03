@@ -3,7 +3,7 @@ from employees.models import Employee
 
 
 class Absences(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT)
+    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     absence = models.CharField(max_length=255)
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)

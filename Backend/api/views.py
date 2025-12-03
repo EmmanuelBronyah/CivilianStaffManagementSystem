@@ -17,6 +17,8 @@ from . import network_exceptions
 from .throttles import CustomAnonRateThrottle, CustomUserRateThrottle, UserRateThrottle
 import logging
 from . import models
+from activity_feeds.models import ActivityFeeds
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -29,7 +31,14 @@ class CreateUserView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
 
     def perform_create(self, serializer):
-        serializer.save(created_by=self.request.user, updated_by=self.request.user)
+        user = serializer.save(
+            created_by=self.request.user, updated_by=self.request.user
+        )
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new user: {user.username}",
+        )
 
 
 class RetrieveUserView(generics.RetrieveAPIView):
@@ -55,7 +64,12 @@ class UpdateUserView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
 
     def perform_update(self, serializer):
-        serializer.save(updated_by=self.request.user)
+        user = serializer.save(updated_by=self.request.user)
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated account details for: {user.username}",
+        )
 
 
 class DeactivateUserView(generics.DestroyAPIView):
@@ -69,6 +83,12 @@ class DeactivateUserView(generics.DestroyAPIView):
         instance = self.get_object()
         instance.is_active = False
         instance.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"User account '{instance.username}' was deactivated by {self.request.user}",
+        )
+
         return Response(
             {"detail": "User account deactivated."}, status=status.HTTP_200_OK
         )
@@ -85,6 +105,12 @@ class RestoreUserAccountView(generics.UpdateAPIView):
         instance = self.get_object()
         instance.is_active = True
         instance.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"User account '{instance.username}' was restored by {self.request.user}",
+        )
+
         return Response({"detail": "User account restored."}, status=status.HTTP_200_OK)
 
 
@@ -95,6 +121,15 @@ class DeleteUserView(generics.DestroyAPIView):
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated & IsAdminUser]
 
+    def perform_destroy(self, instance):
+        username = instance.username
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"User account {username} was deleted by {self.request.user}",
+        )
+
 
 # * DIVISION
 class CreateDivisionAPIView(generics.CreateAPIView):
@@ -102,6 +137,14 @@ class CreateDivisionAPIView(generics.CreateAPIView):
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        division = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new division: {division.division_name}",
+        )
 
 
 class RetrieveDivisionAPIView(generics.RetrieveAPIView):
@@ -126,6 +169,17 @@ class EditDivisionAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def perform_update(self, serializer):
+        previous_division = self.get_object()
+        previous_division_name = previous_division.division_name
+
+        division = serializer.save()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} modified division from '{previous_division_name}' to '{division.division_name}'",
+        )
+
 
 class DeleteDivisionAPIView(generics.DestroyAPIView):
     queryset = models.Divisions.objects.all()
@@ -133,6 +187,15 @@ class DeleteDivisionAPIView(generics.DestroyAPIView):
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAuthenticated & IsAdminUser]
     throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        division_name = instance.division_name
+        instance.delete()
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"Division '{division_name}' was deleted by {self.request.user}",
+        )
 
 
 class LoginView(APIView):
