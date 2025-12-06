@@ -18,7 +18,7 @@ class Employee(models.Model):
     )
     nationality = models.CharField(max_length=100, null=True, blank=True)
     address = models.CharField(max_length=255, null=True, blank=True)
-    email = models.CharField(max_length=255, null=True, blank=True)
+    email = models.EmailField(max_length=255, null=True, blank=True, unique=True)
     marital_status = models.ForeignKey(
         "MaritalStatus", on_delete=models.PROTECT, null=True, blank=True
     )

@@ -16,14 +16,12 @@ ROLES = [
 
 class UserManager(BaseUserManager):
 
-    def create_user(
-        self, fullname, username, user_email, role, grade, division, password
-    ):
+    def create_user(self, fullname, username, email, role, grade, division, password):
         if not fullname:
             raise ValueError("User must have a full name.")
         if not username:
             raise ValueError("User must have a username.")
-        if not user_email:
+        if not email:
             raise ValueError("User must have an email.")
         if not role:
             raise ValueError("User must have a role.")
@@ -34,7 +32,7 @@ class UserManager(BaseUserManager):
         if not password:
             raise ValueError("User must have a password.")
 
-        user_email = self.normalize_email(user_email)
+        email = self.normalize_email(email)
         logger.debug("User email has been set.")
 
         if isinstance(grade, int):
@@ -45,7 +43,7 @@ class UserManager(BaseUserManager):
         user = self.model(
             fullname=fullname,
             username=username,
-            user_email=user_email,
+            email=email,
             role=role,
             grade=grade,
             division=division,
@@ -58,10 +56,10 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(
-        self, fullname, username, user_email, role, grade, division, password
+        self, fullname, username, email, role, grade, division, password
     ):
         user = self.create_user(
-            fullname, username, user_email, role, grade, division, password
+            fullname, username, email, role, grade, division, password
         )
         logger.debug("Superuser user instance has been created.")
         user.is_staff = True
@@ -73,8 +71,6 @@ class UserManager(BaseUserManager):
 
 
 class CustomUser(AbstractUser):
-    email = None  # remove the inherited email
-
     fullname = models.CharField(max_length=255)
     username = models.CharField(max_length=100, unique=True)
 
@@ -84,7 +80,7 @@ class CustomUser(AbstractUser):
         null=True,
         blank=True,
     )
-    user_email = models.EmailField(max_length=255, unique=True)
+    email = models.EmailField(max_length=255, unique=True)
     role = models.CharField(max_length=50, choices=ROLES)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
     division = models.ForeignKey("Divisions", on_delete=models.PROTECT)
@@ -108,15 +104,7 @@ class CustomUser(AbstractUser):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    REQUIRED_FIELDS = ["fullname", "user_email", "role", "grade", "division"]
-
-    @property
-    def email(self):
-        return self.user_email
-
-    @email.setter
-    def email(self, value):
-        self.user_email = value
+    REQUIRED_FIELDS = ["fullname", "email", "role", "grade", "division"]
 
     objects = UserManager()
 

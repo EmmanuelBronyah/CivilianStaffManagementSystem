@@ -78,7 +78,6 @@ FIELDS_VALIDATION_CRITERIA = {
     "fullname": ["Full name", 255],
     "username": ["Username", 100],
     "password": ["Password", ""],
-    "user_email": ["Email", 255],
     "role": ["Role", ""],
     "division": ["Division", ""],
     # ----- DIVISION MODEL FIELD -----

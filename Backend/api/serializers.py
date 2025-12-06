@@ -16,7 +16,7 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
         extra_kwargs = {"password": {"write_only": True}}
 
-    def validate_user_email(self, value):
+    def validate_email(self, value):
         value = value.strip().lower()
         if not serializers.EmailField().run_validation(value):
             raise serializers.ValidationError("Enter a valid email address.")
@@ -27,7 +27,7 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
         user = CustomUser(
             fullname=validated_data["fullname"],
             username=validated_data["username"],
-            user_email=validated_data["user_email"],
+            email=validated_data["email"],
             grade=validated_data["grade"],
             division=validated_data["division"],
             role=validated_data["role"],
