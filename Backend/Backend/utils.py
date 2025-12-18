@@ -37,7 +37,7 @@ FIELDS_VALIDATION_CRITERIA = {
     # ----- EMPLOYEE MODEL FIELDS -----
     "blood_group": ["Blood Group", 3],
     "service_id": ["Service ID", 7],
-    "lastname": ["Last name", 255],
+    "last_name": ["Last name", 255],
     "other_names": ["Other names", 255],
     "gender": ["Gender", ""],
     "dob": ["DOB", ""],
@@ -71,6 +71,10 @@ FIELDS_VALIDATION_CRITERIA = {
     "religion_name": ["Religion", 100],
     # ----- STRUCTURE MODEL FIELD -----
     "structure_name": ["Structure", 50],
+    # ----- BLOOD GROUP MODEL FIELD -----
+    "blood_group_name": ["Blood Group", 3],
+    # ----- DOCUMENT FILE MODEL FIELD -----
+    "file_data": ["File", ""],
     # ----- UNIT MODEL FIELDS -----
     "unit_name": ["Unit", 100],
     "city": ["Unit", 25],
@@ -87,6 +91,11 @@ FIELDS_VALIDATION_CRITERIA = {
 
 def handle_field_validation_error(detail):
     # detail = {'blood_group': [ErrorDetail(string='This field may not be blank.', code='blank')]}
+
+    if not isinstance(detail, dict):
+        message = handle_detail_not_dict(detail)
+        return message
+
     detail_key = list(detail.keys())[0]
     error_code = detail.get(detail_key)[0].code
 
@@ -120,3 +129,8 @@ def handle_field_validation_error(detail):
     elif error_code == "unique":
         message = f"{field} already exists."
         return message
+
+
+def handle_detail_not_dict(detail):
+    # detail = [ErrorDetail(string='Simulate Validation Error', code='invalid')]
+    message = str(detail[0])

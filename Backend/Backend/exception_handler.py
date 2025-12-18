@@ -43,7 +43,7 @@ def custom_exception_handler(exc, context):
             {
                 "error": "Secure connection failed. Please check your network or contact support."
             },
-            status=status.HTTP_502_BAD_GATEWAY,
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
 
     # Requests/HTTP errors

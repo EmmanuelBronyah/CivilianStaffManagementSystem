@@ -5,6 +5,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 
 # TODO: Last name can hold a value decimal value as string. Fix it
 # TODO: An empty confirmation date ("") sent from the frontend should be converted to None before saving into database to avoid "Invalid date format error."
+# TODO: Ensure that service ids must be digits
 # ? GENDER: How can  gender be deleted with it's associated employees even though the gender field in the employee model has a model.PROTECT
 
 
