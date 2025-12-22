@@ -86,6 +86,11 @@ FIELDS_VALIDATION_CRITERIA = {
     "division": ["Division", ""],
     # ----- DIVISION MODEL FIELD -----
     "division_name": ["Division", 255],
+    # ----- FLAG MODEL FIELDS -----
+    "content_type": ["Content Type", ""],
+    "object_id": ["Object ID", ""],
+    "flag_type": ["Flag Type", ""],
+    "reason": ["Reason", ""],
 }
 
 
