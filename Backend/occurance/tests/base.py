@@ -4,33 +4,6 @@ from django.contrib.auth.models import Group
 from employees import models
 
 
-class BaseAPITestCase(APITestCase):
-
-    @classmethod
-    def setUpTestData(cls):
-        cls.division = Divisions.objects.create(division_name="DCE-IT")
-        cls.grade = models.Grades.objects.create(grade_name="Programmer")
-
-        cls.admin_group = Group.objects.create(name="ADMINISTRATOR")
-
-        cls.admin = CustomUser.objects.create_user(
-            fullname="Administrator",
-            username="Admin",
-            password="lovesogreat",
-            email="admin@email.com",
-            role="ADMINISTRATOR",
-            grade=cls.grade,
-            division=cls.division,
-        )
-
-        cls.admin.is_staff = True
-        cls.admin.is_superuser = True
-        cls.admin.groups.add(cls.admin_group)
-
-    def authenticate_admin(self):
-        self.client.force_authenticate(user=self.admin)
-
-
 class EmployeeBaseAPITestCase(APITestCase):
 
     @classmethod
@@ -48,21 +21,21 @@ class EmployeeBaseAPITestCase(APITestCase):
         cls.division = Divisions.objects.create(division_name="DCE-IT")
         cls.grade = models.Grades.objects.create(grade_name="Programmer")
 
-        cls.admin_group = Group.objects.create(name="ADMINISTRATOR")
+        cls.standard_user_group = Group.objects.create(name="STANDARD USER")
 
-        cls.admin = CustomUser.objects.create_user(
-            fullname="Administrator",
-            username="Admin",
+        cls.standard_user = CustomUser.objects.create_user(
+            fullname="Standard User",
+            username="user",
             password="lovesogreat",
-            email="admin@email.com",
-            role="ADMINISTRATOR",
+            email="standarduser@email.com",
+            role="STANDARD USER",
             grade=cls.grade,
             division=cls.division,
         )
 
-        cls.admin.is_staff = True
-        cls.admin.is_superuser = True
-        cls.admin.groups.add(cls.admin_group)
+        cls.standard_user.is_staff = False
+        cls.standard_user.is_superuser = False
+        cls.standard_user.groups.add(cls.standard_user_group)
 
         cls.employee_data = {
             "service_id": "000993",
@@ -90,5 +63,5 @@ class EmployeeBaseAPITestCase(APITestCase):
             "entry_qualification": "",
         }
 
-    def authenticate_admin(self):
-        self.client.force_authenticate(user=self.admin)
+    def authenticate_standard_user(self):
+        self.client.force_authenticate(user=self.standard_user)

@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from api.models import CustomUser
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class FlagType(models.TextChoices):
@@ -18,6 +21,7 @@ class Flags(models.Model):
     flag_type = models.CharField(max_length=50, choices=FlagType.choices)
     field = models.CharField(max_length=50, null=True, blank=True)
     reason = models.TextField()
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     created_by = models.ForeignKey(
         CustomUser, on_delete=models.SET_NULL, null=True, related_name="created_flags"
     )
@@ -30,6 +34,31 @@ class Flags(models.Model):
         db_table = "flags"
         verbose_name = "flags"
         verbose_name_plural = "flags"
+
+    # Override save method to populate service_id in objects where it is found
+    def save(self, *args, **kwargs):
+        if not self.service_id and self.content_type and self.object_id:
+            model = self.content_type.model_class()
+
+            try:
+                obj = model.objects.get(pk=self.object_id)
+            except model.DoesNotExist:
+                obj = None
+
+            if obj:
+                if hasattr(obj, "service_id"):
+                    logger.debug(f"{obj} has a 'service_id' attribute")
+
+                    self.service_id = obj.service_id
+
+                elif hasattr(obj, "employee") and obj.employee:
+                    logger.debug(
+                        f"{obj} has an 'employee' attribute hence must have a 'service_id' attribute"
+                    )
+
+                    self.service_id = obj.employee.service_id
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{str(self.content_object)} - {self.flag_type}"

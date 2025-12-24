@@ -1,5 +1,6 @@
 from django.db import models
 from employees.models import Employee, Grades
+from api.models import CustomUser
 
 
 class Occurrence(models.Model):
@@ -12,6 +13,18 @@ class Occurrence(models.Model):
     event = models.ForeignKey("Event", on_delete=models.PROTECT)
     wef_date = models.DateField()
     reason = models.CharField(max_length=255)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="created_occurrences",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="updated_occurrences",
+    )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
 
@@ -50,8 +63,7 @@ class Event(models.Model):
 
 
 class SalaryPercentageAdjustment(models.Model):
-    percentage_adjustment = models.CharField()
-    formula = models.CharField()
+    percentage_adjustment = models.DecimalField(decimal_places=2, max_digits=5)
 
     class Meta:
         db_table = "salaryPercentageAdjustment"
@@ -59,7 +71,7 @@ class SalaryPercentageAdjustment(models.Model):
         verbose_name_plural = "salaryPercentageAdjustments"
 
     def __str__(self):
-        return f"{self.percentage_adjustment} - {self.formula}"
+        return f"{self.percentage_adjustment}"
 
 
 class InvalidOccurrenceRecord(models.Model):

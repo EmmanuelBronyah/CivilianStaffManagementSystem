@@ -37,8 +37,9 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["service_id"], "000993")
         self.assertIn("flagged", activity_feed)
-        self.assertIn("Service ID", activity_feed)
+        self.assertIn("Date of birth", activity_feed)
         self.assertIn("Flag Type", activity_feed)
         self.assertIn("Reason", activity_feed)
 

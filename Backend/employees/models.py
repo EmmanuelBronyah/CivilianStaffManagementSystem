@@ -37,6 +37,19 @@ class Employee(models.Model):
     probation = models.CharField(null=True, blank=True)
     entry_qualification = models.CharField(max_length=255, null=True, blank=True)
 
+    created_by = models.ForeignKey(
+        "api.CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="created_employees",
+    )
+    updated_by = models.ForeignKey(
+        "api.CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="updated_employees",
+    )
+
     class Meta:
         db_table = "employee"
         verbose_name = "employee"

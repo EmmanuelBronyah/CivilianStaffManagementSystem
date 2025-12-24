@@ -2,6 +2,7 @@ from rest_framework.response import Response
 import logging
 from rest_framework import status
 from rest_framework.exceptions import ValidationError
+from rest_framework.utils.serializer_helpers import ReturnList
 
 
 logger = logging.getLogger(__name__)
@@ -91,15 +92,29 @@ FIELDS_VALIDATION_CRITERIA = {
     "object_id": ["Object ID", ""],
     "flag_type": ["Flag Type", ""],
     "reason": ["Reason", ""],
+    # ----- OCCURRENCE MODEL FIELDS -----
+    "employee": ["Employee ID", ""],
+    "authority": ["Authority", 10],
+    "level_step": ["Level", 10],
+    "monthly_salary": ["Monthly Salary", 15],
+    "annual_salary": ["Annual Salary", 15],
+    "event": ["Event", ""],
+    "wef_date": ["Wef Date", ""],
+    "reason": ["Reason", 255],
 }
 
 
 def handle_field_validation_error(detail):
     # detail = {'blood_group': [ErrorDetail(string='This field may not be blank.', code='blank')]}
 
-    if not isinstance(detail, dict):
-        message = handle_detail_not_dict(detail)
-        return message
+    if isinstance(detail, list):
+        result = handle_detail_as_list(detail)
+
+        if isinstance(result, str):
+            return result
+
+        # Assign new detail obj to be used for the error message generations
+        detail = result
 
     detail_key = list(detail.keys())[0]
     error_code = detail.get(detail_key)[0].code
@@ -135,7 +150,24 @@ def handle_field_validation_error(detail):
         message = f"{field} already exists."
         return message
 
+    elif error_code == "max_digits":
+        message = f"Ensure that {field} has no more than {max_length} digits in total."
+        return message
 
-def handle_detail_not_dict(detail):
+
+def handle_detail_as_list(detail):
     # detail = [ErrorDetail(string='Simulate Validation Error', code='invalid')]
-    message = str(detail[0])
+
+    # [{}, {'monthly_salary': [ErrorDetail(string='A valid number is required.', code='invalid')]}, {'annual_salary': [ErrorDetail(string='A valid number is required.', code='invalid')]}, {'grade': [ErrorDetail(string='Incorrect type. Expected pk value, received str.', code='incorrect_type')]}]
+
+    # First detail object being a dictionary guarantees subsequent elements are dictionaries
+    detail_obj = detail[0]
+
+    if isinstance(detail_obj, dict):
+        for obj in detail:
+            keys_as_list = list(obj.keys())
+            if keys_as_list:
+                return obj
+    else:
+        message = str(detail_obj)
+        return message
