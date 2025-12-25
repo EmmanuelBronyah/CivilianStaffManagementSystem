@@ -2,6 +2,7 @@ from rest_framework.test import APITestCase
 from api.models import CustomUser, Divisions
 from django.contrib.auth.models import Group
 from employees import models
+from occurance.models import LevelStep, Event
 
 
 class EmployeeBaseAPITestCase(APITestCase):
@@ -20,6 +21,11 @@ class EmployeeBaseAPITestCase(APITestCase):
 
         cls.division = Divisions.objects.create(division_name="DCE-IT")
         cls.grade = models.Grades.objects.create(grade_name="Programmer")
+
+        cls.level_step = LevelStep.objects.create(
+            level_step="25H01", monthly_salary="12971.8400"
+        )
+        cls.event = Event.objects.create(event="Salary Adjustment")
 
         cls.standard_user_group = Group.objects.create(name="STANDARD USER")
 
@@ -62,6 +68,11 @@ class EmployeeBaseAPITestCase(APITestCase):
             "probation": "",
             "entry_qualification": "",
         }
+
+        employee_data_copy = cls.employee_data.copy()
+        employee_data_copy["service_id"] = "020124"
+
+        cls.other_employee_data = employee_data_copy
 
     def authenticate_standard_user(self):
         self.client.force_authenticate(user=self.standard_user)

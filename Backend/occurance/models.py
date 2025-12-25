@@ -4,12 +4,14 @@ from api.models import CustomUser
 
 
 class Occurrence(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="occurrences"
+    )
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
     authority = models.CharField(max_length=10)
     level_step = models.ForeignKey("LevelStep", on_delete=models.PROTECT)
-    monthly_salary = models.DecimalField(decimal_places=4, max_digits=15)
-    annual_salary = models.DecimalField(decimal_places=4, max_digits=15)
+    monthly_salary = models.DecimalField(decimal_places=2, max_digits=15)
+    annual_salary = models.DecimalField(decimal_places=2, max_digits=15)
     event = models.ForeignKey("Event", on_delete=models.PROTECT)
     wef_date = models.DateField()
     reason = models.CharField(max_length=255)
