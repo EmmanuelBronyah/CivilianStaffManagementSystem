@@ -95,7 +95,7 @@ FIELDS_VALIDATION_CRITERIA = {
     # ----- OCCURRENCE MODEL FIELDS -----
     "employee": ["Employee ID", ""],
     "authority": ["Authority", 10],
-    "level_step": ["Level", 10],
+    "level_step": ["Level|Step", 10],
     "monthly_salary": ["Monthly Salary", 15],
     "annual_salary": ["Annual Salary", 15],
     "event": ["Event", ""],
@@ -152,6 +152,10 @@ def handle_field_validation_error(detail):
 
     elif error_code == "max_digits":
         message = f"Ensure that {field} has no more than {max_length} digits in total."
+        return message
+
+    elif error_code == "max_decimal_places":
+        message = f"Ensure that {field} has no more than 2 decimal places."
         return message
 
 

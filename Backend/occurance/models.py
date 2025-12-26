@@ -41,7 +41,7 @@ class Occurrence(models.Model):
 
 class LevelStep(models.Model):
     level_step = models.CharField(max_length=5, unique=True)
-    monthly_salary = models.DecimalField(decimal_places=4, max_digits=15)
+    monthly_salary = models.DecimalField(decimal_places=2, max_digits=15)
 
     class Meta:
         db_table = "levelStep"

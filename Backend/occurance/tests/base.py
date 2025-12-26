@@ -5,6 +5,33 @@ from employees import models
 from occurance.models import LevelStep, Event
 
 
+class BaseAPITestCase(APITestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.division = Divisions.objects.create(division_name="DCE-IT")
+        cls.grade = models.Grades.objects.create(grade_name="Programmer")
+
+        cls.admin_group = Group.objects.create(name="ADMINISTRATOR")
+
+        cls.admin = CustomUser.objects.create_user(
+            fullname="Administrator",
+            username="Admin",
+            password="lovesogreat",
+            email="admin@email.com",
+            role="ADMINISTRATOR",
+            grade=cls.grade,
+            division=cls.division,
+        )
+
+        cls.admin.is_staff = True
+        cls.admin.is_superuser = True
+        cls.admin.groups.add(cls.admin_group)
+
+    def authenticate_admin(self):
+        self.client.force_authenticate(user=self.admin)
+
+
 class EmployeeBaseAPITestCase(APITestCase):
 
     @classmethod
