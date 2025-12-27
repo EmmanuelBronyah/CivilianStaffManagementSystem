@@ -101,6 +101,10 @@ FIELDS_VALIDATION_CRITERIA = {
     "event": ["Event", ""],
     "wef_date": ["Wef Date", ""],
     "reason": ["Reason", 255],
+    # ----- EVENT MODEL FIELD -----
+    "event_name": ["Event", 255],
+    # ----- SALARY ADJUSTMENT PERCENTAGE MODEL FIELD -----
+    "percentage_adjustment": ["Salary Percentage Adjustment", ""],
 }
 
 

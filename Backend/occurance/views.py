@@ -1,5 +1,5 @@
 from rest_framework import generics
-from .models import Occurrence, LevelStep, SalaryPercentageAdjustment
+from .models import Occurrence, LevelStep, SalaryAdjustmentPercentage, Event
 from . import serializer
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from employees.permissions import IsAdminUserOrStandardUser
@@ -196,4 +196,169 @@ class DeleteLevelStepAPIView(generics.DestroyAPIView):
         )
         logger.debug(
             f"Activity feed(The Level|Step '{instance.level_step} — {instance.monthly_salary}' was deleted by {self.request.user}) created."
+        )
+
+
+# * EVENT
+class CreateEventAPIView(generics.CreateAPIView):
+    queryset = Event.objects.all()
+    serializer_class = serializer.EventSerializer
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        event = serializer.save()
+        logger.debug(f"Event({event}) created.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=(f"{self.request.user} added a new Event: '{event.event_name}'"),
+        )
+        logger.debug(
+            f"Activity Feed({self.request.user} added a new Event: '{event.event_name}') created."
+        )
+
+
+class EditEventAPIView(generics.UpdateAPIView):
+    queryset = Event.objects.all()
+    serializer_class = serializer.EventSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_update(self, serializer):
+        previous_event = self.get_object()
+        event_update = serializer.save()
+        logger.debug(f"Event({previous_event}) updated.")
+
+        is_changed = previous_event.event_name != event_update.event_name
+        if is_changed:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Event '{previous_event.event_name}': Event: {previous_event.event_name} → {event_update.event_name}",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} updated Event '{previous_event.event_name}': Event: {previous_event.event_name} → {event_update.event_name}) created."
+            )
+
+
+class ListEventAPIView(generics.ListAPIView):
+    queryset = Event.objects.all()
+    serializer_class = serializer.EventSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class RetrieveEventAPIView(generics.RetrieveAPIView):
+    queryset = Event.objects.all()
+    serializer_class = serializer.EventSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class DeleteEventAPIView(generics.DestroyAPIView):
+    queryset = Event.objects.all()
+    serializer_class = serializer.EventSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        logger.debug(f"Event({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Event '{instance.event_name}' was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Event '{instance.event_name}' was deleted by {self.request.user}) created."
+        )
+
+
+# * SALARY PERCENTAGE ADJUSTMENT
+class CreateSalaryAdjustmentPercentageAPIView(generics.CreateAPIView):
+    queryset = SalaryAdjustmentPercentage.objects.all()
+    serializer_class = serializer.SalaryAdjustmentPercentageSerializer
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        salary_adjustment_percentage = serializer.save()
+        logger.debug(
+            f"Salary Adjustment Percentage({salary_adjustment_percentage}) created."
+        )
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=(
+                f"{self.request.user} added a new Salary Adjustment Percentage: '{salary_adjustment_percentage.percentage_adjustment}%'"
+            ),
+        )
+        logger.debug(
+            f"Activity Feed({self.request.user} added a new Salary Adjustment Percentage: '{salary_adjustment_percentage.percentage_adjustment}%') created."
+        )
+
+
+class EditSalaryAdjustmentPercentageAPIView(generics.UpdateAPIView):
+    queryset = SalaryAdjustmentPercentage.objects.all()
+    serializer_class = serializer.SalaryAdjustmentPercentageSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_update(self, serializer):
+        previous_salary_adjustment_percentage = self.get_object()
+        salary_adjustment_percentage_update = serializer.save()
+        logger.debug(
+            f"Salary Percentage Adjustment({previous_salary_adjustment_percentage}) updated."
+        )
+
+        is_changed = (
+            previous_salary_adjustment_percentage.percentage_adjustment
+            != salary_adjustment_percentage_update.percentage_adjustment
+        )
+        if is_changed:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Salary Percentage Adjustment '{previous_salary_adjustment_percentage.percentage_adjustment}': Percentage Adjustment: {previous_salary_adjustment_percentage.percentage_adjustment}% → {salary_adjustment_percentage_update.percentage_adjustment}%",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} updated Salary Percentage Adjustment '{previous_salary_adjustment_percentage.percentage_adjustment}': Percentage Adjustment: {previous_salary_adjustment_percentage.percentage_adjustment}% → {salary_adjustment_percentage_update.percentage_adjustment}%) created."
+            )
+
+
+class ListSalaryAdjustmentPercentageAPIView(generics.ListAPIView):
+    queryset = SalaryAdjustmentPercentage.objects.all()
+    serializer_class = serializer.SalaryAdjustmentPercentageSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class RetrieveSalaryAdjustmentPercentageAPIView(generics.RetrieveAPIView):
+    queryset = SalaryAdjustmentPercentage.objects.all()
+    serializer_class = serializer.SalaryAdjustmentPercentageSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class DeleteSalaryAdjustmentPercentageAPIView(generics.DestroyAPIView):
+    queryset = SalaryAdjustmentPercentage.objects.all()
+    serializer_class = serializer.SalaryAdjustmentPercentageSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        instance.delete()
+        logger.debug(f"Salary Adjustment Percentage({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Salary Adjustment Percentage '{instance.percentage_adjustment}%' was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Salary Adjustment Percentage '{instance.percentage_adjustment}%' was deleted by {self.request.user}) created."
         )

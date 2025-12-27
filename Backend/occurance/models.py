@@ -53,7 +53,7 @@ class LevelStep(models.Model):
 
 
 class Event(models.Model):
-    event = models.CharField(max_length=255)
+    event_name = models.CharField(max_length=255)
 
     class Meta:
         db_table = "event"
@@ -61,16 +61,16 @@ class Event(models.Model):
         verbose_name_plural = "events"
 
     def __str__(self):
-        return f"{self.event}"
+        return f"{self.event_name}"
 
 
-class SalaryPercentageAdjustment(models.Model):
-    percentage_adjustment = models.DecimalField(decimal_places=2, max_digits=5)
+class SalaryAdjustmentPercentage(models.Model):
+    percentage_adjustment = models.IntegerField()
 
     class Meta:
-        db_table = "salaryPercentageAdjustment"
-        verbose_name = "salaryPercentageAdjustment"
-        verbose_name_plural = "salaryPercentageAdjustments"
+        db_table = "salaryAdjustmentPercentage"
+        verbose_name = "salaryAdjustmentPercentage"
+        verbose_name_plural = "salaryAdjustmentPercentages"
 
     def __str__(self):
         return f"{self.percentage_adjustment}"

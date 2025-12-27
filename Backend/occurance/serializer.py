@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Occurrence, LevelStep, SalaryPercentageAdjustment
+from .models import Occurrence, LevelStep, SalaryAdjustmentPercentage, Event
 
 
 class OccurrenceSerializer(serializers.ModelSerializer):
@@ -16,8 +16,15 @@ class LevelStepSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class SalaryPercentageAdjustmentSerializer(serializers.ModelSerializer):
+class EventSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = SalaryPercentageAdjustment
+        model = Event
+        fields = "__all__"
+
+
+class SalaryAdjustmentPercentageSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SalaryAdjustmentPercentage
         fields = "__all__"
