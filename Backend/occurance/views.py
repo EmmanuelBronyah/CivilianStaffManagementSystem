@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from activity_feeds.models import ActivityFeeds
 import logging
-from .utils import occurrence_changes, level_step_changes
+from .utils import occurrence_changes, level_step_changes, update_occurrence_salaries
 from employees.models import Employee
 from django.shortcuts import get_object_or_404
 
@@ -27,6 +27,8 @@ class CreateOccurrenceAPIView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         occurrence_data = request.data
         is_many = isinstance(occurrence_data, list)
+
+        occurrence_data = update_occurrence_salaries(occurrence_data)
 
         serializer = self.get_serializer(data=occurrence_data, many=is_many)
         serializer.is_valid(raise_exception=True)
