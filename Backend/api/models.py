@@ -90,7 +90,7 @@ class CustomUser(AbstractUser):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="created_records",
+        related_name="created_users",
     )
 
     updated_by = models.ForeignKey(
@@ -98,7 +98,7 @@ class CustomUser(AbstractUser):
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="updated_records",
+        related_name="updated_users",
     )
 
     created_at = models.DateTimeField(auto_now_add=True)

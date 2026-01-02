@@ -232,3 +232,49 @@ class DeleteLevelStepAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+
+
+class CalculateAnnualSalaryAPITest(BaseAPITestCase):
+
+    def setUp(self):
+        self.create_level_step_url = reverse("create-level-step")
+        self.calculate_annual_salary_url = reverse(
+            "calculate-annual-salary", kwargs={"pk": 1}
+        )
+        self.level_step_data = {"level_step": "18H01", "monthly_salary": 6000}
+
+        self.authenticate_admin()
+
+    def test_successful_calculation(self):
+        # Send create level|step request
+        self.client.post(
+            self.create_level_step_url, self.level_step_data, format="json"
+        )
+
+        # Send calculate annual salary request
+        response = self.client.get(self.calculate_annual_salary_url)
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn("annual_salary", response.data)
+        self.assertEqual(response.data["annual_salary"], 72000)
+
+    def test_non_existing_level_step(self):
+        # Send calculate annual salary request
+        response = self.client.get(self.calculate_annual_salary_url)
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_throttling(self):
+        # Send create level|step request
+        self.client.post(
+            self.create_level_step_url, self.level_step_data, format="json"
+        )
+
+        # Send calculate annual salary request
+        for _ in range(13):
+            response = self.client.get(self.calculate_annual_salary_url)
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

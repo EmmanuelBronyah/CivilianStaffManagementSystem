@@ -39,6 +39,11 @@ urlpatterns = [
         views.DeleteLevelStepAPIView.as_view(),
         name="delete-level-step",
     ),
+    path(
+        "level-step/<str:pk>/annual-salary/",
+        views.CalculateAnnualSalary.as_view(),
+        name="calculate-annual-salary",
+    ),
     # Event
     path("event/", views.ListEventAPIView.as_view(), name="list-event"),
     path(

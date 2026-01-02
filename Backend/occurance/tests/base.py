@@ -52,7 +52,7 @@ class EmployeeBaseAPITestCase(APITestCase):
         cls.level_step = LevelStep.objects.create(
             level_step="25H01", monthly_salary="12971.8400"
         )
-        cls.event = Event.objects.create(event="Salary Adjustment")
+        cls.event = Event.objects.create(event_name="Salary Adjustment")
 
         cls.standard_user_group = Group.objects.create(name="STANDARD USER")
 

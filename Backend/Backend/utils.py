@@ -105,6 +105,10 @@ FIELDS_VALIDATION_CRITERIA = {
     "event_name": ["Event", 255],
     # ----- SALARY ADJUSTMENT PERCENTAGE MODEL FIELD -----
     "percentage_adjustment": ["Salary Percentage Adjustment", ""],
+    # ----- ABSENCES MODEL FIELDS -----
+    "absence": ["Absence", 100],
+    "start_date": ["Start Date", ""],
+    "end_date": ["End Date", ""],
 }
 
 

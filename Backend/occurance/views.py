@@ -11,6 +11,7 @@ import logging
 from .utils import occurrence_changes, level_step_changes, update_occurrence_salaries
 from employees.models import Employee
 from django.shortcuts import get_object_or_404
+from .utils import two_dp
 
 # TODO: Salaries should be greater than 0 or a reasonably specified amount
 
@@ -56,12 +57,18 @@ class CreateOccurrenceAPIView(generics.CreateAPIView):
                         f"{self.request.user} added a new occurrence: '{record.employee.service_id} — {record.authority} — {record.event}'"
                     ),
                 )
+                logger.debug(
+                    f"Activity Feed({self.request.user} added a new occurrence: '{record.employee.service_id} — {record.authority} — {record.event}') created."
+                )
         else:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
                 activity=(
                     f"{self.request.user} added a new occurrence: '{occurrence.employee.service_id} — {occurrence.authority} — {occurrence.event}'"
                 ),
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new occurrence: '{record.employee.service_id} — {record.authority} — {record.event}') created."
             )
 
 
@@ -199,6 +206,22 @@ class DeleteLevelStepAPIView(generics.DestroyAPIView):
         logger.debug(
             f"Activity feed(The Level|Step '{instance.level_step} — {instance.monthly_salary}' was deleted by {self.request.user}) created."
         )
+
+
+class CalculateAnnualSalary(generics.RetrieveAPIView):
+    queryset = LevelStep.objects.all()
+    serializer_class = serializer.LevelStepSerializer
+    lookup_field = "pk"
+    permission_classes = [IsAdminUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        data = serializer.data
+        annual_salary = two_dp(two_dp(data["monthly_salary"]) * two_dp(12))
+        data.update(annual_salary=annual_salary)
+        return Response(data)
 
 
 # * EVENT

@@ -56,7 +56,7 @@ def update_occurrence_salaries(occurrence_data):
 
         else:
             percentage_adjustment = occurrence.pop("percentage_adjustment")
-            percentage_adjustment = two_dp(int(percentage_adjustment) / 100)
+            percentage_adjustment = two_dp(two_dp(percentage_adjustment) / two_dp(100))
 
             monthly_salary = two_dp(
                 (two_dp(monthly_salary * percentage_adjustment)) + monthly_salary

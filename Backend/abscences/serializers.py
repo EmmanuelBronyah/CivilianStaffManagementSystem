@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import Occurrence, LevelStep, SalaryAdjustmentPercentage, Event
+from .models import Absences
 from api.models import CustomUser
 
 
-class OccurrenceSerializer(serializers.ModelSerializer):
+class AbsencesSerializer(serializers.ModelSerializer):
 
     class Meta:
-        model = Occurrence
+        model = Absences
         fields = "__all__"
 
     def to_representation(self, instance):
@@ -24,24 +24,3 @@ class OccurrenceSerializer(serializers.ModelSerializer):
             representation.update({"updated_by": updated_by})
 
         return representation
-
-
-class LevelStepSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = LevelStep
-        fields = "__all__"
-
-
-class EventSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Event
-        fields = "__all__"
-
-
-class SalaryAdjustmentPercentageSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = SalaryAdjustmentPercentage
-        fields = "__all__"

@@ -14,6 +14,7 @@ urlpatterns = [
     path("api/activity-feeds/", include("activity_feeds.urls")),
     path("api/flags/", include("flags.urls")),
     path("api/occurrence/", include("occurance.urls")),
+    path("api/absences/", include("abscences.urls")),
     path("api/", include("api.urls")),
 ]
 
