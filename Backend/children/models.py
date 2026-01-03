@@ -1,9 +1,12 @@
 from django.db import models
 from employees.models import Employee, Gender
+from api.models import CustomUser
 
 
 class Children(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="children"
+    )
     child_name = models.CharField(max_length=255)
     dob = models.DateField()
     gender = models.ForeignKey(Gender, on_delete=models.PROTECT)
@@ -11,6 +14,20 @@ class Children(models.Model):
     authority = models.CharField(max_length=10)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_children_records",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_children_records",
+    )
 
     class Meta:
         db_table = "children"

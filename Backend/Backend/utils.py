@@ -41,7 +41,7 @@ FIELDS_VALIDATION_CRITERIA = {
     "last_name": ["Last name", 255],
     "other_names": ["Other names", 255],
     "gender": ["Gender", ""],
-    "dob": ["DOB", ""],
+    "dob": ["Date of Birth", ""],
     "hometown": ["Hometown", 255],
     "region": ["Region", ""],
     "religion": ["Religion", ""],
@@ -109,6 +109,9 @@ FIELDS_VALIDATION_CRITERIA = {
     "absence": ["Absence", 100],
     "start_date": ["Start Date", ""],
     "end_date": ["End Date", ""],
+    # ----- CHILDREN MODEL FIELDS -----
+    "child_name": ["Child Name", 255],
+    "other_parent": ["Other Parent", 255],
 }
 
 
