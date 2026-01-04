@@ -112,6 +112,13 @@ FIELDS_VALIDATION_CRITERIA = {
     # ----- CHILDREN MODEL FIELDS -----
     "child_name": ["Child Name", 255],
     "other_parent": ["Other Parent", 255],
+    # ----- COURSE MODEL FIELDS -----
+    "course_type": ["Course Type", 255],
+    "place": ["Place", 255],
+    "date_commenced": ["Date Commenced", ""],
+    "date_ended": ["Date Ended", ""],
+    "qualification": ["Qualification", 255],
+    "result": ["Result", 255],
 }
 
 

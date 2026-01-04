@@ -1,9 +1,12 @@
 from django.db import models
 from employees.models import Employee
+from api.models import CustomUser
 
 
 class Courses(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="courses"
+    )
     course_type = models.CharField(max_length=255)
     place = models.CharField(max_length=255)
     date_commenced = models.DateField()
@@ -13,11 +16,25 @@ class Courses(models.Model):
     authority = models.CharField(max_length=10)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_courses",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_courses",
+    )
 
     class Meta:
-        db_table = "Courses"
-        verbose_name = "Course"
-        verbose_name_plural = "Courses"
+        db_table = "courses"
+        verbose_name = "course"
+        verbose_name_plural = "courses"
 
     def __str__(self):
         return f"{self.course_type}"

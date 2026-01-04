@@ -5,7 +5,7 @@ def generate_text(fields):
 
 def child_record_changes(previous, current):
     fields = [
-        # Occurrence
+        # Children
         ("Child Name", previous.child_name, current.child_name),
         ("Date of Birth", previous.dob, current.dob),
         ("Gender", previous.gender.sex, current.gender.sex),
