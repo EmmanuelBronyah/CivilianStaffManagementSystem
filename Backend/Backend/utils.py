@@ -119,6 +119,12 @@ FIELDS_VALIDATION_CRITERIA = {
     "date_ended": ["Date Ended", ""],
     "qualification": ["Qualification", 255],
     "result": ["Result", 255],
+    # ----- IDENTITY MODEL FIELDS -----
+    "voters_id": ["Voters ID", 100],
+    "national_id": ["National ID", 100],
+    "glico_id": ["GLICO ID", 100],
+    "nhis_id": ["NHIS ID", 100],
+    "tin_number": ["TIN Number", 100],
 }
 
 
