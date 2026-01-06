@@ -125,6 +125,13 @@ FIELDS_VALIDATION_CRITERIA = {
     "glico_id": ["GLICO ID", 100],
     "nhis_id": ["NHIS ID", 100],
     "tin_number": ["TIN Number", 100],
+    # ----- MARRIAGE MODEL FIELDS -----
+    "spouse_name": ["Spouse Name", 255],
+    "phone_number": ["Phone Number", 10],
+    "registration_number": ["Registration Number", 255],
+    "marriage_date": ["Marriage Date", ""],
+    "marriage_place": ["Marriage Place", 255],
+    "spouse_name": ["Spouse Name", 255],
 }
 
 
