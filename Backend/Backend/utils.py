@@ -137,6 +137,11 @@ FIELDS_VALIDATION_CRITERIA = {
     "relation": ["Relation", 100],
     "next_of_kin_email": ["Email", 255],
     "emergency_contact": ["Emergency Contact", 10],
+    # ----- PREVIOUS GOVERNMENT SERVICE MODEL FIELDS -----
+    "institution": ["Institution", 255],
+    "start_date": ["Start Date", ""],
+    "end_date": ["End Date", ""],
+    "position": ["Position", 255],
 }
 
 

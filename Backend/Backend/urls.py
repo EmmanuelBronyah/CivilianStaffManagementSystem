@@ -20,6 +20,9 @@ urlpatterns = [
     path("api/identity/", include("identity.urls")),
     path("api/marriage/", include("marriage.urls")),
     path("api/next-of-kin/", include("next_of_kin.urls")),
+    path(
+        "api/previous-government-service/", include("previous_government_service.urls")
+    ),
     path("api/", include("api.urls")),
 ]
 
