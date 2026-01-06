@@ -132,6 +132,11 @@ FIELDS_VALIDATION_CRITERIA = {
     "marriage_date": ["Marriage Date", ""],
     "marriage_place": ["Marriage Place", 255],
     "spouse_name": ["Spouse Name", 255],
+    # ----- NEXT OF KIN MODEL FIELDS -----
+    "name": ["Name", 255],
+    "relation": ["Relation", 100],
+    "next_of_kin_email": ["Email", 255],
+    "emergency_contact": ["Emergency Contact", 10],
 }
 
 
