@@ -1,20 +1,37 @@
 from django.db import models
 from employees.models import Employee, Units
+from api.models import CustomUser
 
 
 class ServiceWithForces(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        Employee, on_delete=models.CASCADE, related_name="service_with_forces"
+    )
     service_date = models.DateField()
     last_unit = models.ForeignKey(Units, on_delete=models.CASCADE)
     service_number = models.CharField(max_length=7)
     military_rank = models.ForeignKey("MilitaryRanks", on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_service_with_forces",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_service_with_forces",
+    )
 
     class Meta:
-        db_table = "ServiceWithForces"
-        verbose_name = "ServiceWithForces"
-        verbose_name_plural = "ServiceWithForces"
+        db_table = "service_with_forces"
+        verbose_name = "service_with_forces"
+        verbose_name_plural = "service_with_forces"
 
     def __str__(self):
         return f"{self.last_unit}"
@@ -25,9 +42,9 @@ class MilitaryRanks(models.Model):
     branch = models.CharField(max_length=100)
 
     class Meta:
-        db_table = "MilitaryRanks"
-        verbose_name = "MilitaryRank"
-        verbose_name_plural = "MilitaryRanks"
+        db_table = "military_ranks"
+        verbose_name = "military_ranks"
+        verbose_name_plural = "military_ranks"
 
     def __str__(self):
         return f"{self.rank}"

@@ -142,6 +142,14 @@ FIELDS_VALIDATION_CRITERIA = {
     "start_date": ["Start Date", ""],
     "end_date": ["End Date", ""],
     "position": ["Position", 255],
+    # ----- SERVICE WITH FORCES MODEL FIELDS -----
+    "service_date": ["Service Date", ""],
+    "last_unit": ["Last Unit", ""],
+    "service_number": ["Service Number", ""],
+    "military_rank": ["Military Rank", ""],
+    # ----- MILITARY RANKS MODEL FIELDS -----
+    "rank": ["Rank", 255],
+    "branch": ["Branch", 100],
 }
 
 
