@@ -1,0 +1,83 @@
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    # Termination Of Appointment
+    path(
+        "create/",
+        views.CreateTerminationOfAppointmentAPIView.as_view(),
+        name="create-termination-of-appointment",
+    ),
+    path(
+        "<str:pk>/detail/",
+        views.RetrieveTerminationOfAppointmentAPIView.as_view(),
+        name="retrieve-termination-of-appointment",
+    ),
+    path(
+        "<str:pk>/employee/",
+        views.ListEmployeeTerminationOfAppointmentAPIView.as_view(),
+        name="list-employee-termination-of-appointment",
+    ),
+    path(
+        "<str:pk>/edit/",
+        views.EditTerminationOfAppointmentAPIView.as_view(),
+        name="edit-termination-of-appointment",
+    ),
+    path(
+        "<str:pk>/delete/",
+        views.DeleteTerminationOfAppointmentAPIView.as_view(),
+        name="delete-termination-of-appointment",
+    ),
+    # Causes Of termination
+    path(
+        "cause/create/",
+        views.CreateCausesOfTerminationAPIView.as_view(),
+        name="create-cause-of-termination",
+    ),
+    path(
+        "cause/<str:pk>/detail/",
+        views.RetrieveCausesOfTerminationAPIView.as_view(),
+        name="retrieve-cause-of-termination",
+    ),
+    path(
+        "cause/",
+        views.ListCausesOfTerminationAPIView.as_view(),
+        name="list-cause-of-termination",
+    ),
+    path(
+        "cause/<str:pk>/edit/",
+        views.EditCausesOfTerminationAPIView.as_view(),
+        name="edit-cause-of-termination",
+    ),
+    path(
+        "cause/<str:pk>/delete/",
+        views.DeleteCausesOfTerminationAPIView.as_view(),
+        name="delete-cause-of-termination",
+    ),
+    # Termination Status
+    path(
+        "status/create/",
+        views.CreateTerminationStatusAPIView.as_view(),
+        name="create-termination-status",
+    ),
+    path(
+        "status/<str:pk>/detail/",
+        views.RetrieveTerminationStatusAPIView.as_view(),
+        name="retrieve-termination-status",
+    ),
+    path(
+        "status/",
+        views.ListTerminationStatusAPIView.as_view(),
+        name="list-termination-status",
+    ),
+    path(
+        "status/<str:pk>/edit/",
+        views.EditTerminationStatusAPIView.as_view(),
+        name="edit-termination-status",
+    ),
+    path(
+        "status/<str:pk>/delete/",
+        views.DeleteTerminationStatusAPIView.as_view(),
+        name="delete-termination-status",
+    ),
+]

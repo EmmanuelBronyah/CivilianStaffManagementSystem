@@ -1,8 +1,5 @@
-from rest_framework.response import Response
 import logging
-from rest_framework import status
 from rest_framework.exceptions import ValidationError
-from rest_framework.utils.serializer_helpers import ReturnList
 
 
 logger = logging.getLogger(__name__)
@@ -150,6 +147,14 @@ FIELDS_VALIDATION_CRITERIA = {
     # ----- MILITARY RANKS MODEL FIELDS -----
     "rank": ["Rank", 255],
     "branch": ["Branch", 100],
+    # ----- TERMINATION OF APPOINTMENT MODEL FIELDS -----
+    "cause": ["Cause", ""],
+    "date": ["Date", ""],
+    "status": ["status", ""],
+    # ----- CAUSE OF TERMINATION MODEL FIELDS -----
+    "termination_cause": ["Cause", 100],
+    # ----- TERMINATION STATUS MODEL FIELDS -----
+    "termination_status": ["Status", 100],
 }
 
 
