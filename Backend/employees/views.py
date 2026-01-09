@@ -5,7 +5,6 @@ from . import serializers
 from rest_framework.throttling import UserRateThrottle
 from .permissions import IsAdminUserOrStandardUser
 import logging
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
@@ -14,7 +13,7 @@ from datetime import datetime
 from django.db.models import F
 from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
-from . import utils
+from .utils import unregistered_employee_record_changes, employee_record_changes
 
 
 logger = logging.getLogger(__name__)
@@ -41,15 +40,17 @@ class CreateEmployeeAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        employee = serializer.save()
+        employee = serializer.save(
+            created_by=self.request.user, updated_by=self.request.user
+        )
         logger.debug(f"Employee({employee}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new employee: {employee.service_id} — {employee.last_name} {employee.other_names}",
+            activity=f"{self.request.user} added a new Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new employee: {employee.service_id} — {employee.last_name} {employee.other_names}) created."
+            f"Activity feed({self.request.user} added a new Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}) created."
         )
 
 
@@ -78,18 +79,19 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         previous_employee = self.get_object()
-        employee = serializer.save()
+        employee = serializer.save(updated_by=self.request.user)
         logger.debug(f"Employee({previous_employee}) updated.")
 
-        changes = utils.get_records_changed(previous_employee, employee)
+        changes = employee_record_changes(previous_employee, employee)
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated employee '{previous_employee.service_id}': {changes}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated employee '{previous_employee.service_id}': {changes}) created."
-        )
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}): {changes}) created."
+            )
 
 
 class DeleteEmployeeAPIView(generics.DestroyAPIView):
@@ -106,10 +108,10 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"Employee record with Service ID '{service_id}' was deleted by {self.request.user}",
+            activity=f"Employee record with Service ID({service_id}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(Employee record with Service ID '{service_id}' was deleted by {self.request.user}) created."
+            f"Activity feed(Employee record with Service ID({service_id}) was deleted by {self.request.user}) created."
         )
 
 
@@ -167,10 +169,10 @@ class CreateGradeAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new grade: '{grade.grade_name}'",
+            activity=f"{self.request.user} added a new Grade({grade.grade_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new grade: '{grade.grade_name}') created."
+            f"Activity feed({self.request.user} added a new Grade({grade.grade_name}) created."
         )
 
 
@@ -204,10 +206,10 @@ class EditGradeAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated grade '{previous_grade.grade_name}': {previous_grade.grade_name} → {grade.grade_name}",
+            activity=f"{self.request.user} updated Grade({previous_grade.grade_name}): {previous_grade.grade_name} → {grade.grade_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated grade '{previous_grade.grade_name}': {previous_grade.grade_name} → {grade.grade_name}) created."
+            f"Activity feed({self.request.user} updated Grade({previous_grade.grade_name}): {previous_grade.grade_name} → {grade.grade_name}) created."
         )
 
 
@@ -225,10 +227,10 @@ class DeleteGradeAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The grade '{grade}' was deleted by {self.request.user}",
+            activity=f"The Grade({grade}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The grade '{grade}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Grade({grade}) was deleted by {self.request.user}) created."
         )
 
 
@@ -245,10 +247,10 @@ class CreateUnitAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new unit: '{unit.unit_name}'",
+            activity=f"{self.request.user} added a new Unit({unit.unit_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new unit: '{unit.unit_name}') created."
+            f"Activity feed({self.request.user} added a new Unit({unit.unit_name})) created."
         )
 
 
@@ -291,10 +293,10 @@ class EditUnitAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated unit '{previous_unit.unit_name}': {previous_unit.unit_name} → {unit.unit_name}",
+            activity=f"{self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated unit '{previous_unit.unit_name}': {previous_unit.unit_name} → {unit.unit_name}) created."
+            f"Activity feed({self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}) created."
         )
 
 
@@ -312,10 +314,10 @@ class DeleteUnitAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The unit '{unit}' was deleted by {self.request.user}",
+            activity=f"The Unit({unit}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The unit '{unit}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Unit({unit}) was deleted by {self.request.user}) created."
         )
 
 
@@ -332,10 +334,10 @@ class CreateGenderAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new gender: '{gender.sex}'",
+            activity=f"{self.request.user} added a new Gender({gender.sex})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new gender: '{gender.sex}') created."
+            f"Activity feed({self.request.user} added a new Gender({gender.sex})) created."
         )
 
 
@@ -368,10 +370,10 @@ class EditGenderAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated gender '{previous_gender.sex}': {previous_gender.sex} → {gender.sex}",
+            activity=f"{self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated gender '{previous_gender.sex}': {previous_gender.sex} → {gender.sex}) created."
+            f"Activity feed({self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}) created."
         )
 
 
@@ -389,10 +391,10 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The gender '{gender}' was deleted by {self.request.user}",
+            activity=f"The Gender({gender}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The gender '{gender}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Gender({gender}) was deleted by {self.request.user}) created."
         )
 
 
@@ -418,10 +420,10 @@ class CreateMaritalStatusAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new marital status: '{marital_status.marital_status_name}'",
+            activity=f"{self.request.user} added a new Marital Status({marital_status.marital_status_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new marital status: '{marital_status.marital_status_name}') created."
+            f"Activity feed({self.request.user} added a new Marital Status({marital_status.marital_status_name})) created."
         )
 
 
@@ -454,10 +456,10 @@ class EditMaritalStatusAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated marital status '{previous_marital_status.marital_status_name}': {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}",
+            activity=f"{self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated marital status '{previous_marital_status.marital_status_name}': {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}) created."
+            f"Activity feed({self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}) created."
         )
 
 
@@ -475,10 +477,10 @@ class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The marital status '{marital_status}' was deleted by {self.request.user}",
+            activity=f"The Marital Status({marital_status}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The marital status '{marital_status}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Marital Status({marital_status}) was deleted by {self.request.user}) created."
         )
 
 
@@ -495,10 +497,10 @@ class CreateRegionAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new region: '{region.region_name}'",
+            activity=f"{self.request.user} added a new Region({region.region_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new region: '{region.region_name}') created."
+            f"Activity feed({self.request.user} added a new Region({region.region_name})) created."
         )
 
 
@@ -531,10 +533,10 @@ class EditRegionAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated region '{previous_region.region_name}': {previous_region.region_name} → {region.region_name}",
+            activity=f"{self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated region '{previous_region.region_name}': {previous_region.region_name} → {region.region_name}) created."
+            f"Activity feed({self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}) created."
         )
 
 
@@ -552,10 +554,10 @@ class DeleteRegionAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The region '{region}' was deleted by {self.request.user}",
+            activity=f"The Region({region}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The region '{region}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Region({region}) was deleted by {self.request.user}) created."
         )
 
 
@@ -572,10 +574,10 @@ class CreateReligionAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new religion: '{religion.religion_name}'",
+            activity=f"{self.request.user} added a new Religion({religion.religion_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new religion: '{religion.religion_name}') created."
+            f"Activity feed({self.request.user} added a new Religion({religion.religion_name})) created."
         )
 
 
@@ -608,10 +610,10 @@ class EditReligionAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated religion '{previous_religion.religion_name}': {previous_religion.religion_name} → {religion.religion_name}",
+            activity=f"{self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated religion '{previous_religion.religion_name}': {previous_religion.religion_name} → {religion.religion_name}) created."
+            f"Activity feed({self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}) created."
         )
 
 
@@ -629,10 +631,10 @@ class DeleteReligionAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The religion '{religion}' was deleted by {self.request.user}",
+            activity=f"The Religion({religion}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The religion '{religion}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Religion({religion}) was deleted by {self.request.user}) created."
         )
 
 
@@ -649,10 +651,10 @@ class CreateStructureAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new structure: '{structure.structure_name}'",
+            activity=f"{self.request.user} added a new Structure({structure.structure_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new structure: '{structure.structure_name}') created."
+            f"Activity feed({self.request.user} added a new Structure({structure.structure_name})) created."
         )
 
 
@@ -685,10 +687,10 @@ class EditStructureAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated structure '{previous_structure.structure_name}': {previous_structure.structure_name} → {structure.structure_name}",
+            activity=f"{self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated structure '{previous_structure.structure_name}': {previous_structure.structure_name} → {structure.structure_name}) created."
+            f"Activity feed({self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}) created."
         )
 
 
@@ -706,10 +708,10 @@ class DeleteStructureAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The structure '{structure}' was deleted by {self.request.user}",
+            activity=f"The Structure({structure}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The structure '{structure}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Structure({structure}) was deleted by {self.request.user}) created."
         )
 
 
@@ -726,10 +728,10 @@ class CreateBloodGroupAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new blood group: '{blood_group.blood_group_name}'",
+            activity=f"{self.request.user} added a new Blood Group({blood_group.blood_group_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new blood group: '{blood_group.blood_group_name}') created."
+            f"Activity feed({self.request.user} added a new Blood Group({blood_group.blood_group_name})) created."
         )
 
 
@@ -762,10 +764,10 @@ class EditBloodGroupAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated blood group '{previous_blood_group.blood_group_name}': {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}",
+            activity=f"{self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated blood group '{previous_blood_group.blood_group_name}': {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}) created."
+            f"Activity feed({self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}) created."
         )
 
 
@@ -783,10 +785,10 @@ class DeleteBloodGroupAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The blood group '{blood_group}' was deleted by {self.request.user}",
+            activity=f"The Blood Group({blood_group}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The blood group '{blood_group}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Blood Group({blood_group}) was deleted by {self.request.user}) created."
         )
 
 
@@ -803,10 +805,10 @@ class CreateDocumentFileAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new document file: '{document_file.file_data}'",
+            activity=f"{self.request.user} added a new Document File({document_file.file_data})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new document file: '{document_file.file_data}') created."
+            f"Activity feed({self.request.user} added a new Document File({document_file.file_data})) created."
         )
 
 
@@ -839,10 +841,10 @@ class EditDocumentFileAPIView(generics.UpdateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated document file '{previous_document_file.file_data}': {previous_document_file.file_data} → {document_file.file_data}",
+            activity=f"{self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated document file '{previous_document_file.file_data}': {previous_document_file.file_data} → {document_file.file_data}) created."
+            f"Activity feed({self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}) created."
         )
 
 
@@ -860,10 +862,10 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The document file '{document_file}' was deleted by {self.request.user}",
+            activity=f"The Document File({document_file}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The document file '{document_file}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Document File({document_file}) was deleted by {self.request.user}) created."
         )
 
 
@@ -880,10 +882,10 @@ class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new incomplete employee record: 'Service id: {employee.service_id or 'None'}' — 'Last name: {employee.last_name or 'None'}' — 'Other names: {employee.other_names or 'None'}' — 'Unit: {employee.unit.unit_name if employee.unit else 'None'}' — 'Grade: {employee.grade.grade_name if employee.grade else 'None'}' — 'Social Security: {employee.social_security or 'None'}'",
+            activity=f"{self.request.user} added a new Incomplete Employee Record(ID: {employee.id})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new incomplete employee record: 'Service id: {employee.service_id or 'None'}' — 'Last name: {employee.last_name or 'None'}' — 'Other names: {employee.other_names or 'None'}' — 'Unit: {employee.unit.unit_name if employee.unit else 'None'}' — 'Grade: {employee.grade.grade_name if employee.grade else 'None'}' — 'Social Security: {employee.social_security or 'None'}') created."
+            f"Activity feed({self.request.user} added a new Incomplete Employee Record(ID: {employee.id})) created."
         )
 
 
@@ -915,14 +917,14 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
         employee = serializer.save()
         logger.debug(f"Unregistered Employee({previous_employee}) updated.")
 
-        changes = utils.get_records_changed(previous_employee, employee)
+        changes = unregistered_employee_record_changes(previous_employee, employee)
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated incomplete employee record with ID '{employee.id}': {changes}",
+            activity=f"{self.request.user} updated Incomplete Employee Record(ID: {employee.id}): {changes}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated incomplete employee record with ID '{employee.id}': {changes}) created."
+            f"Activity feed({self.request.user} updated Incomplete Employee Record(ID: {employee.id}): {changes}) created."
         )
 
 
@@ -940,8 +942,8 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The incomplete employee record with ID '{employee_id}' was deleted by {self.request.user}",
+            activity=f"The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The incomplete employee record with ID '{employee_id}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}) created."
         )

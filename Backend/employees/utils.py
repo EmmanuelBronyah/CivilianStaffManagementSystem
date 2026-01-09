@@ -1,69 +1,95 @@
-def get_field_value(instance, field):
-    value = getattr(instance, field, False)
-    return False if value is False else str(value)
+def generate_text(fields):
+    changes = [
+        f'{label}: {"N/A" if old == "" or old is None else old} → {"N/A" if new == "" or new is None else new}'
+        for label, old, new in fields
+        if old != new
+    ]
+    return " — ".join(changes)
 
 
-def exclude_fields(old_record, new_record):
+def employee_record_changes(previous, current):
     fields = [
-        "gender_id",
-        "region_id",
-        "religion_id",
-        "marital_status_id",
-        "unit_id",
-        "grade_id",
-        "structure_id",
-        "blood_group_id",
-        "_state",
-        "created_by",
-        "updated_by",
-        "created_at",
-        "updated_at",
+        ("Service ID", previous.service_id, current.service_id),
+        ("Last Name", previous.last_name, current.last_name),
+        ("Other Names", previous.other_names, current.other_names),
+        (
+            "Gender",
+            getattr(previous.gender, "sex", None),
+            getattr(current.gender, "sex", None),
+        ),
+        ("Date of Birth", previous.dob, current.dob),
+        ("Hometown", previous.hometown, current.hometown),
+        (
+            "Region",
+            getattr(previous.region, "region_name", None),
+            getattr(current.region, "region_name", None),
+        ),
+        (
+            "Religion",
+            getattr(previous.religion, "religion_name", None),
+            getattr(current.religion, "religion_name", None),
+        ),
+        ("Nationality", previous.nationality, current.nationality),
+        ("Address", previous.address, current.address),
+        ("Email", previous.email, current.email),
+        (
+            "Marital Status",
+            previous.marital_status.marital_status_name,
+            current.marital_status.marital_status_name,
+        ),
+        (
+            "Unit",
+            getattr(previous.unit, "unit_name", None),
+            getattr(current.unit, "unit_name", None),
+        ),
+        (
+            "Grade",
+            getattr(previous.grade, "grade_name", None),
+            getattr(current.grade, "grade_name", None),
+        ),
+        ("Station", previous.station, current.station),
+        (
+            "Structure",
+            getattr(previous.structure, "structure_name", None),
+            getattr(current.structure, "structure_name", None),
+        ),
+        (
+            "Blood Group",
+            getattr(previous.blood_group, "blood_group_name", None),
+            getattr(current.blood_group, "blood_group_name", None),
+        ),
+        ("Disable", previous.disable, current.disable),
+        ("Social Security", previous.social_security, current.social_security),
+        ("Category", previous.category, current.category),
+        ("Appointment Date", previous.appointment_date, current.appointment_date),
+        ("Confirmation Date", previous.confirmation_date, current.confirmation_date),
+        ("Probation", previous.probation, current.probation),
+        (
+            "Entry Qualification",
+            previous.entry_qualification,
+            current.entry_qualification,
+        ),
     ]
-
-    for field in fields:
-        old_record.pop(field, None)
-        new_record.pop(field, None)
-
-    return old_record, new_record
+    changes = generate_text(fields)
+    return changes
 
 
-def get_records_changed(previous_record, current_record):
-    id_fields = [
-        "gender",
-        "marital_status",
-        "unit",
-        "grade",
-        "region",
-        "religion",
-        "structure",
-        "blood_group",
+def unregistered_employee_record_changes(previous, current):
+    fields = [
+        ("Service ID", previous.service_id, current.service_id),
+        ("Last Name", previous.last_name, current.last_name),
+        ("Other Names", previous.other_names, current.other_names),
+        (
+            "Unit",
+            getattr(previous.unit, "unit_name", None),
+            getattr(current.unit, "unit_name", None),
+        ),
+        (
+            "Grade",
+            getattr(previous.grade, "grade_name", None),
+            getattr(current.grade, "grade_name", None),
+        ),
+        ("Social Security", previous.social_security, current.social_security),
     ]
-
-    old_record = previous_record.__dict__.copy()
-    new_record = current_record.__dict__.copy()
-
-    # Retrieve actual names for foreign key field. Eg: gender_id: 1 -> gender: Male
-    for field in id_fields:
-        previous_value = get_field_value(previous_record, field)
-        current_value = get_field_value(current_record, field)
-
-        if previous_value is False and current_value is False:
-            continue
-
-        old_record[field] = get_field_value(previous_record, field)
-        new_record[field] = get_field_value(current_record, field)
-
-    # Remove unwanted fields
-    old_record, new_record = exclude_fields(old_record, new_record)
-
-    records_changed = []
-
-    for key, value in old_record.items():
-        new_record_value = new_record[key]
-
-        if new_record_value != value:
-            readable_key = key.replace("_", " ").capitalize()
-            text = f"{readable_key}: {value or 'None'} → {new_record_value or 'None'}"
-            records_changed.append(text)
-
-    return ", ".join(records_changed)
+    changes = generate_text(fields)
+    return changes
