@@ -28,7 +28,7 @@ class TerminationOfAppointmentSerializer(serializers.ModelSerializer):
         if cause_of_termination_id:
             cause = models.CausesOfTermination.objects.get(
                 id=cause_of_termination_id
-            ).cause
+            ).termination_cause
             representation.update({"cause": cause})
 
         if termination_status_id:

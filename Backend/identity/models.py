@@ -7,7 +7,7 @@ from api.models import CustomUser
 
 class Identity(models.Model):
     employee = models.ForeignKey(
-        Employee, on_delete=models.CASCADE, related_name="identities"
+        Employee, on_delete=models.CASCADE, related_name="identity"
     )
     voters_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     national_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
