@@ -8,7 +8,7 @@ class Employee(models.Model):
     last_name = models.CharField(max_length=255)
     other_names = models.CharField(max_length=255)
     gender = models.ForeignKey("Gender", on_delete=models.PROTECT)
-    dob = models.DateField()
+    dob = models.DateField(blank=True, null=True)
     hometown = models.CharField(max_length=255, null=True, blank=True)
     region = models.ForeignKey(
         "Region", on_delete=models.PROTECT, null=True, blank=True
@@ -80,7 +80,7 @@ class Units(models.Model):
         verbose_name = "unit"
 
     def __str__(self):
-        return f"{self.unit_name} - {self.city}"
+        return f"{self.unit_name}"
 
 
 class Gender(models.Model):

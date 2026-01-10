@@ -5,6 +5,7 @@ from api import network_exceptions
 import logging
 from rest_framework.exceptions import ValidationError
 from .utils import handle_validation_error
+from django.db.models.deletion import ProtectedError
 
 logger = logging.getLogger(__name__)
 
@@ -79,10 +80,16 @@ def custom_exception_handler(exc, context):
         )
 
     # Handles all validation errors
-    elif isinstance(exc, ValidationError):
-        message = handle_validation_error(exc)
-        logger.exception(message)
-        return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+    # elif isinstance(exc, ValidationError):
+    #     message = handle_validation_error(exc)
+    #     logger.exception(message)
+    #     return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+
+    elif isinstance(exc, ProtectedError):
+        return Response(
+            {"error": "This record cannot be deleted because it is currently in use."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
     else:
         # Fall back to default handler

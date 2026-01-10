@@ -35,36 +35,55 @@ class StandardResultsSetPagination(pagination.PageNumberPagination):
 # * EMPLOYEES
 class CreateEmployeeAPIView(generics.CreateAPIView):
     queryset = models.Employee.objects.all()
-    serializer_class = serializers.EmployeeSerializer
+    serializer_class = serializers.EmployeeWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        read_serializer = serializers.EmployeeReadSerializer(self.employee)
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        employee = serializer.save(
+        self.employee = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Employee({employee}) created.")
+        logger.debug(f"Employee({self.employee}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names})",
+            activity=f"{self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}) created."
+            f"Activity feed({self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}) created."
         )
 
 
 class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.EmployeeSerializer
+    serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
 
 class ListEmployeesAPIView(generics.ListAPIView):
-    queryset = models.Employee.objects.all()
-    serializer_class = serializers.EmployeeSerializer
+    queryset = models.Employee.objects.all().select_related(
+        "gender",
+        "region",
+        "religion",
+        "marital_status",
+        "unit",
+        "grade",
+        "structure",
+        "blood_group",
+        "created_by",
+        "updated_by",
+    )
+    serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
     pagination_class = LargeResultsSetPagination
@@ -73,31 +92,41 @@ class ListEmployeesAPIView(generics.ListAPIView):
 class EditEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.EmployeeSerializer
+    serializer_class = serializers.EmployeeWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        read_serializer = serializers.EmployeeReadSerializer(self.employee)
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_employee = self.get_object()
-        employee = serializer.save(updated_by=self.request.user)
+        self.employee = serializer.save(updated_by=self.request.user)
         logger.debug(f"Employee({previous_employee}) updated.")
 
-        changes = employee_record_changes(previous_employee, employee)
+        changes = employee_record_changes(previous_employee, self.employee)
 
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}): {changes}",
+                activity=f"{self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}",
             )
             logger.debug(
-                f"Activity feed({self.request.user} updated Employee(Service ID: {employee.service_id} — Last Name: {employee.last_name} — Other Names: {employee.other_names}): {changes}) created."
+                f"Activity feed({self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}) created."
             )
 
 
 class DeleteEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.EmployeeSerializer
+    serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
