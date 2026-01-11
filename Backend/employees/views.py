@@ -45,7 +45,10 @@ class CreateEmployeeAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
 
         read_serializer = serializers.EmployeeReadSerializer(self.employee)
-        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+        response_data = dict(read_serializer.data)
+        response_data["warnings"] = serializer.warnings
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
         self.employee = serializer.save(
@@ -104,7 +107,10 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
         self.perform_update(serializer)
 
         read_serializer = serializers.EmployeeReadSerializer(self.employee)
-        return Response(read_serializer.data)
+        response_data = dict(read_serializer.data)
+        response_data["warnings"] = serializer.warnings
+
+        return Response(response_data)
 
     def perform_update(self, serializer):
         previous_employee = self.get_object()

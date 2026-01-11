@@ -29,6 +29,38 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
     def is_standard_user(request):
         return request.user.role == "STANDARD USER"
 
+    @staticmethod
+    def validate_name(field, value):
+        if not value:
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+            if char not in VALID_CHARS:
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters, spaces, hyphens, and periods."
+                )
+        return value
+
+    @staticmethod
+    def validate_other_text(field, value):
+        if not value:
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " ", ","}
+
+        for char in value:
+            if char not in VALID_CHARS:
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters, spaces, hyphens, commas, and periods."
+                )
+        return value
+
     def update(self, instance, validated_data):
         request = self.context.get("request")
         unrestricted_fields = [
@@ -59,27 +91,20 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                 detail=f"You do not have permission to edit employee details."
             )
 
-    @staticmethod
-    def validate_name(field, value):
-        if not value:
-            return value
-
-        import string
-
-        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
-
-        for char in value:
-            if char not in VALID_CHARS:
-                raise serializers.ValidationError(
-                    f"{field} can only contain letters, spaces, hyphens, and periods."
-                )
-        return value
-
     def validate_last_name(self, value):
         return self.validate_name("Last Name", value)
 
     def validate_other_names(self, value):
         return self.validate_name("Other Names", value)
+
+    def validate_hometown(self, value):
+        return self.validate_other_text("Hometown", value)
+
+    def validate_nationality(self, value):
+        return self.validate_other_text("Nationality", value)
+
+    def validate_entry_qualification(self, value):
+        return self.validate_other_text("Entry Qualification", value)
 
     def validate_social_security(self, value):
         if value is None:
@@ -93,6 +118,8 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
+        self.warnings = []
+
         social_security = attrs.get("social_security", None)
 
         if social_security and len(social_security) == 13:
@@ -105,7 +132,31 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                 dob = datetime.strptime(f"{year}-{month}-{day}", "%y-%m-%d")
                 attrs["dob"] = dob.strftime("%Y-%m-%d")
             except ValueError:
-                pass
+                self.warnings.append(
+                    "DOB could not be inferred from the social security number."
+                )
+
+        # Assign station
+        unit = attrs.get("unit", None)
+        if unit:
+            city = models.Units.objects.get(unit_name=unit).city
+            attrs["station"] = city
+
+        # Assign probation
+        appointment_date = attrs.get("appointment_date", None)
+        confirmation_date = attrs.get("confirmation_date", None)
+
+        if confirmation_date and appointment_date:
+            if confirmation_date <= appointment_date:
+                self.warnings.append(
+                    "Could not assign probation. Confirmation date should be after appointment date."
+                )
+            else:
+                from dateutil.relativedelta import relativedelta
+
+                delta = relativedelta(confirmation_date, appointment_date)
+                probation_years = delta.years + (1 if delta.months or delta.days else 0)
+                attrs["probation"] = probation_years
 
         return super().validate(attrs)
 
