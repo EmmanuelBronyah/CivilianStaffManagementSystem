@@ -2,7 +2,7 @@ def generate_text(fields):
     changes = [
         f'{label}: {"N/A" if old == "" or old is None else old} → {"N/A" if new == "" or new is None else new}'
         for label, old, new in fields
-        if old != new
+        if str(old) != str(new)
     ]
     return " — ".join(changes)
 
@@ -90,6 +90,23 @@ def unregistered_employee_record_changes(previous, current):
             getattr(current.grade, "grade_name", None),
         ),
         ("Social Security", previous.social_security, current.social_security),
+    ]
+    changes = generate_text(fields)
+    return changes
+
+
+def grade_record_changes(previous, current):
+    fields = [
+        (
+            "Rank",
+            getattr(previous.rank, "category_name", None),
+            getattr(current.rank, "category_name", None),
+        ),
+        (
+            "Structure",
+            getattr(previous.structure, "structure_name", None),
+            getattr(current.structure, "structure_name", None),
+        ),
     ]
     changes = generate_text(fields)
     return changes

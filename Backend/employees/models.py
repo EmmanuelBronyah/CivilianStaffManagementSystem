@@ -31,7 +31,7 @@ class Employee(models.Model):
     )
     disable = models.BooleanField(null=True, blank=True)
     social_security = models.CharField(max_length=13)
-    category = models.CharField(max_length=25, null=True, blank=True)
+    category = models.CharField(max_length=25)
     appointment_date = models.DateField()
     confirmation_date = models.DateField(null=True, blank=True)
     probation = models.CharField(null=True, blank=True)
@@ -60,8 +60,21 @@ class Employee(models.Model):
         return f"{self.service_id}"
 
 
+class Category(models.Model):
+    category_name = models.CharField(max_length=50)
+
+    class Meta:
+        db_table = "category"
+        verbose_name = "category"
+
+    def __str__(self):
+        return self.category_name
+
+
 class Grades(models.Model):
     grade_name = models.CharField(max_length=255)
+    rank = models.ForeignKey(Category, on_delete=models.PROTECT)
+    structure = models.ForeignKey("Structure", on_delete=models.PROTECT)
 
     class Meta:
         db_table = "grades"

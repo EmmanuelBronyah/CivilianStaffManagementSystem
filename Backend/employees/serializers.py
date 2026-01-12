@@ -2,6 +2,10 @@ from rest_framework import serializers
 from . import models
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from api.models import CustomUser
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 # TODO: Last name can hold a value decimal value as string. Fix it
@@ -15,7 +19,7 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Employee
         fields = "__all__"
-        read_only_fields = ("dob", "station", "category", "probation")
+        read_only_fields = ("dob", "station", "category", "structure", "probation")
 
     @staticmethod
     def is_admin_user(request):
@@ -61,6 +65,130 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                 )
         return value
 
+    @staticmethod
+    def validate_other_text_with_digits(field, value):
+        if not value:
+            return value
+
+        import string
+
+        VALID_CHARS = (
+            set(string.ascii_letters) | set(string.digits) | {".", "-", " ", ","}
+        )
+
+        for char in value:
+            if char not in VALID_CHARS:
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters, numbers, spaces, hyphens, commas, and periods."
+                )
+        return value
+
+    def assign_dob(self, attrs):
+        social_security = attrs.get("social_security", None)
+
+        if social_security and len(social_security) == 13:
+            dob_string = social_security[3:9]
+            year, month, day = dob_string[:2], dob_string[2:4], dob_string[4:]
+
+            from datetime import datetime
+            from dateutil.relativedelta import relativedelta
+
+            try:
+                dob = datetime.strptime(f"{year}-{month}-{day}", "%y-%m-%d").date()
+                today = datetime.now().date()
+
+                if dob >= today:
+                    self.warnings.append(
+                        "Could not assign DOB. DOB cannot be a future date."
+                    )
+
+                else:
+                    age = relativedelta(today, dob).years
+                    required_age = 18
+
+                    if age < required_age:
+                        self.warnings.append(
+                            "Could not assign DOB. Age is below the required age."
+                        )
+                    else:
+                        attrs["dob"] = dob.strftime("%Y-%m-%d")
+
+            except ValueError:
+                self.warnings.append(
+                    "DOB could not be inferred from the social security number."
+                )
+
+        return attrs
+
+    def assign_station(self, attrs):
+        unit = attrs.get("unit", None)
+
+        if unit:
+
+            try:
+                attrs["station"] = unit.city
+
+            except models.Units.DoesNotExist:
+                self.warnings.append(
+                    "Station could not be assigned because the unit is invalid."
+                )
+
+        return attrs
+
+    def assign_probation(self, attrs):
+        appointment_date = attrs.get("appointment_date", None)
+        confirmation_date = attrs.get("confirmation_date", None)
+
+        if confirmation_date and appointment_date:
+            if confirmation_date <= appointment_date:
+                self.warnings.append(
+                    "Could not assign probation. Confirmation date should be after appointment date."
+                )
+            else:
+                from dateutil.relativedelta import relativedelta
+
+                delta = relativedelta(confirmation_date, appointment_date)
+                probation_years = delta.years + (1 if delta.months else 0)
+                attrs["probation"] = probation_years
+
+        return attrs
+
+    def assign_category(self, attrs):
+        grade = attrs.get("grade", None)
+
+        if grade:
+
+            try:
+                attrs["category"] = grade.rank.category_name
+
+            except models.Grades.DoesNotExist:
+                self.warnings.append(
+                    "Category could not be assigned because the grade is invalid."
+                )
+
+            except models.Category.DoesNotExist:
+                self.warnings.append("Category to be assigned is invalid.")
+
+        return attrs
+
+    def assign_structure(self, attrs):
+        grade = attrs.get("grade", None)
+
+        if grade:
+
+            try:
+                attrs["structure"] = grade.structure
+
+            except models.Grades.DoesNotExist:
+                self.warnings.append(
+                    "Category could not be assigned because the grade is invalid."
+                )
+
+            except models.Structure.DoesNotExist:
+                self.warnings.append("Structure to be assigned is invalid.")
+
+        return attrs
+
     def update(self, instance, validated_data):
         request = self.context.get("request")
         unrestricted_fields = [
@@ -97,6 +225,9 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
     def validate_other_names(self, value):
         return self.validate_name("Other Names", value)
 
+    def validate_address(self, value):
+        return self.validate_other_text_with_digits("Address", value)
+
     def validate_hometown(self, value):
         return self.validate_other_text("Hometown", value)
 
@@ -104,7 +235,7 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         return self.validate_other_text("Nationality", value)
 
     def validate_entry_qualification(self, value):
-        return self.validate_other_text("Entry Qualification", value)
+        return self.validate_other_text_with_digits("Entry Qualification", value)
 
     def validate_social_security(self, value):
         if value is None:
@@ -120,43 +251,15 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         self.warnings = []
 
-        social_security = attrs.get("social_security", None)
+        attrs = self.assign_dob(attrs)
 
-        if social_security and len(social_security) == 13:
-            dob_string = social_security[3:9]
-            year, month, day = dob_string[:2], dob_string[2:4], dob_string[4:]
+        attrs = self.assign_station(attrs)
 
-            from datetime import datetime
+        attrs = self.assign_probation(attrs)
 
-            try:
-                dob = datetime.strptime(f"{year}-{month}-{day}", "%y-%m-%d")
-                attrs["dob"] = dob.strftime("%Y-%m-%d")
-            except ValueError:
-                self.warnings.append(
-                    "DOB could not be inferred from the social security number."
-                )
+        attrs = self.assign_category(attrs)
 
-        # Assign station
-        unit = attrs.get("unit", None)
-        if unit:
-            city = models.Units.objects.get(unit_name=unit).city
-            attrs["station"] = city
-
-        # Assign probation
-        appointment_date = attrs.get("appointment_date", None)
-        confirmation_date = attrs.get("confirmation_date", None)
-
-        if confirmation_date and appointment_date:
-            if confirmation_date <= appointment_date:
-                self.warnings.append(
-                    "Could not assign probation. Confirmation date should be after appointment date."
-                )
-            else:
-                from dateutil.relativedelta import relativedelta
-
-                delta = relativedelta(confirmation_date, appointment_date)
-                probation_years = delta.years + (1 if delta.months or delta.days else 0)
-                attrs["probation"] = probation_years
+        attrs = self.assign_structure(attrs)
 
         return super().validate(attrs)
 
@@ -178,16 +281,27 @@ class EmployeeReadSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class CategorySerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Category
+        fields = "__all__"
+
+
 class GradeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Grades
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
+
+class GradeReadSerializer(serializers.ModelSerializer):
+    rank = serializers.StringRelatedField()
+    structure = serializers.StringRelatedField()
+
+    class Meta:
+        model = models.Grades
+        fields = "__all__"
 
 
 class UnitSerializer(serializers.ModelSerializer):
@@ -196,22 +310,12 @@ class UnitSerializer(serializers.ModelSerializer):
         model = models.Units
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
-
 
 class GenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Gender
         fields = "__all__"
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
 
 
 class MaritalStatusSerializer(serializers.ModelSerializer):
@@ -220,22 +324,12 @@ class MaritalStatusSerializer(serializers.ModelSerializer):
         model = models.MaritalStatus
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
-
 
 class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Region
         fields = "__all__"
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
 
 
 class ReligionSerializer(serializers.ModelSerializer):
@@ -244,22 +338,12 @@ class ReligionSerializer(serializers.ModelSerializer):
         model = models.Religion
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
-
 
 class StructureSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Structure
         fields = "__all__"
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
 
 
 class BloodGroupSerializer(serializers.ModelSerializer):
@@ -268,11 +352,6 @@ class BloodGroupSerializer(serializers.ModelSerializer):
         model = models.BloodGroup
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
-
 
 class DocumentFileSerializer(serializers.ModelSerializer):
 
@@ -280,19 +359,9 @@ class DocumentFileSerializer(serializers.ModelSerializer):
         model = models.DocumentFile
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
-
 
 class UnregisteredEmployeesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.UnregisteredEmployees
         fields = "__all__"
-
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation

@@ -13,7 +13,7 @@ from datetime import datetime
 from django.db.models import F
 from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
-from .utils import unregistered_employee_record_changes, employee_record_changes
+from . import utils
 
 
 logger = logging.getLogger(__name__)
@@ -74,18 +74,7 @@ class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
 
 
 class ListEmployeesAPIView(generics.ListAPIView):
-    queryset = models.Employee.objects.all().select_related(
-        "gender",
-        "region",
-        "religion",
-        "marital_status",
-        "unit",
-        "grade",
-        "structure",
-        "blood_group",
-        "created_by",
-        "updated_by",
-    )
+    queryset = models.Employee.objects.all()
     serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
@@ -117,7 +106,7 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
         self.employee = serializer.save(updated_by=self.request.user)
         logger.debug(f"Employee({previous_employee}) updated.")
 
-        changes = employee_record_changes(previous_employee, self.employee)
+        changes = utils.employee_record_changes(previous_employee, self.employee)
 
         if changes:
             ActivityFeeds.objects.create(
@@ -191,6 +180,83 @@ class ForecastedRetireesAPIView(APIView):
         return Response({"results": results}, status=status.HTTP_200_OK)
 
 
+# * CATEGORY
+class CreateCategoryAPIView(generics.CreateAPIView):
+    queryset = models.Category.objects.all()
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        category = serializer.save()
+        logger.debug(f"Category({category}) created.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new Category({category.category_name})",
+        )
+        logger.debug(
+            f"Activity feed({self.request.user} added a new Category({category.category_name}) created."
+        )
+
+
+class RetrieveCategoryAPIView(generics.RetrieveAPIView):
+    queryset = models.Category.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class ListCategoryAPIView(generics.ListAPIView):
+    queryset = models.Category.objects.all()
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class EditCategoryAPIView(generics.UpdateAPIView):
+    queryset = models.Category.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_update(self, serializer):
+        previous_category = self.get_object()
+        category = serializer.save()
+        logger.debug(f"Category({previous_category}) updated.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}",
+        )
+        logger.debug(
+            f"Activity feed({self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}) created."
+        )
+
+
+class DeleteCategoryAPIView(generics.DestroyAPIView):
+    queryset = models.Category.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.CategorySerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        category = instance.category_name
+        instance.delete()
+        logger.debug(f"Category({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Category({category}) was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Category({category}) was deleted by {self.request.user}) created."
+        )
+
+
 # * GRADE
 class CreateGradeAPIView(generics.CreateAPIView):
     queryset = models.Grades.objects.all()
@@ -198,30 +264,39 @@ class CreateGradeAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.GradeReadSerializer(self.grade)
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        grade = serializer.save()
-        logger.debug(f"Grade({grade}) created.")
+        self.grade = serializer.save()
+        logger.debug(f"Grade({self.grade}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Grade({grade.grade_name})",
+            activity=f"{self.request.user} added a new Grade({self.grade.grade_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new Grade({grade.grade_name}) created."
+            f"Activity feed({self.request.user} added a new Grade({self.grade.grade_name}) created."
         )
 
 
 class RetrieveGradeAPIView(generics.RetrieveAPIView):
     queryset = models.Grades.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.GradeSerializer
+    serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
 
 class ListGradesAPIView(generics.ListAPIView):
     queryset = models.Grades.objects.all()
-    serializer_class = serializers.GradeSerializer
+    serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
     pagination_class = LargeResultsSetPagination
@@ -234,18 +309,33 @@ class EditGradeAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.GradeReadSerializer(self.grade)
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_grade = self.get_object()
-        grade = serializer.save()
+        self.grade = serializer.save()
         logger.debug(f"Grade({previous_grade}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Grade({previous_grade.grade_name}): {previous_grade.grade_name} → {grade.grade_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Grade({previous_grade.grade_name}): {previous_grade.grade_name} → {grade.grade_name}) created."
-        )
+        changes = utils.grade_record_changes(previous_grade, self.grade)
+
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Grade({previous_grade.grade_name}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Grade({previous_grade.grade_name}): {changes}) created."
+            )
 
 
 class DeleteGradeAPIView(generics.DestroyAPIView):
@@ -952,7 +1042,9 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
         employee = serializer.save()
         logger.debug(f"Unregistered Employee({previous_employee}) updated.")
 
-        changes = unregistered_employee_record_changes(previous_employee, employee)
+        changes = utils.unregistered_employee_record_changes(
+            previous_employee, employee
+        )
 
         ActivityFeeds.objects.create(
             creator=self.request.user,

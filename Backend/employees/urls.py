@@ -33,6 +33,28 @@ urlpatterns = [
         views.ForecastedRetireesAPIView.as_view(),
         name="employee-pension",
     ),
+    # ----- CATEGORY -----
+    path("category/", views.ListCategoryAPIView.as_view(), name="list-all-category"),
+    path(
+        "category/create/",
+        views.CreateCategoryAPIView.as_view(),
+        name="create-category",
+    ),
+    path(
+        "category/<int:pk>/detail/",
+        views.RetrieveCategoryAPIView.as_view(),
+        name="retrieve-category",
+    ),
+    path(
+        "category/<int:pk>/edit/",
+        views.EditCategoryAPIView.as_view(),
+        name="edit-category",
+    ),
+    path(
+        "category/<int:pk>/delete/",
+        views.DeleteCategoryAPIView.as_view(),
+        name="delete-category",
+    ),
     # ----- GRADES -----
     path("grades/", views.ListGradesAPIView.as_view(), name="list-all-grades"),
     path("grades/create/", views.CreateGradeAPIView.as_view(), name="create-grade"),
