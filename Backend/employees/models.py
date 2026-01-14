@@ -8,6 +8,7 @@ class Employee(models.Model):
     last_name = models.CharField(max_length=255)
     other_names = models.CharField(max_length=255)
     gender = models.ForeignKey("Gender", on_delete=models.PROTECT)
+    age = models.CharField(max_length=3, null=True, blank=True)
     dob = models.DateField(blank=True, null=True)
     hometown = models.CharField(max_length=255, null=True, blank=True)
     region = models.ForeignKey(

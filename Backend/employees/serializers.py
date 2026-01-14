@@ -1,41 +1,32 @@
 from rest_framework import serializers
 from . import models
-from rest_framework.exceptions import PermissionDenied, ValidationError
-from api.models import CustomUser
+from rest_framework.exceptions import PermissionDenied
 import logging
+from . import utils
 
 
 logger = logging.getLogger(__name__)
 
 
-# TODO: Last name can hold a value decimal value as string. Fix it
-# TODO: An empty confirmation date ("") sent from the frontend should be converted to None before saving into database to avoid "Invalid date format error."
-# TODO: Ensure that service ids must be digits
-# ? GENDER: How can  gender be deleted with it's associated employees even though the gender field in the employee model has a model.PROTECT
-
-
-class EmployeeWriteSerializer(serializers.ModelSerializer):
+class BaseEmployeeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Employee
         fields = "__all__"
-        read_only_fields = ("dob", "station", "category", "structure", "probation")
 
-    @staticmethod
-    def is_admin_user(request):
-        return (
-            request.user.is_staff
+    def is_admin(self):
+        request = self.context.get("request")
+        return bool(
+            request
+            and request.user.is_staff
             and request.user.is_superuser
             and request.user.role == "ADMINISTRATOR"
         )
 
     @staticmethod
-    def is_standard_user(request):
-        return request.user.role == "STANDARD USER"
-
-    @staticmethod
     def validate_name(field, value):
         if not value:
+            logger.debug(f"{field} is empty")
             return value
 
         import string
@@ -43,15 +34,23 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
 
         for char in value:
+
             if char not in VALID_CHARS:
+                logger.debug(
+                    f"{field} can only contain letters, spaces, hyphens, and periods."
+                )
+
                 raise serializers.ValidationError(
                     f"{field} can only contain letters, spaces, hyphens, and periods."
                 )
+
+        logger.debug(f"Successfully assigned {field}")
         return value
 
     @staticmethod
     def validate_other_text(field, value):
         if not value:
+            logger.debug(f"{field} is empty")
             return value
 
         import string
@@ -59,15 +58,23 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         VALID_CHARS = set(string.ascii_letters) | {".", "-", " ", ","}
 
         for char in value:
+
             if char not in VALID_CHARS:
+                logger.debug(
+                    f"{field} can only contain letters, spaces, hyphens, commas, and periods."
+                )
+
                 raise serializers.ValidationError(
                     f"{field} can only contain letters, spaces, hyphens, commas, and periods."
                 )
+
+        logger.debug(f"Successfully assigned {field}")
         return value
 
     @staticmethod
     def validate_other_text_with_digits(field, value):
         if not value:
+            logger.debug(f"{field} is empty")
             return value
 
         import string
@@ -77,16 +84,29 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         )
 
         for char in value:
+
             if char not in VALID_CHARS:
+                logger.debug(
+                    f"{field} can only contain letters, numbers, spaces, hyphens, commas, and periods."
+                )
+
                 raise serializers.ValidationError(
                     f"{field} can only contain letters, numbers, spaces, hyphens, commas, and periods."
                 )
+
+        logger.debug(f"Successfully assigned {field}")
         return value
 
-    def assign_dob(self, attrs):
+    def assign_dob_and_age(self, attrs):
+        if self.is_admin() and ("dob" in attrs or "age" in attrs):
+            logger.debug("Admin provided DOB/Age — skipping auto-assignment.")
+            return attrs
+
         social_security = attrs.get("social_security", None)
 
         if social_security and len(social_security) == 13:
+            logger.debug("Social Security has 13 characters")
+
             dob_string = social_security[3:9]
             year, month, day = dob_string[:2], dob_string[2:4], dob_string[4:]
 
@@ -98,6 +118,8 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                 today = datetime.now().date()
 
                 if dob >= today:
+                    logger.debug("Could not assign DOB. DOB cannot be a future date.")
+
                     self.warnings.append(
                         "Could not assign DOB. DOB cannot be a future date."
                     )
@@ -107,13 +129,24 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                     required_age = 18
 
                     if age < required_age:
+                        logger.debug(
+                            "Could not assign DOB. Age is below the required age."
+                        )
+
                         self.warnings.append(
                             "Could not assign DOB. Age is below the required age."
                         )
                     else:
                         attrs["dob"] = dob.strftime("%Y-%m-%d")
+                        attrs["age"] = age
+
+                        logger.debug("Successfully assigned DOB and Age.")
 
             except ValueError:
+                logger.debug(
+                    "DOB could not be inferred from the social security number."
+                )
+
                 self.warnings.append(
                     "DOB could not be inferred from the social security number."
                 )
@@ -121,14 +154,23 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         return attrs
 
     def assign_station(self, attrs):
+        if self.is_admin() and ("station" in attrs):
+            logger.debug("Admin provided Station — skipping auto-assignment.")
+            return attrs
+
         unit = attrs.get("unit", None)
 
         if unit:
 
             try:
                 attrs["station"] = unit.city
+                logger.debug("Successfully assigned Station.")
 
             except models.Units.DoesNotExist:
+                logger.debug(
+                    "Station could not be assigned because the unit is invalid."
+                )
+
                 self.warnings.append(
                     "Station could not be assigned because the unit is invalid."
                 )
@@ -136,11 +178,21 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         return attrs
 
     def assign_probation(self, attrs):
+        if self.is_admin() and ("probation" in attrs):
+            logger.debug("Admin provided Probation — skipping auto-assignment.")
+            return attrs
+
         appointment_date = attrs.get("appointment_date", None)
         confirmation_date = attrs.get("confirmation_date", None)
 
         if confirmation_date and appointment_date:
+            logger.debug("Confirmation date and Appointment date both have values")
+
             if confirmation_date <= appointment_date:
+                logger.debug(
+                    "Could not assign probation. Confirmation date should be after appointment date."
+                )
+
                 self.warnings.append(
                     "Could not assign probation. Confirmation date should be after appointment date."
                 )
@@ -151,73 +203,68 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
                 probation_years = delta.years + (1 if delta.months else 0)
                 attrs["probation"] = probation_years
 
+                logger.debug("Successfully assigned Probation")
+
         return attrs
 
     def assign_category(self, attrs):
+        if self.is_admin() and ("category" in attrs):
+            logger.debug("Admin provided Category — skipping auto-assignment.")
+            return attrs
+
         grade = attrs.get("grade", None)
 
         if grade:
 
             try:
                 attrs["category"] = grade.rank.category_name
+                logger.debug("Successfully assigned Category")
 
             except models.Grades.DoesNotExist:
+                logger.debug(
+                    "Category could not be assigned because the grade is invalid."
+                )
+
                 self.warnings.append(
                     "Category could not be assigned because the grade is invalid."
                 )
 
             except models.Category.DoesNotExist:
+                logger.debug("Category to be assigned is invalid.")
+
                 self.warnings.append("Category to be assigned is invalid.")
 
         return attrs
 
     def assign_structure(self, attrs):
+        if self.is_admin() and ("structure" in attrs):
+            logger.debug("Admin provided Structure — skipping auto-assignment.")
+            return attrs
+
         grade = attrs.get("grade", None)
 
         if grade:
+            logger.debug("Grade has a value")
 
             try:
                 attrs["structure"] = grade.structure
+                logger.debug("Successfully assigned Structure")
 
             except models.Grades.DoesNotExist:
+                logger.debug(
+                    "Structure could not be assigned because the grade is invalid."
+                )
+
                 self.warnings.append(
-                    "Category could not be assigned because the grade is invalid."
+                    "Structure could not be assigned because the grade is invalid."
                 )
 
             except models.Structure.DoesNotExist:
+                logger.debug("Structure to be assigned is invalid.")
+
                 self.warnings.append("Structure to be assigned is invalid.")
 
         return attrs
-
-    def update(self, instance, validated_data):
-        request = self.context.get("request")
-        unrestricted_fields = [
-            "unit",
-            "structure",
-            "blood_group",
-            "disable",
-            "entry_qualification",
-        ]
-
-        is_admin_user = self.is_admin_user(request)
-        is_standard_user = self.is_standard_user(request)
-
-        if is_admin_user:
-            return super().update(instance, validated_data)
-
-        elif is_standard_user:
-            for key in validated_data.keys():
-                if key not in unrestricted_fields:
-                    raise PermissionDenied(
-                        detail=f"You do not have permission to edit the {key} field."
-                    )
-
-            return super().update(instance, validated_data)
-
-        else:
-            raise PermissionDenied(
-                detail=f"You do not have permission to edit employee details."
-            )
 
     def validate_last_name(self, value):
         return self.validate_name("Last Name", value)
@@ -239,19 +286,34 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
 
     def validate_social_security(self, value):
         if value is None:
+            logger.debug("Social Security is empty")
             return value
 
         if not value.isalnum():
+            logger.debug("Social Security can only contain letters and numbers.")
+
             raise serializers.ValidationError(
                 "Field can only contain letters and numbers."
             )
 
         return value
 
+    def validate_service_id(self, value):
+        if value is None:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Field can only contain numbers.")
+
+        return value
+
     def validate(self, attrs):
         self.warnings = []
 
-        attrs = self.assign_dob(attrs)
+        attrs = self.assign_dob_and_age(attrs)
 
         attrs = self.assign_station(attrs)
 
@@ -264,17 +326,40 @@ class EmployeeWriteSerializer(serializers.ModelSerializer):
         return super().validate(attrs)
 
 
+class EmployeeCreateSerializer(BaseEmployeeSerializer):
+
+    class Meta:
+        model = models.Employee
+        exclude = ("dob", "age", "station", "category", "structure", "probation")
+
+
+class EmployeeUpdateSerializer(BaseEmployeeSerializer):
+
+    class Meta(BaseEmployeeSerializer.Meta):
+        pass
+
+
 class EmployeeReadSerializer(serializers.ModelSerializer):
-    gender = serializers.StringRelatedField()
-    region = serializers.StringRelatedField()
-    religion = serializers.StringRelatedField()
-    marital_status = serializers.StringRelatedField()
-    unit = serializers.StringRelatedField()
-    grade = serializers.StringRelatedField()
-    structure = serializers.StringRelatedField()
-    blood_group = serializers.StringRelatedField()
-    created_by = serializers.StringRelatedField()
-    updated_by = serializers.StringRelatedField()
+    gender_display = serializers.StringRelatedField(source="gender", read_only=True)
+    region_display = serializers.StringRelatedField(source="region", read_only=True)
+    religion_display = serializers.StringRelatedField(source="religion", read_only=True)
+    marital_status_display = serializers.StringRelatedField(
+        source="marital_status", read_only=True
+    )
+    unit_display = serializers.StringRelatedField(source="unit", read_only=True)
+    grade_display = serializers.StringRelatedField(source="grade", read_only=True)
+    structure_display = serializers.StringRelatedField(
+        source="structure", read_only=True
+    )
+    blood_group_display = serializers.StringRelatedField(
+        source="blood_group", read_only=True
+    )
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
 
     class Meta:
         model = models.Employee

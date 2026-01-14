@@ -3,7 +3,7 @@ from . import models
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from . import serializers
 from rest_framework.throttling import UserRateThrottle
-from .permissions import IsAdminUserOrStandardUser
+from .permissions import IsAdminUserOrStandardUser, RestrictFields, CanEditEmployee
 import logging
 from rest_framework.response import Response
 from rest_framework import status
@@ -35,8 +35,8 @@ class StandardResultsSetPagination(pagination.PageNumberPagination):
 # * EMPLOYEES
 class CreateEmployeeAPIView(generics.CreateAPIView):
     queryset = models.Employee.objects.all()
-    serializer_class = serializers.EmployeeWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    serializer_class = serializers.EmployeeCreateSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, RestrictFields]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -84,8 +84,8 @@ class ListEmployeesAPIView(generics.ListAPIView):
 class EditEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.EmployeeWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    serializer_class = serializers.EmployeeUpdateSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, CanEditEmployee]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):

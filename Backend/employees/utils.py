@@ -18,6 +18,7 @@ def employee_record_changes(previous, current):
             getattr(current.gender, "sex", None),
         ),
         ("Date of Birth", previous.dob, current.dob),
+        ("Age", previous.age, current.age),
         ("Hometown", previous.hometown, current.hometown),
         (
             "Region",
