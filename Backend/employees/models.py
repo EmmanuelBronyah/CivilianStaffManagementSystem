@@ -1,7 +1,5 @@
 from django.db import models
 
-# TODO: Check against saving an Unregistered Employee model instance with all it's values set to Null
-
 
 class Employee(models.Model):
     service_id = models.CharField(primary_key=True, max_length=7)

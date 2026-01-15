@@ -14,6 +14,7 @@ from django.db.models import F
 from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
 from . import utils
+from flags.services import create_flag
 
 
 logger = logging.getLogger(__name__)
@@ -66,7 +67,18 @@ class CreateEmployeeAPIView(generics.CreateAPIView):
 
 
 class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
-    queryset = models.Employee.objects.all()
+    queryset = models.Employee.objects.select_related(
+        "gender",
+        "region",
+        "religion",
+        "marital_status",
+        "unit",
+        "grade",
+        "structure",
+        "blood_group",
+        "created_by",
+        "updated_by",
+    )
     lookup_field = "pk"
     serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
@@ -74,7 +86,18 @@ class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
 
 
 class ListEmployeesAPIView(generics.ListAPIView):
-    queryset = models.Employee.objects.all()
+    queryset = models.Employee.objects.select_related(
+        "gender",
+        "region",
+        "religion",
+        "marital_status",
+        "unit",
+        "grade",
+        "structure",
+        "blood_group",
+        "created_by",
+        "updated_by",
+    )
     serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
@@ -287,7 +310,7 @@ class CreateGradeAPIView(generics.CreateAPIView):
 
 
 class RetrieveGradeAPIView(generics.RetrieveAPIView):
-    queryset = models.Grades.objects.all()
+    queryset = models.Grades.objects.select_related("rank", "structure")
     lookup_field = "pk"
     serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
@@ -295,7 +318,7 @@ class RetrieveGradeAPIView(generics.RetrieveAPIView):
 
 
 class ListGradesAPIView(generics.ListAPIView):
-    queryset = models.Grades.objects.all()
+    queryset = models.Grades.objects.select_related("rank", "structure")
     serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
@@ -997,34 +1020,45 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
 # * UNREGISTERED EMPLOYEES
 class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
-    serializer_class = serializers.UnregisteredEmployeesSerializer
+    serializer_class = serializers.UnregisteredEmployeesWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        read_serializer = serializers.UnregisteredEmployeeReadSerializer(self.employee)
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        employee = serializer.save()
-        logger.debug(f"Unregistered Employee({employee}) created.")
+        self.employee = serializer.save()
+        logger.debug(f"Unregistered Employee({self.employee}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Employee Record(ID: {employee.id})",
+            activity=f"{self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Employee Record(ID: {employee.id})) created."
+            f"Activity feed({self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})) created."
         )
+
+        # Flag created record
+        create_flag(self.employee, self.request.user)
 
 
 class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
-    queryset = models.UnregisteredEmployees.objects.all()
+    queryset = models.UnregisteredEmployees.objects.select_related("unit", "grade")
     lookup_field = "pk"
-    serializer_class = serializers.UnregisteredEmployeesSerializer
+    serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
 
 class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
-    queryset = models.UnregisteredEmployees.objects.all()
-    serializer_class = serializers.UnregisteredEmployeesSerializer
+    queryset = models.UnregisteredEmployees.objects.select_related("unit", "grade")
+    serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
     pagination_class = LargeResultsSetPagination
@@ -1033,32 +1067,42 @@ class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
 class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.UnregisteredEmployeesSerializer
+    serializer_class = serializers.UnregisteredEmployeesWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        read_serializer = serializers.UnregisteredEmployeeReadSerializer(self.employee)
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_employee = self.get_object()
-        employee = serializer.save()
+        self.employee = serializer.save()
         logger.debug(f"Unregistered Employee({previous_employee}) updated.")
 
         changes = utils.unregistered_employee_record_changes(
-            previous_employee, employee
+            previous_employee, self.employee
         )
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated Incomplete Employee Record(ID: {employee.id}): {changes}",
+            activity=f"{self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated Incomplete Employee Record(ID: {employee.id}): {changes}) created."
+            f"Activity feed({self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}) created."
         )
 
 
 class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
     lookup_field = "pk"
-    serializer_class = serializers.UnregisteredEmployeesSerializer
+    serializer_class = serializers.UnregisteredEmployeesWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 

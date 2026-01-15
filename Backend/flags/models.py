@@ -7,18 +7,13 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-class FlagType(models.TextChoices):
-    DUPLICATE = "DUPLICATE", "Duplicate record"
-    INVALID_DATA = "INVALID DATA", "Invalid data"
-    POLICY_VIOLATION = "POLICY VIOLATION", "Policy violation"
-    NEEDS_REVIEW = "NEEDS REVIEW", "Needs review"
-
-
 class Flags(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.CharField(max_length=7)
     content_object = GenericForeignKey()  # Abstract column
-    flag_type = models.CharField(max_length=50, choices=FlagType.choices)
+    flag_type = models.ForeignKey(
+        "FlagType", on_delete=models.SET_NULL, null=True, blank=True
+    )
     field = models.CharField(max_length=50, null=True, blank=True)
     reason = models.TextField()
     service_id = models.CharField(max_length=7, null=True, blank=True)
@@ -62,3 +57,14 @@ class Flags(models.Model):
 
     def __str__(self):
         return f"{str(self.content_object)} - {self.flag_type}"
+
+
+class FlagType(models.Model):
+    flag_type = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = "flag_type"
+        verbose_name = "flag_type"
+
+    def __str__(self):
+        return self.flag_type

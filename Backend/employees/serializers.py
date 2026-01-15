@@ -1,8 +1,6 @@
 from rest_framework import serializers
 from . import models
-from rest_framework.exceptions import PermissionDenied
 import logging
-from . import utils
 
 
 logger = logging.getLogger(__name__)
@@ -381,8 +379,10 @@ class GradeSerializer(serializers.ModelSerializer):
 
 
 class GradeReadSerializer(serializers.ModelSerializer):
-    rank = serializers.StringRelatedField()
-    structure = serializers.StringRelatedField()
+    rank_display = serializers.StringRelatedField(source="rank", read_only=True)
+    structure_display = serializers.StringRelatedField(
+        source="structure", read_only=True
+    )
 
     class Meta:
         model = models.Grades
@@ -445,7 +445,46 @@ class DocumentFileSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class UnregisteredEmployeesSerializer(serializers.ModelSerializer):
+class UnregisteredEmployeesWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UnregisteredEmployees
+        fields = "__all__"
+
+    def validate(self, attrs):
+        system_fields = {"created_by", "updated_by"}
+
+        has_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields
+        )
+
+        if not has_value:
+            raise serializers.ValidationError(
+                "All fields for Unregistered Employee cannot be empty."
+            )
+
+        unit = attrs.get("unit")
+        grade = attrs.get("grade")
+
+        non_unit_grade_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields | {"unit", "grade"}
+        )
+
+        if (unit or grade) and not non_unit_grade_value:
+            raise serializers.ValidationError(
+                "Cannot save Unregistered Employee with Grade or Unit as the only non-empty field."
+            )
+
+        return attrs
+
+
+class UnregisteredEmployeeReadSerializer(serializers.ModelSerializer):
+    unit_display = serializers.StringRelatedField(source="unit", read_only=True)
+    grade_display = serializers.StringRelatedField(source="grade", read_only=True)
 
     class Meta:
         model = models.UnregisteredEmployees
