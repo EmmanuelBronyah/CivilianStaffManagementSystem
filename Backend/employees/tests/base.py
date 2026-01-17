@@ -52,7 +52,13 @@ class EmployeeBaseAPITestCase(APITestCase):
         cls.structure = models.Structure.objects.create(structure_name="Non-medical")
 
         cls.division = Divisions.objects.create(division_name="DCE-IT")
-        cls.grade = models.Grades.objects.create(grade_name="Programmer")
+
+        cls.rank = models.Category.objects.create(category_name="Junior")
+        cls.structure = models.Structure.objects.create(structure_name="Non-Medical")
+
+        cls.grade = models.Grades.objects.create(
+            grade_name="Programmer", rank=cls.rank, structure=cls.structure
+        )
 
         cls.admin_group = Group.objects.create(name="ADMINISTRATOR")
 

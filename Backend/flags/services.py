@@ -1,20 +1,16 @@
 import logging
 from .models import Flags, FlagType
-from django.contrib.contenttypes.models import ContentType
 from activity_feeds.models import ActivityFeeds
+from django.contrib.contenttypes.models import ContentType
 
 logger = logging.getLogger(__name__)
 
 
 def create_flag(instance, user):
-    model_name = instance.__class__.__name__.lower()
-    content_type = ContentType.objects.get(model=model_name)
-
     flag_type = FlagType.objects.get(flag_type="Incomplete Record")
 
     flag = Flags.objects.create(
-        content_type=content_type,
-        object_id=instance.id,
+        content_object=instance,
         flag_type=flag_type,
         field="All",
         reason="Incomplete Record",
@@ -50,3 +46,27 @@ def create_flag(instance, user):
     )
 
     return flag
+
+
+def delete_flag(instance, id, user):
+    content_type = ContentType.objects.get_for_model(instance)
+    flags = Flags.objects.filter(content_type=content_type, object_id=id)
+
+    model = instance.__class__.__name__.lower()
+    model_name = ContentType.objects.get(model=model).name.capitalize()
+
+    for flag in flags:
+        logger.debug(f"Flags({flag}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=user,
+            activity=f"{model_name} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}",
+        )
+
+        logger.debug(
+            f"Activity feed({model_name} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}) created."
+        )
+
+    Flags.objects.filter(id__in=[flag.id for flag in flags]).delete()
+
+    logger.debug("Flags deletion successful.")

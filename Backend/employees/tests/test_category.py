@@ -40,11 +40,14 @@ class CreateCategoryAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("category_name", response.data)
+
         errors = response.data
         for field, field_errors in errors.items():
             self.assertEqual(field, "category_name")
+
             for error in field_errors:
                 self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
@@ -149,11 +152,14 @@ class EditCategoryAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
         self.assertIn("category_name", response.data)
+
         errors = response.data
         for field, field_errors in errors.items():
             self.assertEqual(field, "category_name")
+
             for error in field_errors:
                 self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):

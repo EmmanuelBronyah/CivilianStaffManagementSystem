@@ -14,7 +14,7 @@ from django.db.models import F
 from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
 from . import utils
-from flags.services import create_flag
+from flags.services import create_flag, delete_flag
 
 
 logger = logging.getLogger(__name__)
@@ -1118,3 +1118,6 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
         logger.debug(
             f"Activity feed(The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}) created."
         )
+
+        # Delete associated flags
+        delete_flag(instance, employee_id, self.request.user)

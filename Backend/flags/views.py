@@ -1,5 +1,5 @@
 from rest_framework import generics
-from .serializers import FlagsSerializer
+from .serializers import FlagReadSerializer, FlagWriteSerializer
 from .models import Flags
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import UserRateThrottle
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class CreateFlagsAPIView(generics.CreateAPIView):
     queryset = Flags.objects.all()
-    serializer_class = FlagsSerializer
+    serializer_class = FlagWriteSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
@@ -37,14 +37,14 @@ class CreateFlagsAPIView(generics.CreateAPIView):
         ActivityFeeds.objects.create(
             creator=self.request.user,
             activity=(
-                f"{model_name} Record was flagged by {self.request.user}: "
+                f"{model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
                 f"Flag Type: {flag.flag_type}"
                 f"{flagged_field_text}"
                 f" — Reason: {flag.reason}"
             ),
         )
         logger.debug(
-            f"Activity feed({model_name} Record was flagged by {self.request.user}: "
+            f"Activity feed({model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
             f"Flag Type: {flag.flag_type}"
             f"{flagged_field_text}"
             f" — Reason: {flag.reason}"
@@ -52,16 +52,20 @@ class CreateFlagsAPIView(generics.CreateAPIView):
 
 
 class RetrieveFlagAPIView(generics.RetrieveAPIView):
-    queryset = Flags.objects.all()
+    queryset = Flags.objects.select_related(
+        "flag_type", "content_type", "created_by", "updated_by"
+    )
     lookup_field = "pk"
-    serializer_class = FlagsSerializer
+    serializer_class = FlagReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
 
 class ListFlagsAPIView(generics.ListAPIView):
-    queryset = Flags.objects.all()
-    serializer_class = FlagsSerializer
+    queryset = Flags.objects.select_related(
+        "flag_type", "content_type", "created_by", "updated_by"
+    )
+    serializer_class = FlagReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
     pagination_class = LargeResultsSetPagination
@@ -70,7 +74,7 @@ class ListFlagsAPIView(generics.ListAPIView):
 class EditFlagsAPIView(generics.UpdateAPIView):
     queryset = Flags.objects.all()
     lookup_field = "pk"
-    serializer_class = FlagsSerializer
+    serializer_class = FlagWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
@@ -91,7 +95,7 @@ class EditFlagsAPIView(generics.UpdateAPIView):
 class DeleteFlagsAPIView(generics.DestroyAPIView):
     queryset = Flags.objects.all()
     lookup_field = "pk"
-    serializer_class = FlagsSerializer
+    serializer_class = FlagWriteSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
@@ -102,8 +106,8 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{model_name} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
+            activity=f"{model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
         )
         logger.debug(
-            f"Activity feed({model_name} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
+            f"Activity feed({model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
         )

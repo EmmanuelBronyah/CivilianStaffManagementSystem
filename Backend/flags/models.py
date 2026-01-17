@@ -56,7 +56,7 @@ class Flags(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        return f"{str(self.content_object)} - {self.flag_type}"
+        return f"{str(self.object_id)} - {self.flag_type}"
 
 
 class FlagType(models.Model):
