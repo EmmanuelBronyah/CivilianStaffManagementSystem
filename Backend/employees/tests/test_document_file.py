@@ -44,7 +44,7 @@ class CreateDocumentFileAPITest(EmployeeBaseAPITestCase):
                 file_data__startswith="documents/example"
             ).exists()
         )
-        self.assertIn("added a new document file", activity_feed)
+        self.assertIn("added a new Document File", activity_feed)
         self.assertIn("documents/example", activity_feed)
 
     def test_empty_document_file(self):
@@ -58,39 +58,27 @@ class CreateDocumentFileAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "A valid file must be uploaded.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "file_data")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "The submitted data was not a file. Check the encoding type on the form.",
+                )
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
         # Send create requests
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
-        response = self.client.post(
-            self.create_document_file_url, self.document_file_data, format="multipart"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_document_file_url,
+                self.document_file_data,
+                format="multipart",
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -127,7 +115,6 @@ class RetrieveDocumentFileAPITest(EmployeeBaseAPITestCase):
 
         # Send get request
         response = self.client.get(self.retrieve_document_file_url)
-        print(response.data)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -147,17 +134,9 @@ class RetrieveDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
 
         # Send get requests
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
-        response = self.client.get(self.retrieve_document_file_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_document_file_url)
 
-        # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
@@ -210,7 +189,7 @@ class EditDocumentFileAPITest(EmployeeBaseAPITestCase):
                 file_data__startswith="documents/test"
             ).exists()
         )
-        self.assertIn("updated document file", activity_feed)
+        self.assertIn("updated Document File", activity_feed)
         self.assertIn("documents/example", activity_feed)
         self.assertIn("documents/test", activity_feed)
 
@@ -244,8 +223,17 @@ class EditDocumentFileAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "A valid file must be uploaded.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "file_data")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "The submitted data was not a file. Check the encoding type on the form.",
+                )
+
         self.assertEqual(ActivityFeeds.objects.count(), 2)
 
     def test_throttling(self):
@@ -260,33 +248,10 @@ class EditDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
 
         # Send edit requests
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
-        response = self.client.patch(
-            self.edit_document_file_url, edit_data, format="multipart"
-        )
+        for _ in range(13):
+            response = self.client.patch(
+                self.edit_document_file_url, edit_data, format="multipart"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -347,15 +312,8 @@ class DeleteDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
 
         # Send delete requests
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
-        response = self.client.delete(self.delete_document_file_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_document_file_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

@@ -177,6 +177,7 @@ class EditBloodGroupAPITest(BaseAPITestCase):
 
             for error in field_errors:
                 self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):

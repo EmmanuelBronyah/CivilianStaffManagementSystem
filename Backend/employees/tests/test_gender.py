@@ -26,7 +26,7 @@ class CreateGenderAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.Gender.objects.filter(sex="Male").exists())
-        self.assertIn("added a new gender", activity_feed)
+        self.assertIn("added a new Gender", activity_feed)
         self.assertIn("Male", activity_feed)
 
     def test_empty_gender(self):
@@ -40,23 +40,22 @@ class CreateGenderAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Sex cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "sex")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        self.client.post(self.create_gender_url, self.gender_data, format="json")
-        response = self.client.post(
-            self.create_gender_url, self.gender_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_gender_url, self.gender_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

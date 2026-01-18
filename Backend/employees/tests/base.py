@@ -49,7 +49,6 @@ class EmployeeBaseAPITestCase(APITestCase):
         )
         cls.unit = models.Units.objects.create(unit_name="4 Bn")
         cls.blood_group = models.BloodGroup.objects.create(blood_group_name="O+")
-        cls.structure = models.Structure.objects.create(structure_name="Non-medical")
 
         cls.division = Divisions.objects.create(division_name="DCE-IT")
 
@@ -81,7 +80,6 @@ class EmployeeBaseAPITestCase(APITestCase):
             "last_name": "Kana",
             "other_names": "Steve",
             "gender": cls.gender.id,
-            "dob": "2000-04-05",
             "hometown": "Ajumako",
             "region": cls.region.id,
             "religion": cls.religion.id,
@@ -90,15 +88,11 @@ class EmployeeBaseAPITestCase(APITestCase):
             "marital_status": cls.marital_status.id,
             "unit": cls.unit.id,
             "grade": cls.grade.id,
-            "station": "ACCRA",
-            "structure": cls.structure.id,
             "blood_group": cls.blood_group.id,
             "disable": False,
             "social_security": "C019000819236",
-            "category": None,
             "appointment_date": "2025-11-25",
             "confirmation_date": None,
-            "probation": "",
             "entry_qualification": "",
         }
 
