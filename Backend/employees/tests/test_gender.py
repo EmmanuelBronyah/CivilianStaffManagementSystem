@@ -29,6 +29,26 @@ class CreateGenderAPITest(BaseAPITestCase):
         self.assertIn("added a new Gender", activity_feed)
         self.assertIn("Male", activity_feed)
 
+    def test_invalid_data(self):
+        invalid_data = {"sex": "10000"}
+        # Send create request
+        response = self.client.post(self.create_gender_url, invalid_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "sex")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Gender can only contain letters, spaces, hyphens, and periods.",
+                )
+
+        self.assertEqual(ActivityFeeds.objects.count(), 0)
+
     def test_empty_gender(self):
         gender_data_copy = self.gender_data.copy()
         gender_data_copy["sex"] = ""
@@ -95,14 +115,8 @@ class RetrieveGenderAPITest(BaseAPITestCase):
         self.client.post(self.create_gender_url, self.gender_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
-        response = self.client.get(self.retrieve_gender_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_gender_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -147,7 +161,7 @@ class EditGenderAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(models.Gender.objects.filter(sex="Female").exists())
-        self.assertIn("updated gender", activity_feed)
+        self.assertIn("updated Gender", activity_feed)
         self.assertIn("Male → Female", activity_feed)
 
     def test_edit_non_existing_gender(self):
@@ -160,6 +174,29 @@ class EditGenderAPITest(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
+    def test_invalid_data(self):
+        # Send create request
+        response = self.client.post(
+            self.create_gender_url, self.gender_data, format="json"
+        )
+
+        # Send edit request
+        edit_data = {"sex": "10000"}
+        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "sex")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Gender can only contain letters, spaces, hyphens, and periods.",
+                )
+
     def test_edit_gender_as_empty(self):
         edit_data = {"sex": ""}
 
@@ -171,8 +208,14 @@ class EditGenderAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Sex cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "sex")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
@@ -182,15 +225,8 @@ class EditGenderAPITest(BaseAPITestCase):
         self.client.post(self.create_gender_url, self.gender_data, format="json")
 
         # Send edit requests
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
-        response = self.client.patch(self.edit_gender_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(self.edit_gender_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -214,7 +250,7 @@ class DeleteGenderAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_gender_url)
 
         # Get created activity feed
-        activity = "The gender 'Male' was deleted by Administrator"
+        activity = "The Gender(Male) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -234,15 +270,8 @@ class DeleteGenderAPITest(BaseAPITestCase):
         self.client.post(self.create_gender_url, self.gender_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
-        response = self.client.delete(self.delete_gender_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_gender_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

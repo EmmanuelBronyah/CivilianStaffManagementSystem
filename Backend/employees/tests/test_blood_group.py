@@ -30,6 +30,28 @@ class CreateBloodGroupAPITest(BaseAPITestCase):
         self.assertIn("added a new Blood Group", activity_feed)
         self.assertIn("O+", activity_feed)
 
+    def test_invalid_data(self):
+        invalid_data = {"blood_group_name": "*"}
+        # Send create request
+        response = self.client.post(
+            self.create_blood_group_url, invalid_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "blood_group_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Blood Group can only contain letters, spaces, hyphen(-) and plus(+) signs, and periods.",
+                )
+
+        self.assertEqual(ActivityFeeds.objects.count(), 0)
+
     def test_empty_blood_group(self):
         blood_group_data_copy = self.blood_group_data.copy()
         blood_group_data_copy["blood_group_name"] = ""
@@ -154,6 +176,31 @@ class EditBloodGroupAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 0)
+
+    def test_invalid_data(self):
+        # Send create request
+        response = self.client.post(
+            self.create_blood_group_url, self.blood_group_data, format="json"
+        )
+
+        # Send edit request
+        edit_data = {"blood_group_name": "*"}
+        response = self.client.patch(
+            self.edit_blood_group_url, edit_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "blood_group_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Blood Group can only contain letters, spaces, hyphen(-) and plus(+) signs, and periods.",
+                )
 
     def test_edit_blood_group_as_empty(self):
         edit_data = {"blood_group_name": ""}

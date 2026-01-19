@@ -25,8 +25,30 @@ class CreateRegionAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.Region.objects.filter(region_name="ACCRA").exists())
-        self.assertIn("added a new region", activity_feed)
+        self.assertIn("added a new Region", activity_feed)
         self.assertIn("ACCRA", activity_feed)
+
+    def test_invalid_data(self):
+        region_data_copy = self.region_data.copy()
+        region_data_copy["region_name"] = "tyu789"
+
+        # Send create request
+        response = self.client.post(
+            self.create_region_url, region_data_copy, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "region_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Region can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_empty_region(self):
         region_data_copy = self.region_data.copy()
@@ -39,25 +61,22 @@ class CreateRegionAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Region cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "region_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        self.client.post(self.create_region_url, self.region_data, format="json")
-        response = self.client.post(
-            self.create_region_url, self.region_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_region_url, self.region_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -97,14 +116,8 @@ class RetrieveRegionAPITest(BaseAPITestCase):
         self.client.post(self.create_region_url, self.region_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
-        response = self.client.get(self.retrieve_region_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_region_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -135,8 +148,30 @@ class EditRegionAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(models.Region.objects.filter(region_name="KUMASI").exists())
-        self.assertIn("updated region", activity_feed)
+        self.assertIn("updated Region", activity_feed)
         self.assertIn("ACCRA → KUMASI", activity_feed)
+
+    def test_invalid_data(self):
+        edit_data = {"region_name": "ke767"}
+
+        # Send create request
+        self.client.post(self.create_region_url, self.region_data, format="json")
+
+        # Send edit request
+        response = self.client.patch(self.edit_region_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "region_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Region can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_edit_non_existing_region(self):
         edit_data = {"region_name": "KUMASI"}
@@ -159,10 +194,14 @@ class EditRegionAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Region cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "region_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
@@ -172,15 +211,8 @@ class EditRegionAPITest(BaseAPITestCase):
         self.client.post(self.create_region_url, self.region_data, format="json")
 
         # Send edit requests
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
-        response = self.client.patch(self.edit_region_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(self.edit_region_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -204,7 +236,7 @@ class DeleteRegionAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_region_url)
 
         # Get created activity feed
-        activity = "The region 'ACCRA' was deleted by Administrator"
+        activity = "The Region(ACCRA) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -224,15 +256,8 @@ class DeleteRegionAPITest(BaseAPITestCase):
         self.client.post(self.create_region_url, self.region_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
-        response = self.client.delete(self.delete_region_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_region_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

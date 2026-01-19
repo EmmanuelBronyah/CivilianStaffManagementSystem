@@ -24,8 +24,28 @@ class CreateUnitAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.Units.objects.filter(unit_name="4 BN").exists())
-        self.assertIn("added a new unit", activity_feed)
+        self.assertIn("added a new Unit", activity_feed)
         self.assertIn("4 BN", activity_feed)
+
+    def test_invalid_data(self):
+        unit_data_copy = self.unit_data.copy()
+        unit_data_copy["city"] = "whedfe79"
+
+        # Send create request
+        response = self.client.post(self.create_unit_url, unit_data_copy, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "city")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "City can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_empty_unit(self):
         unit_data_copy = self.unit_data.copy()
@@ -36,21 +56,22 @@ class CreateUnitAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Unit cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "unit_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        self.client.post(self.create_unit_url, self.unit_data, format="json")
-        response = self.client.post(self.create_unit_url, self.unit_data, format="json")
+        for _ in range(13):
+            response = self.client.post(
+                self.create_unit_url, self.unit_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -90,14 +111,8 @@ class RetrieveUnitAPITest(BaseAPITestCase):
         self.client.post(self.create_unit_url, self.unit_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
-        response = self.client.get(self.retrieve_unit_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_unit_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -142,8 +157,29 @@ class EditUnitAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(models.Units.objects.filter(unit_name="6 BN").exists())
-        self.assertIn("updated unit", activity_feed)
+        self.assertIn("updated Unit", activity_feed)
         self.assertIn("4 BN → 6 BN", activity_feed)
+
+    def test_invalid_data(self):
+        # Send create request
+        response = self.client.post(self.create_unit_url, self.unit_data, format="json")
+
+        # Send edit request
+        invalid_data = {"unit_name": "678err*"}
+        response = self.client.patch(self.edit_unit_url, invalid_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "unit_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Unit can only contain letters, numbers, spaces, hyphens, and periods.",
+                )
 
     def test_edit_non_existing_unit(self):
         edit_data = {"unit_name": "6 BN"}
@@ -166,8 +202,14 @@ class EditUnitAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Unit cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "unit_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
@@ -177,15 +219,8 @@ class EditUnitAPITest(BaseAPITestCase):
         self.client.post(self.create_unit_url, self.unit_data, format="json")
 
         # Send edit requests
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
-        response = self.client.patch(self.edit_unit_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(self.edit_unit_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -209,7 +244,7 @@ class DeleteUnitAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_unit_url)
 
         # Get created activity feed
-        activity = "The unit '4 BN' was deleted by Administrator"
+        activity = "The Unit(4 BN) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -229,15 +264,8 @@ class DeleteUnitAPITest(BaseAPITestCase):
         self.client.post(self.create_unit_url, self.unit_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
-        response = self.client.delete(self.delete_unit_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_unit_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

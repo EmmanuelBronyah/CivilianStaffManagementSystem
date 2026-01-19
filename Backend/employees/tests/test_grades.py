@@ -9,7 +9,11 @@ class CreateGradeAPITest(BaseAPITestCase):
 
     def setUp(self):
         self.create_grade_url = reverse("create-grade")
-        self.grade_data = {"grade_name": "Senior Executive Officer"}
+        self.grade_data = {
+            "grade_name": "Senior Executive Officer",
+            "rank": self.rank.id,
+            "structure": self.structure.id,
+        }
 
         self.authenticate_admin()
 
@@ -27,8 +31,28 @@ class CreateGradeAPITest(BaseAPITestCase):
         self.assertTrue(
             models.Grades.objects.filter(grade_name="Senior Executive Officer").exists()
         )
-        self.assertIn("added a new grade", activity_feed)
+        self.assertIn("added a new Grade", activity_feed)
         self.assertIn("Senior Executive Officer", activity_feed)
+
+    def test_invalid_data(self):
+        self.grade_data.update(grade_name="fisher1")
+        # Send create request
+        response = self.client.post(
+            self.create_grade_url, self.grade_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Grade can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_empty_grade(self):
         grade_data_copy = self.grade_data.copy()
@@ -41,41 +65,22 @@ class CreateGradeAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Grade cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
-        response = self.client.post(
-            self.create_grade_url, self.grade_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_grade_url, self.grade_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -87,7 +92,11 @@ class RetrieveGradeAPITest(BaseAPITestCase):
         self.create_grade_url = reverse("create-grade")
         self.retrieve_grade_url = reverse("retrieve-grade", kwargs={"pk": 2})
 
-        self.grade_data = {"grade_name": "Senior Executive Officer"}
+        self.grade_data = {
+            "grade_name": "Senior Executive Officer",
+            "rank": self.rank.id,
+            "structure": self.structure.id,
+        }
 
         self.authenticate_admin()
 
@@ -115,14 +124,8 @@ class RetrieveGradeAPITest(BaseAPITestCase):
         self.client.post(self.create_grade_url, self.grade_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
-        response = self.client.get(self.retrieve_grade_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_grade_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -134,7 +137,11 @@ class EditGradeAPITest(BaseAPITestCase):
         self.create_grade_url = reverse("create-grade")
         self.edit_grade_url = reverse("edit-grade", kwargs={"pk": 2})
 
-        self.grade_data = {"grade_name": "Senior Executive Officer"}
+        self.grade_data = {
+            "grade_name": "Senior Executive Officer",
+            "rank": self.rank.id,
+            "structure": self.structure.id,
+        }
 
         self.authenticate_admin()
 
@@ -155,7 +162,7 @@ class EditGradeAPITest(BaseAPITestCase):
         self.assertTrue(
             models.Grades.objects.filter(grade_name="Higher Executive Officer").exists()
         )
-        self.assertIn("updated grade", activity_feed)
+        self.assertIn("updated Grade", activity_feed)
         self.assertIn(
             "Senior Executive Officer → Higher Executive Officer", activity_feed
         )
@@ -170,6 +177,27 @@ class EditGradeAPITest(BaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
+    def test_invalid_data(self):
+        # Send create request
+        self.client.post(self.create_grade_url, self.grade_data, format="json")
+
+        # Send edit request
+        edit_data = {"grade_name": "fisher2"}
+        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Grade can only contain letters, spaces, hyphens, and periods.",
+                )
+
     def test_edit_grade_as_empty(self):
         edit_data = {"grade_name": ""}
 
@@ -181,10 +209,14 @@ class EditGradeAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Grade cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
@@ -194,15 +226,8 @@ class EditGradeAPITest(BaseAPITestCase):
         self.client.post(self.create_grade_url, self.grade_data, format="json")
 
         # Send edit requests
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
-        response = self.client.patch(self.edit_grade_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(self.edit_grade_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -214,7 +239,11 @@ class DeleteGradeAPITest(BaseAPITestCase):
         self.create_grade_url = reverse("create-grade")
         self.delete_grade_url = reverse("delete-grade", kwargs={"pk": 2})
 
-        self.grade_data = {"grade_name": "Senior Executive Officer"}
+        self.grade_data = {
+            "grade_name": "Senior Executive Officer",
+            "rank": self.rank.id,
+            "structure": self.structure.id,
+        }
 
         self.authenticate_admin()
 
@@ -226,7 +255,7 @@ class DeleteGradeAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_grade_url)
 
         # Get created activity feed
-        activity = "The grade 'Senior Executive Officer' was deleted by Administrator"
+        activity = "The Grade(Senior Executive Officer) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -246,15 +275,8 @@ class DeleteGradeAPITest(BaseAPITestCase):
         self.client.post(self.create_grade_url, self.grade_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
-        response = self.client.delete(self.delete_grade_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_grade_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

@@ -42,7 +42,6 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
                     f"{field} can only contain letters, spaces, hyphens, and periods."
                 )
 
-        logger.debug(f"Successfully assigned {field}")
         return value
 
     @staticmethod
@@ -66,7 +65,6 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
                     f"{field} can only contain letters, spaces, hyphens, commas, and periods."
                 )
 
-        logger.debug(f"Successfully assigned {field}")
         return value
 
     @staticmethod
@@ -92,7 +90,6 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
                     f"{field} can only contain letters, numbers, spaces, hyphens, commas, and periods."
                 )
 
-        logger.debug(f"Successfully assigned {field}")
         return value
 
     def assign_dob_and_age(self, attrs):
@@ -283,7 +280,7 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
         return self.validate_other_text_with_digits("Entry Qualification", value)
 
     def validate_social_security(self, value):
-        if value is None:
+        if not value:
             logger.debug("Social Security is empty")
             return value
 
@@ -297,7 +294,7 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
         return value
 
     def validate_service_id(self, value):
-        if value is None:
+        if not value:
             logger.debug("Service ID is empty")
             return value
 
@@ -370,12 +367,56 @@ class CategorySerializer(serializers.ModelSerializer):
         model = models.Category
         fields = "__all__"
 
+    def validate_category_name(self, value):
+        if not value:
+            logger.debug("Category is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Category can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Category can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
 
 class GradeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Grades
         fields = "__all__"
+
+    def validate_grade_name(self, value):
+        if not value:
+            logger.debug("Grade is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Grade can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Grade can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
 
 
 class GradeReadSerializer(serializers.ModelSerializer):
@@ -395,12 +436,78 @@ class UnitSerializer(serializers.ModelSerializer):
         model = models.Units
         fields = "__all__"
 
+    def validate_unit_name(self, value):
+        if not value:
+            logger.debug("Unit is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | set(string.digits) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Unit can only contain letters, numbers, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Unit can only contain letters, numbers, spaces, hyphens, and periods."
+                )
+
+        return value
+
+    def validate_city(self, value):
+        if not value:
+            logger.debug("City is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "City can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "City can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
 
 class GenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Gender
         fields = "__all__"
+
+    def validate_sex(self, value):
+        if not value:
+            logger.debug("Gender is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Gender can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Gender can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
 
 
 class MaritalStatusSerializer(serializers.ModelSerializer):
@@ -409,12 +516,56 @@ class MaritalStatusSerializer(serializers.ModelSerializer):
         model = models.MaritalStatus
         fields = "__all__"
 
+    def validate_marital_status_name(self, value):
+        if not value:
+            logger.debug("Marital Status is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Marital Status can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Marital Status can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
 
 class RegionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Region
         fields = "__all__"
+
+    def validate_region_name(self, value):
+        if not value:
+            logger.debug("Region is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Region can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Region can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
 
 
 class ReligionSerializer(serializers.ModelSerializer):
@@ -423,6 +574,28 @@ class ReligionSerializer(serializers.ModelSerializer):
         model = models.Religion
         fields = "__all__"
 
+    def validate_religion_name(self, value):
+        if not value:
+            logger.debug("Religion is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Religion can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Religion can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
 
 class StructureSerializer(serializers.ModelSerializer):
 
@@ -430,12 +603,56 @@ class StructureSerializer(serializers.ModelSerializer):
         model = models.Structure
         fields = "__all__"
 
+    def validate_structure_name(self, value):
+        if not value:
+            logger.debug("Structure is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Structure can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Structure can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
 
 class BloodGroupSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.BloodGroup
         fields = "__all__"
+
+    def validate_blood_group_name(self, value):
+        if not value:
+            logger.debug("Blood Group is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", "+", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Blood Group can only contain letters, spaces, hyphen(-) and plus(+) signs, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    "Blood Group can only contain letters, spaces, hyphen(-) and plus(+) signs, and periods."
+                )
+
+        return value
 
 
 class DocumentFileSerializer(serializers.ModelSerializer):
@@ -450,6 +667,61 @@ class UnregisteredEmployeesWriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UnregisteredEmployees
         fields = "__all__"
+
+    @staticmethod
+    def validate_name(field, value):
+        if not value:
+            logger.debug(f"{field} is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    f"{field} can only contain letters, spaces, hyphens, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters, spaces, hyphens, and periods."
+                )
+
+        return value
+
+    def validate_last_name(self, value):
+        return self.validate_name("Last Name", value)
+
+    def validate_other_names(self, value):
+        return self.validate_name("Other Names", value)
+
+    def validate_social_security(self, value):
+        if not value:
+            logger.debug("Social Security is empty")
+            return value
+
+        if not value.isalnum():
+            logger.debug("Social Security can only contain letters and numbers.")
+
+            raise serializers.ValidationError(
+                "Field can only contain letters and numbers."
+            )
+
+        return value
+
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Field can only contain numbers.")
+
+        return value
 
     def validate(self, attrs):
         system_fields = {"created_by", "updated_by"}
@@ -485,6 +757,12 @@ class UnregisteredEmployeesWriteSerializer(serializers.ModelSerializer):
 class UnregisteredEmployeeReadSerializer(serializers.ModelSerializer):
     unit_display = serializers.StringRelatedField(source="unit", read_only=True)
     grade_display = serializers.StringRelatedField(source="grade", read_only=True)
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
 
     class Meta:
         model = models.UnregisteredEmployees

@@ -98,6 +98,7 @@ def unregistered_employee_record_changes(previous, current):
 
 def grade_record_changes(previous, current):
     fields = [
+        ("Grade", previous.grade_name, current.grade_name),
         (
             "Rank",
             getattr(previous.rank, "category_name", None),

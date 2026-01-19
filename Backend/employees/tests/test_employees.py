@@ -1,7 +1,5 @@
 from rest_framework.test import APITestCase
-from api.models import CustomUser, Divisions
 from django.urls import reverse
-from django.contrib.auth.models import Group
 from employees import models
 from rest_framework import status
 from activity_feeds.models import ActivityFeeds
@@ -27,9 +25,24 @@ class CreateEmployeeAPITest(EmployeeBaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertTrue(models.Employee.objects.filter(service_id="000993").exists())
-        self.assertNotEqual(response.data["service_id"], "")
-        self.assertIn("added a new employee", activity_feed)
-        self.assertIn("000993 — Kana Steve", activity_feed)
+        self.assertEqual(response.data["service_id"], "000993")
+        self.assertIn("added a new Employee", activity_feed)
+        self.assertIn("warnings", response.data)
+
+    def restricted_fields(self):
+        # Send create request
+        self.employee_data.update(structure=self.structure.id)
+        response = self.client.post(
+            self.create_employee_url, self.employee_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "detail")
+            self.assertIn("restricted", field_errors)
 
     def test_create_existing_employee(self):
         # Send two create requests
@@ -43,11 +56,16 @@ class CreateEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.json())
-        self.assertEqual(response.data["error"], "Service ID already exists.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_id")
+
+            for error in field_errors:
+                self.assertEqual(error, "employee with this service id already exists.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
-        self.assertIn("added a new employee", activity_feed)
-        self.assertIn("000993 — Kana Steve", activity_feed)
+        self.assertIn("added a new Employee", activity_feed)
 
     def test_create_employee_with_invalid_data(self):
         employee_data = self.employee_data.copy()
@@ -60,10 +78,16 @@ class CreateEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.json())
-        self.assertEqual(
-            response.data["error"], "Service ID must not have more than 7 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_id")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 7 characters."
+                )
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_create_employee_without_required_field(self):
@@ -78,63 +102,24 @@ class CreateEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.json())
-        self.assertEqual(
-            response.data["error"], "Service ID cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_id")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field is required.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests & Change service number to avoid Service ID already exists error
-        employee_data_copy = self.employee_data.copy()
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "011111"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "022222"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "022221"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "011118"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "011112"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "011126"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "011762"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "017299"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
-
-        employee_data_copy["service_id"] = "020009"
-        response = self.client.post(
-            self.create_employee_url, employee_data_copy, format="json"
-        )
+        for i in range(13):
+            employee_data_copy = self.employee_data.copy()
+            employee_data_copy["service_id"] = "0" + str(11110 + i)
+            response = self.client.post(
+                self.create_employee_url, employee_data_copy, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -174,16 +159,8 @@ class RetrieveEmployeeAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
-        response = self.client.get(self.retrieve_employee_url, format="json")
+        for _ in range(13):
+            response = self.client.get(self.retrieve_employee_url, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -213,7 +190,7 @@ class EditEmployeeAPITest(EmployeeBaseAPITestCase):
         )
 
         # Get created activity feed
-        activity = "Administrator updated employee '000993': Service id: 000993 → 012173, Other names: Steve → Gloria"
+        activity = "Administrator updated Employee(Service ID: 012173 — Last Name: Kana — Other Names: Gloria): Service ID: 000993 → 012173 — Other Names: Steve → Gloria"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -230,7 +207,7 @@ class EditEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Send patch/edit request with a blank required field
         edit_data = {
-            "service_id": "",
+            "grade": "",
             "other_names": "Gloria",
         }
         edit_response = self.client.patch(
@@ -242,11 +219,15 @@ class EditEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(edit_response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", edit_response.json())
-        self.assertEqual(
-            edit_response.data["error"], "Service ID cannot be blank or is required."
-        )
-        self.assertNotIn("updated employee", activity_feed)
+
+        errors = edit_response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be null.")
+
+        self.assertNotIn("updated Employee", activity_feed)
 
     def test_invalid_data_edit(self):
         # Send create request
@@ -267,11 +248,15 @@ class EditEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(edit_response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", edit_response.json())
-        self.assertEqual(
-            edit_response.data["error"], "Invalid format for Appointment date."
-        )
-        self.assertNotIn("updated employee", activity_feed)
+
+        errors = edit_response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "appointment_date")
+
+            for error in field_errors:
+                self.assertIn("Date has wrong format", error)
+
+        self.assertNotIn("updated Employee", activity_feed)
 
     def test_throttling(self):
         # Send create request
@@ -282,14 +267,10 @@ class EditEmployeeAPITest(EmployeeBaseAPITestCase):
         }
 
         # Send patch/edit request
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
-        response = self.client.patch(self.edit_employee_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(
+                self.edit_employee_url, edit_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -312,7 +293,7 @@ class DeleteEmployeeAPITest(EmployeeBaseAPITestCase):
 
         # Get created activity feed
         activity = (
-            "Employee record with Service ID '000993' was deleted by Administrator"
+            "Employee record with Service ID(000993) was deleted by Administrator"
         )
         activity_feed = ActivityFeeds.objects.last().activity
 
@@ -333,14 +314,8 @@ class DeleteEmployeeAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
-        response = self.client.delete(self.delete_employee_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_employee_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

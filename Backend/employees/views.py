@@ -1033,7 +1033,9 @@ class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.employee = serializer.save()
+        self.employee = serializer.save(
+            created_by=self.request.user, updated_by=self.request.user
+        )
         logger.debug(f"Unregistered Employee({self.employee}) created.")
 
         ActivityFeeds.objects.create(
@@ -1049,7 +1051,9 @@ class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
 
 
 class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
-    queryset = models.UnregisteredEmployees.objects.select_related("unit", "grade")
+    queryset = models.UnregisteredEmployees.objects.select_related(
+        "unit", "grade", "created_by", "updated_by"
+    )
     lookup_field = "pk"
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -1057,7 +1061,9 @@ class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
 
 
 class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
-    queryset = models.UnregisteredEmployees.objects.select_related("unit", "grade")
+    queryset = models.UnregisteredEmployees.objects.select_related(
+        "unit", "grade", "created_by", "updated_by"
+    )
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
@@ -1083,7 +1089,7 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
 
     def perform_update(self, serializer):
         previous_employee = self.get_object()
-        self.employee = serializer.save()
+        self.employee = serializer.save(updated_by=self.request.user)
         logger.debug(f"Unregistered Employee({previous_employee}) updated.")
 
         changes = utils.unregistered_employee_record_changes(

@@ -24,7 +24,7 @@ class CreateDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
 
         self.document_file_data = {
-            "employee": self.employee,
+            "employee": self.employee.service_id,
             "file_data": self.file_data,
         }
 
@@ -46,6 +46,26 @@ class CreateDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
         self.assertIn("added a new Document File", activity_feed)
         self.assertIn("documents/example", activity_feed)
+
+    def test_invalid_data(self):
+        self.document_file_data.update(file_data="file")
+        # Send create request
+        response = self.client.post(
+            self.create_document_file_url, self.document_file_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "file_data")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "The submitted data was not a file. Check the encoding type on the form.",
+                )
 
     def test_empty_document_file(self):
         document_file_data_copy = self.document_file_data.copy()
@@ -159,7 +179,7 @@ class EditDocumentFileAPITest(EmployeeBaseAPITestCase):
         )
 
         self.document_file_data = {
-            "employee": self.employee,
+            "employee": self.employee.service_id,
             "file_data": self.file_data,
         }
 
@@ -207,6 +227,32 @@ class EditDocumentFileAPITest(EmployeeBaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 1)
+
+    def test_invalid_data(self):
+        edit_data = {"file_data": "new_file"}
+
+        # Send create document request
+        self.client.post(
+            self.create_document_file_url, self.document_file_data, format="multipart"
+        )
+
+        # Send edit document request
+        response = self.client.patch(
+            self.edit_document_file_url, edit_data, format="multipart"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "file_data")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "The submitted data was not a file. Check the encoding type on the form.",
+                )
 
     def test_edit_document_file_as_empty(self):
         edit_data = {"file_data": ""}

@@ -27,8 +27,28 @@ class CreateMaritalStatusAPITest(BaseAPITestCase):
         self.assertTrue(
             models.MaritalStatus.objects.filter(marital_status_name="Single").exists()
         )
-        self.assertIn("added a new marital status", activity_feed)
+        self.assertIn("added a new Marital Status", activity_feed)
         self.assertIn("Single", activity_feed)
+
+    def test_invalid_data(self):
+        # Send create request
+        self.marital_status_data.update(marital_status_name="32321")
+        response = self.client.post(
+            self.create_marital_status_url, self.marital_status_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "marital_status_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Marital Status can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_empty_marital_status(self):
         marital_status_data_copy = self.marital_status_data.copy()
@@ -41,42 +61,22 @@ class CreateMaritalStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"],
-            "Marital Status cannot be blank or is required.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "marital_status_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
-        response = self.client.post(
-            self.create_marital_status_url, self.marital_status_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_marital_status_url, self.marital_status_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -122,14 +122,8 @@ class RetrieveMaritalStatusAPITest(BaseAPITestCase):
         )
 
         # Send get requests
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
-        response = self.client.get(self.retrieve_marital_status_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_marital_status_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -166,10 +160,10 @@ class EditMaritalStatusAPITest(BaseAPITestCase):
         self.assertTrue(
             models.MaritalStatus.objects.filter(marital_status_name="Married").exists()
         )
-        self.assertIn("updated marital status", activity_feed)
+        self.assertIn("updated Marital Status", activity_feed)
         self.assertIn("Single → Married", activity_feed)
 
-    def test_edit_non_existing_gender(self):
+    def test_edit_non_existing_marital_status(self):
         edit_data = {"marital_status_name": "Married"}
 
         # Send edit request
@@ -180,6 +174,32 @@ class EditMaritalStatusAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 0)
+
+    def test_invalid_data(self):
+        edit_data = {"marital_status_name": "35tt2"}
+
+        # Send create request
+        self.client.post(
+            self.create_marital_status_url, self.marital_status_data, format="json"
+        )
+
+        # Send edit request
+        response = self.client.patch(
+            self.edit_marital_status_url, edit_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "marital_status_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Marital Status can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_edit_marital_status_as_empty(self):
         edit_data = {"marital_status_name": ""}
@@ -196,12 +216,13 @@ class EditMaritalStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"],
-            "Marital Status cannot be blank or is required.",
-        )
-        self.assertEqual(ActivityFeeds.objects.count(), 1)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "marital_status_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         edit_data = {"marital_status_name": "Married"}
@@ -212,33 +233,10 @@ class EditMaritalStatusAPITest(BaseAPITestCase):
         )
 
         # Send edit requests
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
-        response = self.client.patch(
-            self.edit_marital_status_url, edit_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.patch(
+                self.edit_marital_status_url, edit_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -266,7 +264,7 @@ class DeleteMaritalStatusAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_marital_status_url)
 
         # Get created activity feed
-        activity = "The marital status 'Single' was deleted by Administrator"
+        activity = "The Marital Status(Single) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -288,15 +286,8 @@ class DeleteMaritalStatusAPITest(BaseAPITestCase):
         )
 
         # Send delete requests
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
-        response = self.client.delete(self.delete_marital_status_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_marital_status_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

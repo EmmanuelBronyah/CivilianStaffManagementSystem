@@ -27,8 +27,30 @@ class CreateReligionAPITest(BaseAPITestCase):
         self.assertTrue(
             models.Religion.objects.filter(religion_name="Christianity").exists()
         )
-        self.assertIn("added a new religion", activity_feed)
+        self.assertIn("added a new Religion", activity_feed)
         self.assertIn("Christianity", activity_feed)
+
+    def test_invalid_data(self):
+        religion_data_copy = self.religion_data.copy()
+        religion_data_copy["religion_name"] = "tyu789"
+
+        # Send create request
+        response = self.client.post(
+            self.create_religion_url, religion_data_copy, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "religion_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Religion can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_empty_religion(self):
         religion_data_copy = self.religion_data.copy()
@@ -41,25 +63,22 @@ class CreateReligionAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Religion cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "religion_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 0)
 
     def test_throttling(self):
         # Send create requests
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        self.client.post(self.create_religion_url, self.religion_data, format="json")
-        response = self.client.post(
-            self.create_religion_url, self.religion_data, format="json"
-        )
+        for _ in range(13):
+            response = self.client.post(
+                self.create_religion_url, self.religion_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -99,14 +118,8 @@ class RetrieveReligionAPITest(BaseAPITestCase):
         self.client.post(self.create_religion_url, self.religion_data, format="json")
 
         # Send get requests
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
-        response = self.client.get(self.retrieve_religion_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_religion_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -137,8 +150,30 @@ class EditReligionAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertTrue(models.Religion.objects.filter(religion_name="Islam").exists())
-        self.assertIn("updated religion", activity_feed)
+        self.assertIn("updated Religion", activity_feed)
         self.assertIn("Christianity → Islam", activity_feed)
+
+    def test_invalid_data(self):
+        edit_data = {"religion_name": "ke767"}
+
+        # Send create request
+        self.client.post(self.create_religion_url, self.religion_data, format="json")
+
+        # Send edit request
+        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "religion_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Religion can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_edit_non_existing_religion(self):
         edit_data = {"religion_name": "Islam"}
@@ -161,11 +196,13 @@ class EditReligionAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Religion cannot be blank or is required."
-        )
-        self.assertEqual(ActivityFeeds.objects.count(), 1)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "religion_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         edit_data = {"religion_name": "Islam"}
@@ -174,15 +211,10 @@ class EditReligionAPITest(BaseAPITestCase):
         self.client.post(self.create_religion_url, self.religion_data, format="json")
 
         # Send edit requests
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
-        response = self.client.patch(self.edit_religion_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(
+                self.edit_religion_url, edit_data, format="json"
+            )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -206,7 +238,7 @@ class DeleteReligionAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_religion_url)
 
         # Get created activity feed
-        activity = "The religion 'Christianity' was deleted by Administrator"
+        activity = "The Religion(Christianity) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
@@ -226,15 +258,8 @@ class DeleteReligionAPITest(BaseAPITestCase):
         self.client.post(self.create_religion_url, self.religion_data, format="json")
 
         # Send delete requests
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
-        response = self.client.delete(self.delete_religion_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_religion_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

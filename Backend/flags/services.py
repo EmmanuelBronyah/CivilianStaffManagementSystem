@@ -32,14 +32,14 @@ def create_flag(instance, user):
     ActivityFeeds.objects.create(
         creator=user,
         activity=(
-            f"{model_name} Record was flagged by {user}: "
+            f"{model_name.replace('_', ' ')} Record was flagged by {user}: "
             f"Flag Type: {flag.flag_type or 'N/A'}"
             f"{flagged_field_text}"
             f" — Reason: {flag.reason}"
         ),
     )
     logger.debug(
-        f"Activity feed({model_name} Record was flagged by {user}: "
+        f"Activity feed({model_name.replace('_', ' ')} Record was flagged by {user}: "
         f"Flag Type: {flag.flag_type or 'N/A'}"
         f"{flagged_field_text}"
         f" — Reason: {flag.reason}"
@@ -60,11 +60,11 @@ def delete_flag(instance, id, user):
 
         ActivityFeeds.objects.create(
             creator=user,
-            activity=f"{model_name} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}",
+            activity=f"{model_name.replace('_', ' ')} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}",
         )
 
         logger.debug(
-            f"Activity feed({model_name} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}) created."
+            f"Activity feed({model_name.replace('_', ' ')} record flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}) created."
         )
 
     Flags.objects.filter(id__in=[flag.id for flag in flags]).delete()

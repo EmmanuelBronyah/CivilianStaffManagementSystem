@@ -28,6 +28,28 @@ class CreateCategoryAPITest(BaseAPITestCase):
         self.assertIn("added a new Category", activity_feed)
         self.assertIn("Junior", activity_feed)
 
+    def test_invalid_data(self):
+        invalid_data = {"category_name": "cat1"}
+        # Send create request
+        response = self.client.post(
+            self.create_category_url, invalid_data, format="json"
+        )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "category_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Category can only contain letters, spaces, hyphens, and periods.",
+                )
+
+        self.assertEqual(ActivityFeeds.objects.count(), 0)
+
     def test_empty_category(self):
         category_data_copy = self.category_data.copy()
         category_data_copy["category_name"] = ""
@@ -139,6 +161,29 @@ class EditCategoryAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
         self.assertEqual(ActivityFeeds.objects.count(), 0)
+
+    def test_invalid_data(self):
+        # Send create request
+        response = self.client.post(
+            self.create_category_url, self.category_data, format="json"
+        )
+
+        # Send edit request
+        edit_data = {"category_name": "cat1"}
+        response = self.client.patch(self.edit_category_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "category_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Category can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_edit_category_as_empty(self):
         edit_data = {"category_name": ""}
