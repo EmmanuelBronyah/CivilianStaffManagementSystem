@@ -3,6 +3,7 @@ from rest_framework import status
 from activity_feeds.models import ActivityFeeds
 from employees.tests.base import EmployeeBaseAPITestCase
 from django.contrib.contenttypes.models import ContentType
+from flags.models import FlagType
 
 
 class CreateFlagsAPITest(EmployeeBaseAPITestCase):
@@ -10,6 +11,8 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
     def setUp(self):
         self.create_employee_url = reverse("create-employee")
         self.create_flag_url = reverse("create-flag")
+
+        self.flag_type = FlagType.objects.create(flag_type="Incomplete Record")
 
         self.authenticate_admin()
 
@@ -21,8 +24,8 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
-            "field": "date_of_birth",
+            "flag_type": self.flag_type.id,
+            "field": "date of birth",
             "reason": "Employee data is invalid",
         }
 
@@ -49,7 +52,7 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": "",
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is invalid",
         }
 
@@ -64,10 +67,14 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn(
-            "Content Type cannot be blank or is required.", response.data["error"]
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "content_type")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be null.")
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_invalid_data(self):
@@ -76,7 +83,7 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": 400,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is missing",
         }
 
@@ -88,10 +95,14 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn(
-            "The value for Content Type does not exist.", response.data["error"]
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "content_type")
+
+            for error in field_errors:
+                self.assertIn("object does not exist", error)
+
         self.assertEqual(ActivityFeeds.objects.count(), 1)
 
     def test_throttling(self):
@@ -102,7 +113,7 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is missing",
         }
 
@@ -110,13 +121,8 @@ class CreateFlagsAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create flag request
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
-        response = self.client.post(create_flag_url, self.flag_data, format="json")
+        for _ in range(13):
+            response = self.client.post(create_flag_url, self.flag_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -129,6 +135,8 @@ class RetrieveFlagAPITest(EmployeeBaseAPITestCase):
         self.create_flag_url = reverse("create-flag")
         self.retrieve_flag_url = reverse("retrieve-flag", kwargs={"pk": 1})
 
+        self.flag_type = FlagType.objects.create(flag_type="Incomplete Record")
+
         self.authenticate_admin()
 
     def test_retrieve_existing_flag(self):
@@ -139,8 +147,8 @@ class RetrieveFlagAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
-            "field": "date_of_birth",
+            "flag_type": self.flag_type.id,
+            "field": "date of birth",
             "reason": "Employee data is invalid",
         }
 
@@ -173,8 +181,8 @@ class RetrieveFlagAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
-            "field": "date_of_birth",
+            "flag_type": self.flag_type.id,
+            "field": "date of birth",
             "reason": "Employee data is invalid",
         }
 
@@ -185,13 +193,8 @@ class RetrieveFlagAPITest(EmployeeBaseAPITestCase):
         self.client.post(create_flag_url, self.flag_data, format="json")
 
         # Send get flag request
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
-        response = self.client.get(self.retrieve_flag_url)
+        for _ in range(13):
+            response = self.client.get(self.retrieve_flag_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -204,6 +207,8 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.create_flag_url = reverse("create-flag")
         self.edit_flag_url = reverse("edit-flag", kwargs={"pk": 1})
 
+        self.flag_type = FlagType.objects.create(flag_type="Incomplete Record")
+
         self.authenticate_admin()
 
     def test_successful_flag_edit(self):
@@ -212,10 +217,10 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is invalid",
         }
-        edit_data = {"field": "date_of_birth", "reason": "Date of birth in the future"}
+        edit_data = {"field": "date of birth", "reason": "Date of birth in the future"}
 
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
@@ -231,7 +236,7 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertIn("date_of_birth", response.data["field"])
+        self.assertIn("date of birth", response.data["field"])
         self.assertIn("Date of birth in the future", response.data["reason"])
         self.assertIn("Flagged Field: None → Date of birth", activity_feed)
         self.assertIn(
@@ -245,10 +250,10 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is invalid",
         }
-        edit_data = {"field": "date_of_birth", "reason": "Date of birth in the future"}
+        edit_data = {"field": "date of birth", "reason": "Date of birth in the future"}
 
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
@@ -270,10 +275,10 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is invalid",
         }
-        edit_data = {"flag_type": "wrong data"}
+        edit_data = {"flag_type": 2}
 
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
@@ -286,8 +291,14 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn("Choice is invalid.", response.data["error"])
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "flag_type")
+
+            for error in field_errors:
+                self.assertIn("object does not exist", error)
+
         self.assertEqual(ActivityFeeds.objects.count(), 2)
 
     def test_throttling(self):
@@ -296,10 +307,10 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
+            "flag_type": self.flag_type.id,
             "reason": "Employee data is invalid",
         }
-        edit_data = {"field": "date_of_birth", "reason": "Date of birth in the future"}
+        edit_data = {"field": "date of birth", "reason": "Date of birth in the future"}
 
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
@@ -308,13 +319,8 @@ class EditFlagsAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_flag_url, self.flag_data, format="json")
 
         # Send edit flag request
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
-        response = self.client.patch(self.edit_flag_url, edit_data, format="json")
+        for _ in range(13):
+            response = self.client.patch(self.edit_flag_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
@@ -327,6 +333,8 @@ class DeleteFlagAPITest(EmployeeBaseAPITestCase):
         self.create_flag_url = reverse("create-flag")
         self.delete_flag_url = reverse("delete-flag", kwargs={"pk": 1})
 
+        self.flag_type = FlagType.objects.create(flag_type="Incomplete Record")
+
         self.authenticate_admin()
 
     def test_delete_existing_flag(self):
@@ -337,8 +345,8 @@ class DeleteFlagAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
-            "field": "date_of_birth",
+            "flag_type": self.flag_type.id,
+            "field": "date of birth",
             "reason": "Employee data is invalid",
         }
 
@@ -376,8 +384,8 @@ class DeleteFlagAPITest(EmployeeBaseAPITestCase):
         self.flag_data = {
             "content_type": employee_model_id,
             "object_id": "000993",
-            "flag_type": "INVALID DATA",
-            "field": "date_of_birth",
+            "flag_type": self.flag_type.id,
+            "field": "date of birth",
             "reason": "Employee data is invalid",
         }
 
@@ -388,13 +396,8 @@ class DeleteFlagAPITest(EmployeeBaseAPITestCase):
         self.client.post(create_flag_url, self.flag_data, format="json")
 
         # Send get flag request
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
-        response = self.client.delete(self.delete_flag_url)
+        for _ in range(13):
+            response = self.client.delete(self.delete_flag_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

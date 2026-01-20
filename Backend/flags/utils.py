@@ -1,7 +1,7 @@
 def generate_flag_type_changes_made_text(previous_flag, current_flag):
     return (
-        f"Flag Type: {previous_flag.flag_type} → {current_flag.flag_type}"
-        if previous_flag.flag_type != current_flag.flag_type
+        f"Flag Type: {previous_flag.flag_type.flag_type} → {current_flag.flag_type.flag_type}"
+        if previous_flag.flag_type.flag_type != current_flag.flag_type.flag_type
         else ""
     )
 

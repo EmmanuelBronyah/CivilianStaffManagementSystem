@@ -90,9 +90,15 @@ class CreateAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Absence must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "absence")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 100 characters."
+                )
 
     def test_multiple_absences_invalid_data(self):
         # Send create employee request
@@ -110,7 +116,17 @@ class CreateAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Start Date.")
+
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "start_date")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                    )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -126,9 +142,12 @@ class CreateAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_omit_required_field_multiple_absences(self):
         # Send create employee request
@@ -146,9 +165,16 @@ class CreateAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "authority")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "This field may not be blank.",
+                    )
 
     def test_throttling(self):
         # Send create employee request
@@ -217,7 +243,15 @@ class EditAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Start Date.")
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "start_date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -233,9 +267,13 @@ class EditAbsencesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -351,7 +389,7 @@ class DeleteAbsencesAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_absences_url)
 
         # Get created activity feed
-        activity = "The Absences '42 DAYS ANNUAL LEAVE' was deleted by Standard User"
+        activity = "The Absences(42 DAYS ANNUAL LEAVE) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

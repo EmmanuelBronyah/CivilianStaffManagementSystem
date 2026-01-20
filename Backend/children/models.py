@@ -49,9 +49,9 @@ class InvalidChildRecords(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "invalidChildRecords"
-        verbose_name = "invalidChildRecords"
-        verbose_name_plural = "invalidChildRecords"
+        db_table = "invalid_child_records"
+        verbose_name = "invalid_child_records"
+        verbose_name_plural = "invalid_child_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

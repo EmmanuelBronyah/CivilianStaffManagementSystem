@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 class CreateAbsencesAPIView(generics.CreateAPIView):
-    serializer_class = serializers.AbsencesSerializer
+    serializer_class = serializers.AbsencesWriteSerializer
     queryset = Absences.objects.all()
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -47,31 +47,31 @@ class CreateAbsencesAPIView(generics.CreateAPIView):
             for record in absences:
                 ActivityFeeds.objects.create(
                     creator=self.request.user,
-                    activity=f"{self.request.user} added a new Absences: '{record.absence}'",
+                    activity=f"{self.request.user} added a new Absences({record.absence})",
                 )
                 logger.debug(
-                    f"Activity Feed({self.request.user} added a new Absences: '{record.absence}') created."
+                    f"Activity Feed({self.request.user} added a new Absences({record.absence})) created."
                 )
         else:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} added a new Absences: '{absences.absence}'",
+                activity=f"{self.request.user} added a new Absences({absences.absence})",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} added a new Absences: '{absences.absence}') created."
+                f"Activity Feed({self.request.user} added a new Absences({absences.absence})) created."
             )
 
 
 class EditAbsencesAPIView(generics.UpdateAPIView):
     queryset = Absences.objects.all()
-    serializer_class = serializers.AbsencesSerializer
+    serializer_class = serializers.AbsencesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_update(self, serializer):
         previous_absences = self.get_object()
-        absences_update = serializer.save()
+        absences_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Absences({previous_absences}) updated.")
 
         changes = absences_changes(previous_absences, absences_update)
@@ -79,16 +79,16 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Absences '{previous_absences.absence}': {changes}",
+                activity=f"{self.request.user} updated Absences({previous_absences.absence}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Absences '{previous_absences.absence}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Absences({previous_absences.absence}): {changes}) created."
             )
 
 
 class ListEmployeeAbsencesAPIView(generics.ListAPIView):
-    queryset = Absences.objects.all()
-    serializer_class = serializers.AbsencesSerializer
+    queryset = Absences.objects.select_related("created_by", "updated_by")
+    serializer_class = serializers.AbsencesReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
@@ -100,8 +100,8 @@ class ListEmployeeAbsencesAPIView(generics.ListAPIView):
 
 
 class RetrieveAbsencesAPIView(generics.RetrieveAPIView):
-    queryset = Absences.objects.all()
-    serializer_class = serializers.AbsencesSerializer
+    queryset = Absences.objects.select_related("created_by", "updated_by")
+    serializer_class = serializers.AbsencesReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -109,7 +109,7 @@ class RetrieveAbsencesAPIView(generics.RetrieveAPIView):
 
 class DeleteAbsencesAPIView(generics.DestroyAPIView):
     queryset = Absences.objects.all()
-    serializer_class = serializers.AbsencesSerializer
+    serializer_class = serializers.AbsencesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -120,8 +120,8 @@ class DeleteAbsencesAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Absences '{instance.absence}' was deleted by {self.request.user}",
+            activity=f"The Absences({instance.absence}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Absences '{instance.absence}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Absences({instance.absence}) was deleted by {self.request.user}) created."
         )

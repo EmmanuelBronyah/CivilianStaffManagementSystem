@@ -33,7 +33,7 @@ class Courses(models.Model):
 
     class Meta:
         db_table = "courses"
-        verbose_name = "course"
+        verbose_name = "courses"
         verbose_name_plural = "courses"
 
     def __str__(self):
@@ -53,9 +53,9 @@ class InvalidCourseRecords(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "InvalidCourseRecords"
-        verbose_name = "InvalidCourseRecords"
-        verbose_name_plural = "InvalidCourseRecords"
+        db_table = "invalid_course_records"
+        verbose_name = "invalid_course_records"
+        verbose_name_plural = "invalid_course_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

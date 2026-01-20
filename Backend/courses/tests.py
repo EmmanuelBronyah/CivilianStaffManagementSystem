@@ -15,8 +15,8 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
             "course_type": "HEALTH PROFICIENCY",
             "authority": "CEM 20/24",
             "place": "KNUST",
-            "date_commenced": "2025-09-07",
-            "date_ended": "2024-09-07",
+            "date_commenced": "2024-09-07",
+            "date_ended": "2025-09-07",
             "qualification": "HEALTH PROFICIENCY",
             "result": "SECOND CLASS UPPER DIVISION",
         }
@@ -87,10 +87,10 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
 
         invalid_data = {
             "employee": "000993",
-            "course_type": "HEALTH PROFICIENCY",
+            "course_type": "HEALTH PROFICIENCY*",
             "authority": "CEM 20/24",
             "place": "KNUST",
-            "date_commenced": "uy",
+            "date_commenced": "2022-09-07",
             "date_ended": "2024-09-07",
             "qualification": "HEALTH PROFICIENCY",
             "result": "SECOND CLASS UPPER DIVISION",
@@ -101,7 +101,16 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date Commenced.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "course_type")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Course Type can only contain letters, numbers, spaces, hyphens, commas, and periods.",
+                )
 
     def test_multiple_course_invalid_data(self):
         # Send create employee request
@@ -119,7 +128,17 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date Ended.")
+
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "date_ended")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                    )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -135,9 +154,13 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Result cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "result")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_omit_required_field_multiple_course(self):
         # Send create employee request
@@ -155,7 +178,17 @@ class CreateCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date Ended.")
+
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "date_ended")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                    )
 
     def test_throttling(self):
         # Send create employee request
@@ -184,7 +217,7 @@ class EditCourseAPITest(EmployeeBaseAPITestCase):
             "authority": "CEM 20/24",
             "place": "KNUST",
             "date_commenced": "2025-09-07",
-            "date_ended": "2024-09-07",
+            "date_ended": "2027-09-07",
             "qualification": "HEALTH PROFICIENCY",
             "result": "SECOND CLASS UPPER DIVISION",
         }
@@ -229,7 +262,16 @@ class EditCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date Commenced.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "date_commenced")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -245,9 +287,13 @@ class EditCourseAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -281,7 +327,7 @@ class RetrieveEmployeeCourseAPITest(EmployeeBaseAPITestCase):
             "authority": "CEM 20/24",
             "place": "KNUST",
             "date_commenced": "2025-09-07",
-            "date_ended": "2024-09-07",
+            "date_ended": "2027-09-07",
             "qualification": "HEALTH PROFICIENCY",
             "result": "SECOND CLASS UPPER DIVISION",
         }
@@ -345,7 +391,7 @@ class DeleteCourseAPITest(EmployeeBaseAPITestCase):
             "authority": "CEM 20/24",
             "place": "KNUST",
             "date_commenced": "2025-09-07",
-            "date_ended": "2024-09-07",
+            "date_ended": "2027-09-07",
             "qualification": "HEALTH PROFICIENCY",
             "result": "SECOND CLASS UPPER DIVISION",
         }
@@ -363,7 +409,7 @@ class DeleteCourseAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_course_url)
 
         # Get created activity feed
-        activity = "The Course 'HEALTH PROFICIENCY' was deleted by Standard User"
+        activity = "The Course(HEALTH PROFICIENCY) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

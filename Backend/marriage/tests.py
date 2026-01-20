@@ -61,10 +61,15 @@ class CreateMarriageAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"],
-            "Registration Number must not have more than 255 characters.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "registration_number")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 255 characters."
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -80,9 +85,13 @@ class CreateMarriageAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Spouse Name cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "spouse_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -146,17 +155,20 @@ class EditMarriageAPITest(EmployeeBaseAPITestCase):
         # Send create Marriage request
         self.client.post(self.create_marriage_url, self.marriage_data, format="json")
 
-        edit_data = {"phone_number": "tyui" * 30}
+        edit_data = {"phone_number": "tyui"}
 
         # Send edit Marriage request
         response = self.client.patch(self.edit_marriage_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"],
-            "Phone Number must not have more than 10 characters.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "phone_number")
+
+            for error in field_errors:
+                self.assertEqual(error, "Phone Number can only contain numbers.")
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -172,9 +184,13 @@ class EditMarriageAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Spouse Name cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "spouse_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -294,7 +310,7 @@ class DeleteMarriageAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_marriage_url)
 
         # Get created activity feed
-        activity = "The Spouse 'Ama' was deleted by Standard User"
+        activity = "The Spouse(Ama) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

@@ -48,7 +48,7 @@ class CreateIdentityAPITest(EmployeeBaseAPITestCase):
             "voters_id": "VVVVVVVVVVVVV",
             "national_id": "NNNNNNNNNNNNN",
             "glico_id": "GGGGGGGGGGGGG",
-            "nhis_id": "IIIIIIIIIIIII" * 300,
+            "nhis_id": "IIIIIIIIIIIII8**",
             "tin_number": "TTTTTTTTTTTTT",
         }
 
@@ -59,10 +59,44 @@ class CreateIdentityAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"],
-            "NHIS ID must not have more than 100 characters.",
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "nhis_id")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "NHIS ID can only contain letters, numbers, spaces and hyphens.",
+                )
+
+    def test_all_fields_empty(self):
+        # Send create employee request
+        self.client.post(self.create_employee_url, self.employee_data, format="json")
+
+        invalid_data = {
+            "employee": "000993",
+            "voters_id": "",
+            "national_id": "",
+            "glico_id": "",
+            "nhis_id": "",
+            "tin_number": "",
+        }
+
+        # Send create request
+        response = self.client.post(
+            self.create_identity_url, invalid_data, format="json"
         )
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "non_field_errors")
+
+            for error in field_errors:
+                self.assertEqual(error, "All fields for Identity cannot be empty.")
 
     def test_unique_field(self):
         # Send create employee request
@@ -79,8 +113,12 @@ class CreateIdentityAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Voters ID already exists.")
+
+        errors = response.data
+        self.assertTrue(errors.get("voters_id", None))
+        self.assertEqual(
+            str(errors["voters_id"][0]), "identity with this voters id already exists."
+        )
         self.assertIn("added a new Identity", activity_feed)
 
     def test_throttling(self):
@@ -151,9 +189,46 @@ class EditIdentityAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "GLICO ID must not have more than 100 characters."
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "glico_id")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 100 characters."
+                )
+
+    def test_edit_all_fields_empty(self):
+        # Send create employee request
+        self.client.post(self.create_employee_url, self.employee_data, format="json")
+
+        # Send create request
+        response = self.client.post(
+            self.create_identity_url, self.identity_data, format="json"
         )
+
+        edit_data = {
+            "employee": "000993",
+            "voters_id": "",
+            "national_id": "",
+            "glico_id": "",
+            "nhis_id": "",
+            "tin_number": "",
+        }
+
+        # Send edit Identity request
+        response = self.client.patch(self.edit_identity_url, edit_data, format="json")
+
+        # Assertions
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "non_field_errors")
+
+            for error in field_errors:
+                self.assertEqual(error, "All fields for Identity cannot be empty.")
 
     def test_throttling(self):
         # Send create employee request
@@ -269,7 +344,7 @@ class DeleteChildIdentityAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_identity_url)
 
         # Get created activity feed
-        activity = "The Identity for Employee '000993' was deleted by Standard User"
+        activity = "The Identity(Service ID: 000993) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

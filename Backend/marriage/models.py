@@ -2,8 +2,6 @@ from django.db import models
 from employees.models import Employee
 from api.models import CustomUser
 
-# TODO: Check Phone Numbers less than 10
-
 
 class Spouse(models.Model):
     employee = models.ForeignKey(

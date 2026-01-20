@@ -1,20 +1,11 @@
 from rest_framework import serializers
 from . import models
-from api.models import CustomUser
 
 
 class ActivityFeedsSerializer(serializers.ModelSerializer):
+    creator_display = serializers.StringRelatedField(source="creator", read_only=True)
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
 
     class Meta:
         model = models.ActivityFeeds
         fields = "__all__"
-
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        creator_id = representation.pop("creator", None)
-        creator = CustomUser.objects.get(id=creator_id).username
-
-        representation.update({"creator": creator})
-
-        return representation

@@ -8,9 +8,9 @@ class ActivityFeeds(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "activityFeeds"
-        verbose_name = "activityFeeds"
-        verbose_name_plural = "activityFeeds"
+        db_table = "activity_feeds"
+        verbose_name = "activity_feeds"
+        verbose_name_plural = "activity_feeds"
 
     def __str__(self):
         return f"{self.activity} on {self.created_at:%d-%b-%Y %H:%M %p}"

@@ -38,14 +38,14 @@ class CreateFlagsAPIView(generics.CreateAPIView):
             creator=self.request.user,
             activity=(
                 f"{model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
-                f"Flag Type: {flag.flag_type}"
+                f"Flag Type: {flag.flag_type.flag_type}"
                 f"{flagged_field_text}"
                 f" — Reason: {flag.reason}"
             ),
         )
         logger.debug(
             f"Activity feed({model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
-            f"Flag Type: {flag.flag_type}"
+            f"Flag Type: {flag.flag_type.flag_type}"
             f"{flagged_field_text}"
             f" — Reason: {flag.reason}"
         )
@@ -106,8 +106,8 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
+            activity=f"{model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
         )
         logger.debug(
-            f"Activity feed({model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
+            f"Activity feed({model_name.replace('_', ' ').capitalize()} record flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
         )

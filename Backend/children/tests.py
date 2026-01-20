@@ -48,7 +48,7 @@ class CreateChildRecordAPITest(EmployeeBaseAPITestCase):
             "child_name": "Ama",
             "authority": "CEM 20/24",
             "dob": "2025-08-07",
-            "other_parent": "John Doe" * 300,
+            "other_parent": "John Doe1",
             "gender": self.gender.id,
         }
 
@@ -59,10 +59,16 @@ class CreateChildRecordAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"],
-            "Other Parent must not have more than 255 characters.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "other_parent")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Other Parent can only contain letters, spaces, hyphens, and periods.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -78,9 +84,13 @@ class CreateChildRecordAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -158,7 +168,16 @@ class EditChildRecordAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date of Birth.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "dob")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -178,9 +197,13 @@ class EditChildRecordAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -304,7 +327,7 @@ class DeleteChildRecordAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_child_record_url)
 
         # Get created activity feed
-        activity = "The Child Record 'Ama — 2025-08-07' was deleted by Standard User"
+        activity = "The Child Record(Child Name: Ama — Date of Birth: 2025-08-07) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions
