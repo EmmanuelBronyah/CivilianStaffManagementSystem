@@ -30,21 +30,23 @@ class CreateCourseAPIView(generics.CreateAPIView):
 
         self.perform_create(serializer)
 
-        return Response(serializer.data, status.HTTP_201_CREATED)
+        read_serializer = serializers.CoursesReadSerializer(self.courses, many=is_many)
+
+        return Response(read_serializer.data, status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        courses = serializer.save(
+        self.courses = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
         records = (
-            ", ".join([str(record) for record in courses])
-            if isinstance(courses, list)
-            else courses
+            ", ".join([str(record) for record in self.courses])
+            if isinstance(self.courses, list)
+            else self.courses
         )
         logger.debug(f"Courses({records}) created.")
 
-        if isinstance(courses, list):
-            for record in courses:
+        if isinstance(self.courses, list):
+            for record in self.courses:
                 ActivityFeeds.objects.create(
                     creator=self.request.user,
                     activity=f"{self.request.user} added a new Course({record.course_type})",
@@ -55,10 +57,10 @@ class CreateCourseAPIView(generics.CreateAPIView):
         else:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} added a new Course({courses.course_type})",
+                activity=f"{self.request.user} added a new Course({self.courses.course_type})",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} added a new Course({courses.course_type}) created."
+                f"Activity Feed({self.request.user} added a new Course({self.courses.course_type}) created."
             )
 
 
@@ -69,12 +71,24 @@ class EditCourseAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.CoursesReadSerializer(self.courses_update)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_courses = self.get_object()
-        courses_update = serializer.save()
+        self.courses_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Courses({previous_courses}) updated.")
 
-        changes = course_record_changes(previous_courses, courses_update)
+        changes = course_record_changes(previous_courses, self.courses_update)
 
         if changes:
             ActivityFeeds.objects.create(
@@ -87,7 +101,6 @@ class EditCourseAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeCoursesAPIView(generics.ListAPIView):
-    queryset = Courses.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.CoursesReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -95,7 +108,7 @@ class ListEmployeeCoursesAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        courses = employee.courses.all()
+        courses = employee.courses.select_related("created_by", "updated_by")
         return courses
 
 

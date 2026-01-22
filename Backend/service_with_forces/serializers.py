@@ -1,40 +1,67 @@
 from rest_framework import serializers
 from .models import ServiceWithForces, MilitaryRanks
-from api.models import CustomUser
-from employees.models import Units
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class ServiceWithForcesSerializer(serializers.ModelSerializer):
+class ServiceWithForcesWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ServiceWithForces
         fields = "__all__"
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    def validate_service_number(self, value):
+        if not value:
+            logger.debug("Service Number is empty")
+            return value
 
-        created_by_id = representation.pop("created_by", None)
-        updated_by_id = representation.pop("updated_by", None)
-        last_unit_id = representation.pop("last_unit", None)
-        military_rank_id = representation.pop("military_rank", None)
+        if not value.isdigit():
+            logger.debug("Service Number can only contain numbers.")
 
-        if created_by_id:
-            created_by = CustomUser.objects.get(id=created_by_id).username
-            representation.update({"created_by": created_by})
+            raise serializers.ValidationError("Field can only contain numbers.")
 
-        if updated_by_id:
-            updated_by = CustomUser.objects.get(id=updated_by_id).username
-            representation.update({"updated_by": updated_by})
+        return value
 
-        if last_unit_id:
-            last_unit = Units.objects.get(id=last_unit_id).unit_name
-            representation.update({"last_unit": last_unit})
+    def validate_service_date(self, value):
+        if not value:
+            logger.debug("Service Date is empty")
+            return value
 
-        if military_rank_id:
-            military_rank = MilitaryRanks.objects.get(id=military_rank_id).rank
-            representation.update({"military_rank": military_rank})
+        from datetime import datetime
 
-        return representation
+        today = datetime.now().date()
+        if value >= today:
+            logger.debug("Service Date cannot be the present date or a future date.")
+
+            serializers.ValidationError(
+                "Service Date cannot be the present date or a future date."
+            )
+
+        return value
+
+
+class ServiceWithForcesReadSerializer(serializers.ModelSerializer):
+    military_rank_display = serializers.StringRelatedField(
+        source="military_rank", read_only=True
+    )
+    last_unit_display = serializers.StringRelatedField(
+        source="last_unit", read_only=True
+    )
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
+
+    class Meta:
+        model = ServiceWithForces
+        fields = "__all__"
 
 
 class MilitaryRanksSerializer(serializers.ModelSerializer):
@@ -42,3 +69,30 @@ class MilitaryRanksSerializer(serializers.ModelSerializer):
     class Meta:
         model = MilitaryRanks
         fields = "__all__"
+
+    @staticmethod
+    def validate_text(field, value):
+        if not value:
+            logger.debug(f"{field} is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {" "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(f"{field} can only contain letters and spaces.")
+
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters and spaces."
+                )
+
+        return value
+
+    def validate_rank(self, value):
+        return self.validate_text("Rank", value)
+
+    def validate_branch(self, value):
+        return self.validate_text("Branch", value)

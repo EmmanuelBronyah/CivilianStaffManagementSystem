@@ -89,7 +89,6 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
-    queryset = EmergencyOrNextOfKin.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -97,7 +96,7 @@ class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        next_of_kin = employee.next_of_kin.all()
+        next_of_kin = employee.next_of_kin.select_related("created_by", "updated_by")
         return next_of_kin
 
 

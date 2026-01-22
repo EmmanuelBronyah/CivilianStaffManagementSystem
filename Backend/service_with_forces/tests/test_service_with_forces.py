@@ -62,7 +62,16 @@ class CreateServiceWithForcesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Service Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -80,9 +89,13 @@ class CreateServiceWithForcesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Service Number cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_number")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -158,7 +171,7 @@ class EditServiceWithForcesAPITest(EmployeeBaseAPITestCase):
             format="json",
         )
 
-        edit_data = {"service_date": "tyui"}
+        edit_data = {"service_number": "tyui"}
 
         # Send edit service with forces request
         response = self.client.patch(
@@ -167,7 +180,13 @@ class EditServiceWithForcesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Service Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "service_number")
+
+            for error in field_errors:
+                self.assertEqual(error, "Field can only contain numbers.")
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -189,9 +208,13 @@ class EditServiceWithForcesAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Military Rank cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "military_rank")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be null.")
 
     def test_throttling(self):
         # Send create employee request
@@ -329,7 +352,7 @@ class DeleteServiceWithForcesAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_service_with_forces_url)
 
         # Get created activity feed
-        activity = "The Service With Forces '2022-09-09 — 4 Bn - ' was deleted by Standard User"
+        activity = "The Service With Forces(Service Date: 2022-09-09 — Last Unit: 4 Bn) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

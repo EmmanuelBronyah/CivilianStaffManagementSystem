@@ -82,6 +82,10 @@ class AbsencesReadSerializer(serializers.ModelSerializer):
     updated_by_display = serializers.StringRelatedField(
         source="updated_by", read_only=True
     )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
 
     class Meta:
         model = Absences

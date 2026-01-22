@@ -1,5 +1,7 @@
 def generate_text(fields):
-    changes = [f"{label}: {old} → {new}" for label, old, new in fields if old != new]
+    changes = [
+        f"{label}: {old} → {new}" for label, old, new in fields if str(old) != str(new)
+    ]
     return " — ".join(changes)
 
 

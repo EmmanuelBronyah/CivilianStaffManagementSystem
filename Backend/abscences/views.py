@@ -30,21 +30,25 @@ class CreateAbsencesAPIView(generics.CreateAPIView):
 
         self.perform_create(serializer)
 
-        return Response(serializer.data, status.HTTP_201_CREATED)
+        read_serializer = serializers.AbsencesReadSerializer(
+            self.absences, many=is_many
+        )
+
+        return Response(read_serializer.data, status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        absences = serializer.save(
+        self.absences = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
         records = (
-            ", ".join([str(record) for record in absences])
-            if isinstance(absences, list)
-            else absences
+            ", ".join([str(record) for record in self.absences])
+            if isinstance(self.absences, list)
+            else self.absences
         )
         logger.debug(f"Absences({records}) created.")
 
-        if isinstance(absences, list):
-            for record in absences:
+        if isinstance(self.absences, list):
+            for record in self.absences:
                 ActivityFeeds.objects.create(
                     creator=self.request.user,
                     activity=f"{self.request.user} added a new Absences({record.absence})",
@@ -55,10 +59,10 @@ class CreateAbsencesAPIView(generics.CreateAPIView):
         else:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} added a new Absences({absences.absence})",
+                activity=f"{self.request.user} added a new Absences({self.absences.absence})",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} added a new Absences({absences.absence})) created."
+                f"Activity Feed({self.request.user} added a new Absences({self.absences.absence})) created."
             )
 
 
@@ -69,12 +73,24 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.AbsencesReadSerializer(self.absences_update)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_absences = self.get_object()
-        absences_update = serializer.save(updated_by=self.request.user)
+        self.absences_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Absences({previous_absences}) updated.")
 
-        changes = absences_changes(previous_absences, absences_update)
+        changes = absences_changes(previous_absences, self.absences_update)
 
         if changes:
             ActivityFeeds.objects.create(
@@ -87,7 +103,6 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeAbsencesAPIView(generics.ListAPIView):
-    queryset = Absences.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.AbsencesReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -95,7 +110,7 @@ class ListEmployeeAbsencesAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        absences = employee.absences.all()
+        absences = employee.absences.select_related("created_by", "updated_by")
         return absences
 
 

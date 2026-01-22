@@ -75,9 +75,9 @@ class InvalidTerminationOfAppointmentRecords(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "InvalidTerminationOfAppointmentRecords"
-        verbose_name = "InvalidTerminationOfAppointmentRecords"
-        verbose_name_plural = "InvalidTerminationOfAppointmentRecords"
+        db_table = "invalid_termination_of_appointment_records"
+        verbose_name = "invalid_termination_of_appointment_records"
+        verbose_name_plural = "invalid_termination_of_appointment_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

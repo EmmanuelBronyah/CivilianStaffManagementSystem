@@ -29,7 +29,7 @@ class CreateTerminationStatusAPITest(BaseAPITestCase):
 
     def test_invalid_data(self):
         invalid_data = {
-            "termination_status": "Awol" * 200,
+            "termination_status": "Awol3",
         }
 
         # Send create request
@@ -37,9 +37,13 @@ class CreateTerminationStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Status must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_status")
+
+            for error in field_errors:
+                self.assertEqual(error, "Status can only contain letters and spaces.")
 
     def test_omit_required_field(self):
         # Omit required field
@@ -54,9 +58,13 @@ class CreateTerminationStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Status cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_status")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create request
@@ -117,9 +125,15 @@ class EditTerminationStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Status must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_status")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 100 characters."
+                )
 
     def test_omit_required_field(self):
         # Send create Termination Status request
@@ -136,9 +150,13 @@ class EditTerminationStatusAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Status cannot be blank or is required."
-        )
+        errors = response.data
+        for field, field_errors in errors.items():
+
+            self.assertEqual(field, "termination_status")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create Termination Status request
@@ -180,7 +198,7 @@ class DeleteTerminationStatusAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_status_url)
 
         # Get created activity feed
-        activity = "The Termination Status 'Awol' was deleted by Administrator"
+        activity = "The Termination Status(Awol) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

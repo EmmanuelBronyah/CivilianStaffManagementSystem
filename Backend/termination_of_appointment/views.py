@@ -9,6 +9,8 @@ from activity_feeds.models import ActivityFeeds
 from django.shortcuts import get_object_or_404
 from employees.models import Employee
 from . import utils
+from rest_framework.response import Response
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
@@ -17,72 +19,103 @@ logger = logging.getLogger(__name__)
 
 # * TERMINATION OF APPOINTMENT
 class CreateTerminationOfAppointmentAPIView(generics.CreateAPIView):
-    serializer_class = serializers.TerminationOfAppointmentSerializer
+    serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     queryset = models.TerminationOfAppointment.objects.all()
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.TerminationOfAppointmentReadSerializer(
+            self.termination_of_appointment
+        )
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        termination_of_appointment = serializer.save(
+        self.termination_of_appointment = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
         logger.debug(
-            f"Termination Of Appointment({termination_of_appointment}) created."
+            f"Termination Of Appointment({self.termination_of_appointment}) created."
         )
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Termination Of Appointment: '{termination_of_appointment.employee.service_id} — {termination_of_appointment.cause}'",
+            activity=f"{self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Termination Of Appointment: '{termination_of_appointment.employee.service_id} — {termination_of_appointment.cause}') created."
+            f"Activity Feed({self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})) created."
         )
 
 
 class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
     queryset = models.TerminationOfAppointment.objects.all()
-    serializer_class = serializers.TerminationOfAppointmentSerializer
+    serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.TerminationOfAppointmentReadSerializer(
+            self.termination_of_appointment_update
+        )
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_termination_of_appointment = self.get_object()
-        termination_of_appointment_update = serializer.save()
+        self.termination_of_appointment_update = serializer.save(
+            updated_by=self.request.user
+        )
         logger.debug(
             f"Termination Of Appointment({previous_termination_of_appointment}) updated."
         )
 
         changes = utils.termination_of_appointment_changes(
-            previous_termination_of_appointment, termination_of_appointment_update
+            previous_termination_of_appointment, self.termination_of_appointment_update
         )
 
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Termination Of Appointment '{previous_termination_of_appointment.employee.service_id} — {previous_termination_of_appointment.cause}': {changes}",
+                activity=f"{self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Termination Of Appointment '{previous_termination_of_appointment.employee.service_id} — {previous_termination_of_appointment.cause}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}) created."
             )
 
 
 class ListEmployeeTerminationOfAppointmentAPIView(generics.ListAPIView):
-    queryset = models.TerminationOfAppointment.objects.all()
-    serializer_class = serializers.TerminationOfAppointmentSerializer
+    serializer_class = serializers.TerminationOfAppointmentReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        termination_of_appointment = employee.termination_of_appointment.all()
+        termination_of_appointment = employee.termination_of_appointment.select_related(
+            "cause", "status", "created_by", "updated_by"
+        )
         return termination_of_appointment
 
 
 class RetrieveTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
-    queryset = models.TerminationOfAppointment.objects.all()
-    serializer_class = serializers.TerminationOfAppointmentSerializer
+    queryset = models.TerminationOfAppointment.objects.select_related(
+        "cause", "status", "created_by", "updated_by"
+    )
+    serializer_class = serializers.TerminationOfAppointmentReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -90,7 +123,7 @@ class RetrieveTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
 
 class DeleteTerminationOfAppointmentAPIView(generics.DestroyAPIView):
     queryset = models.TerminationOfAppointment.objects.all()
-    serializer_class = serializers.TerminationOfAppointmentSerializer
+    serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -101,10 +134,10 @@ class DeleteTerminationOfAppointmentAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Termination Of Appointment '{instance.employee.service_id} — {instance.cause}' was deleted by {self.request.user}",
+            activity=f"The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Termination Of Appointment '{instance.employee.service_id} — {instance.cause}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}) created."
         )
 
 
@@ -121,10 +154,10 @@ class CreateCausesOfTerminationAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Causes Of Termination: '{causes_of_termination.termination_cause}'",
+            activity=f"{self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Causes Of Termination: '{causes_of_termination.termination_cause}') created."
+            f"Activity Feed({self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause}) created."
         )
 
 
@@ -149,10 +182,10 @@ class EditCausesOfTerminationAPIView(generics.UpdateAPIView):
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Causes Of Termination '{previous_causes_of_termination.termination_cause}': {changes}",
+                activity=f"{self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Causes Of Termination '{previous_causes_of_termination.termination_cause}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}) created."
             )
 
 
@@ -184,10 +217,10 @@ class DeleteCausesOfTerminationAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Causes Of Termination '{instance.termination_cause}' was deleted by {self.request.user}",
+            activity=f"The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Causes Of Termination '{instance.termination_cause}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}) created."
         )
 
 
@@ -204,10 +237,10 @@ class CreateTerminationStatusAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Termination Status: '{termination_status.termination_status}'",
+            activity=f"{self.request.user} added a new Termination Status({termination_status.termination_status})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Termination Status: '{termination_status.termination_status}') created."
+            f"Activity Feed({self.request.user} added a new Termination Status({termination_status.termination_status})) created."
         )
 
 
@@ -230,10 +263,10 @@ class EditTerminationStatusAPIView(generics.UpdateAPIView):
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Termination Status '{previous_termination_status.termination_status}': {changes}",
+                activity=f"{self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Termination Status '{previous_termination_status.termination_status}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}) created."
             )
 
 
@@ -265,8 +298,8 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Termination Status '{instance.termination_status}' was deleted by {self.request.user}",
+            activity=f"The Termination Status({instance.termination_status}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Termination Status '{instance.termination_status}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Termination Status({instance.termination_status}) was deleted by {self.request.user}) created."
         )

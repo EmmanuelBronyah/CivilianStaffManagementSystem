@@ -33,7 +33,7 @@ class CreateMilitaryRankAPITest(BaseAPITestCase):
 
     def test_invalid_data(self):
         invalid_data = {
-            "rank": "Captain" * 200,
+            "rank": "Captain1",
             "branch": "NAVY",
         }
 
@@ -44,9 +44,13 @@ class CreateMilitaryRankAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Rank must not have more than 255 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "rank")
+
+            for error in field_errors:
+                self.assertEqual(error, "Rank can only contain letters and spaces.")
 
     def test_omit_required_field(self):
         # Omit required field
@@ -61,7 +65,13 @@ class CreateMilitaryRankAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Rank cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "rank")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create request
@@ -131,9 +141,15 @@ class EditMilitaryRankAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Branch must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "branch")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 100 characters."
+                )
 
     def test_omit_required_field(self):
         # Send create military rank request
@@ -152,7 +168,13 @@ class EditMilitaryRankAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Rank cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "rank")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create military rank request
@@ -201,7 +223,7 @@ class DeleteMilitaryRankAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_military_rank_url)
 
         # Get created activity feed
-        activity = "The Military Rank 'Captain' was deleted by Administrator"
+        activity = "The Military Rank(Captain) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

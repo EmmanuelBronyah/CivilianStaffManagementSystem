@@ -116,9 +116,11 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
+
         self.perform_update(serializer)
 
         read_serializer = serializers.EmployeeReadSerializer(self.employee)
+
         response_data = dict(read_serializer.data)
         response_data["warnings"] = serializer.warnings
 
@@ -294,6 +296,7 @@ class CreateGradeAPIView(generics.CreateAPIView):
         self.perform_create(serializer)
 
         read_serializer = serializers.GradeReadSerializer(self.grade)
+
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):

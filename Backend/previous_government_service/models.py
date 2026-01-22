@@ -46,9 +46,9 @@ class InvalidPreviousGovernmentServiceRecords(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "InvalidPreviousGovernmentServiceRecords"
-        verbose_name = "InvalidPreviousGovernmentServiceRecords"
-        verbose_name_plural = "InvalidPreviousGovernmentServiceRecords"
+        db_table = "invalid_previous_government_service_records"
+        verbose_name = "invalid_previous_government_service_records"
+        verbose_name_plural = "invalid_previous_government_service_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

@@ -29,7 +29,7 @@ class CreateCauseOfTerminationAPITest(BaseAPITestCase):
 
     def test_invalid_data(self):
         invalid_data = {
-            "termination_cause": "Death" * 200,
+            "termination_cause": "Death1",
         }
 
         # Send create request
@@ -37,9 +37,13 @@ class CreateCauseOfTerminationAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Cause must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_cause")
+
+            for error in field_errors:
+                self.assertEqual(error, "Cause can only contain letters and spaces.")
 
     def test_omit_required_field(self):
         # Omit required field
@@ -54,9 +58,13 @@ class CreateCauseOfTerminationAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Cause cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_cause")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create request
@@ -110,16 +118,20 @@ class EditCauseOfTerminationAPITest(BaseAPITestCase):
             format="json",
         )
 
-        edit_data = {"termination_cause": "Retired" * 200}
+        edit_data = {"termination_cause": "Retired%"}
 
         # Send edit Cause Of Termination request
         response = self.client.patch(self.edit_cause_url, edit_data, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Cause must not have more than 100 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_cause")
+
+            for error in field_errors:
+                self.assertEqual(error, "Cause can only contain letters and spaces.")
 
     def test_omit_required_field(self):
         # Send create Cause Of Termination request
@@ -136,9 +148,13 @@ class EditCauseOfTerminationAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Cause cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "termination_cause")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create Cause Of Termination request
@@ -180,7 +196,7 @@ class DeleteCauseOfTerminationAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_cause_url)
 
         # Get created activity feed
-        activity = "The Causes Of Termination 'Death' was deleted by Administrator"
+        activity = "The Causes Of Termination(Death) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

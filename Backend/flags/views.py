@@ -19,18 +19,28 @@ class CreateFlagsAPIView(generics.CreateAPIView):
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = FlagReadSerializer(self.flag)
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        flag = serializer.save(
+        self.flag = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
 
-        logger.debug(f"Flags({flag}) created.")
+        logger.debug(f"Flags({self.flag}) created.")
 
-        model_name = flag.content_type.name.capitalize()
+        model_name = self.flag.content_type.name.capitalize()
 
         flagged_field_text = (
-            f" — Flagged Field: {flag.field.replace('_', ' ').capitalize()}"
-            if flag.field
+            f" — Flagged Field: {self.flag.field.replace('_', ' ').capitalize()}"
+            if self.flag.field
             else ""
         )
 
@@ -38,16 +48,16 @@ class CreateFlagsAPIView(generics.CreateAPIView):
             creator=self.request.user,
             activity=(
                 f"{model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
-                f"Flag Type: {flag.flag_type.flag_type}"
+                f"Flag Type: {self.flag.flag_type.flag_type}"
                 f"{flagged_field_text}"
-                f" — Reason: {flag.reason}"
+                f" — Reason: {self.flag.reason}"
             ),
         )
         logger.debug(
             f"Activity feed({model_name.replace('_', ' ').capitalize()} Record was flagged by {self.request.user}: "
-            f"Flag Type: {flag.flag_type.flag_type}"
+            f"Flag Type: {self.flag.flag_type.flag_type}"
             f"{flagged_field_text}"
-            f" — Reason: {flag.reason}"
+            f" — Reason: {self.flag.reason}"
         )
 
 
@@ -78,15 +88,27 @@ class EditFlagsAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = FlagReadSerializer(self.flag)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_flag = self.get_object()
-        flag = serializer.save()
+        self.flag = serializer.save()
         logger.debug(f"Flags({previous_flag}) updated.")
 
-        model_name = flag.content_type.name.capitalize()
+        model_name = self.flag.content_type.name.capitalize()
         user = self.request.user
 
-        changes_text = generate_changes_text(model_name, user, previous_flag, flag)
+        changes_text = generate_changes_text(model_name, user, previous_flag, self.flag)
 
         ActivityFeeds.objects.create(creator=self.request.user, activity=changes_text)
         logger.debug(f"Activity feed({changes_text})")

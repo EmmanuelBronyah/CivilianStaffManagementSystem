@@ -1,26 +1,73 @@
 from rest_framework import serializers
 from .models import PreviousGovernmentService
-from api.models import CustomUser
+import logging
 
 
-class PreviousGovernmentServiceSerializer(serializers.ModelSerializer):
+logger = logging.getLogger(__name__)
+
+
+class PreviousGovernmentServiceWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PreviousGovernmentService
         fields = "__all__"
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    @staticmethod
+    def validate_text(field, value):
+        if not value:
+            logger.debug(f"{field} is empty")
+            return value
 
-        created_by_id = representation.pop("created_by", None)
-        updated_by_id = representation.pop("updated_by", None)
+        import string
 
-        if created_by_id:
-            created_by = CustomUser.objects.get(id=created_by_id).username
-            representation.update({"created_by": created_by})
+        VALID_CHARS = set(string.ascii_letters) | {".", "-", " ", ","}
 
-        if updated_by_id:
-            updated_by = CustomUser.objects.get(id=updated_by_id).username
-            representation.update({"updated_by": updated_by})
+        for char in value:
 
-        return representation
+            if char not in VALID_CHARS:
+                logger.debug(
+                    f"{field} can only contain letters, spaces, hyphens, commas, and periods."
+                )
+
+                raise serializers.ValidationError(
+                    f"{field} can only contain letters, spaces, hyphens, commas, and periods."
+                )
+
+        return value
+
+    def validate_institution(self, value):
+        return self.validate_text("Institution", value)
+
+    def validate_position(self, value):
+        return self.validate_text("Position", value)
+
+    def validate(self, attrs):
+        start_date = attrs.get("start_date", None)
+        end_date = attrs.get("end_date", None)
+
+        if start_date and end_date:
+            if end_date <= start_date:
+                logger.debug("End date should be after Start date.")
+
+                raise serializers.ValidationError(
+                    "End date should be after Start date."
+                )
+
+        return attrs
+
+
+class PreviousGovernmentServiceReadSerializer(serializers.ModelSerializer):
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
+
+    class Meta:
+        model = PreviousGovernmentService
+        fields = "__all__"

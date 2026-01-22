@@ -17,68 +17,97 @@ logger = logging.getLogger(__name__)
 
 # * SERVICE WITH FORCES
 class CreateServiceWithForcesAPIView(generics.CreateAPIView):
-    serializer_class = serializers.ServiceWithForcesSerializer
+    serializer_class = serializers.ServiceWithForcesWriteSerializer
     queryset = ServiceWithForces.objects.all()
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.ServiceWithForcesReadSerializer(
+            self.service_with_forces
+        )
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        service_with_forces = serializer.save(
+        self.service_with_forces = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Service With Forces({service_with_forces}) created.")
+        logger.debug(f"Service With Forces({self.service_with_forces}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Service With Forces: '{service_with_forces.service_date} — {service_with_forces.last_unit}'",
+            activity=f"{self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Service With Forces: '{service_with_forces.service_date} — {service_with_forces.last_unit}') created."
+            f"Activity Feed({self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})) created."
         )
 
 
 class EditServiceWithForcesAPIView(generics.UpdateAPIView):
     queryset = ServiceWithForces.objects.all()
-    serializer_class = serializers.ServiceWithForcesSerializer
+    serializer_class = serializers.ServiceWithForcesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.ServiceWithForcesReadSerializer(
+            self.service_with_forces_update
+        )
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         pervious_service_with_forces = self.get_object()
-        service_with_forces_update = serializer.save()
+        self.service_with_forces_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Service With Forces({pervious_service_with_forces}) updated.")
 
         changes = service_with_forces_changes(
-            pervious_service_with_forces, service_with_forces_update
+            pervious_service_with_forces, self.service_with_forces_update
         )
 
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Service With Forces '{pervious_service_with_forces.service_date} — {pervious_service_with_forces.last_unit}': {changes}",
+                activity=f"{self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Service With Forces '{pervious_service_with_forces.service_date} — {pervious_service_with_forces.last_unit}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}) created."
             )
 
 
 class ListEmployeeServiceWithForcesAPIView(generics.ListAPIView):
-    queryset = ServiceWithForces.objects.all()
-    serializer_class = serializers.ServiceWithForcesSerializer
+    serializer_class = serializers.ServiceWithForcesReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        service_with_forces = employee.service_with_forces.all()
+        service_with_forces = employee.service_with_forces.select_related(
+            "created_by", "updated_by", "military_rank", "last_unit"
+        )
         return service_with_forces
 
 
 class RetrieveServiceWithForcesAPIView(generics.RetrieveAPIView):
-    queryset = ServiceWithForces.objects.all()
-    serializer_class = serializers.ServiceWithForcesSerializer
+    queryset = ServiceWithForces.objects.select_related(
+        "created_by", "updated_by", "military_rank", "last_unit"
+    )
+    serializer_class = serializers.ServiceWithForcesReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -86,7 +115,7 @@ class RetrieveServiceWithForcesAPIView(generics.RetrieveAPIView):
 
 class DeleteServiceWithForcesAPIView(generics.DestroyAPIView):
     queryset = ServiceWithForces.objects.all()
-    serializer_class = serializers.ServiceWithForcesSerializer
+    serializer_class = serializers.ServiceWithForcesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -97,10 +126,10 @@ class DeleteServiceWithForcesAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Service With Forces '{instance.service_date} — {instance.last_unit}' was deleted by {self.request.user}",
+            activity=f"The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Service With Forces '{instance.service_date} — {instance.last_unit}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}) created."
         )
 
 
@@ -117,10 +146,10 @@ class CreateMilitaryRanksAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Military Rank: '{military_rank.rank}'",
+            activity=f"{self.request.user} added a new Military Rank({military_rank.rank})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Military Rank: '{military_rank.rank}') created."
+            f"Activity Feed({self.request.user} added a new Military Rank({military_rank.rank})) created."
         )
 
 
@@ -141,10 +170,10 @@ class EditMilitaryRanksAPIView(generics.UpdateAPIView):
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Military Rank '{previous_military_rank.rank}': {changes}",
+                activity=f"{self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Military Rank '{previous_military_rank.rank}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}) created."
             )
 
 
@@ -176,8 +205,8 @@ class DeleteMilitaryRanksAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Military Rank '{instance.rank}' was deleted by {self.request.user}",
+            activity=f"The Military Rank({instance.rank}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Military Rank '{instance.rank}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Military Rank({instance.rank}) was deleted by {self.request.user}) created."
         )

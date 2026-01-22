@@ -64,9 +64,9 @@ class InvalidServiceWithForcesRecords(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "InvalidServiceWithForcesRecords"
-        verbose_name = "InvalidServiceWithForcesRecords"
-        verbose_name_plural = "InvalidServiceWithForcesRecords"
+        db_table = "invalid_service_with_forces_records"
+        verbose_name = "invalid_service_with_forces_records"
+        verbose_name_plural = "invalid_service_with_forces_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

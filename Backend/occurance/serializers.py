@@ -6,6 +6,8 @@ from .utils import two_dp
 
 logger = logging.getLogger(__name__)
 
+# todo: make sure when an edit request is sent, required fields whom no value is sent for is checked
+
 
 class BaseOccurrenceSerializer(serializers.ModelSerializer):
 

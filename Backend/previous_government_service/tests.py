@@ -49,8 +49,8 @@ class CreatePreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
         invalid_data = {
             "employee": "000993",
             "institution": "GAF",
-            "start_date": "2025-20-05",
-            "end_date": "2025-09-06",
+            "start_date": "2025-10-05",
+            "end_date": "2022-09-06",
             "position": "SEO",
         }
 
@@ -61,7 +61,13 @@ class CreatePreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Start Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "non_field_errors")
+
+            for error in field_errors:
+                self.assertEqual(error, "End date should be after Start date.")
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -79,9 +85,13 @@ class CreatePreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Position cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "position")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -168,7 +178,16 @@ class EditPreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for End Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "end_date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -190,9 +209,13 @@ class EditPreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Position cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "position")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -336,9 +359,7 @@ class DeletePreviousGovernmentServiceAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_previous_government_service_url)
 
         # Get created activity feed
-        activity = (
-            "The Previous Government Service 'GAF — SEO' was deleted by Standard User"
-        )
+        activity = "The Previous Government Service(Institution: GAF — Position: SEO) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

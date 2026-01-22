@@ -1,43 +1,73 @@
 from rest_framework import serializers
 from . import models
-from api.models import CustomUser
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-class TerminationOfAppointmentSerializer(serializers.ModelSerializer):
+class TerminationOfAppointmentWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TerminationOfAppointment
         fields = "__all__"
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
+    def validate_date(self, value):
+        if not value:
+            logger.debug("Date is empty")
+            return value
 
-        created_by_id = representation.pop("created_by", None)
-        updated_by_id = representation.pop("updated_by", None)
-        cause_of_termination_id = representation.pop("cause", None)
-        termination_status_id = representation.pop("status", None)
+        from datetime import datetime
 
-        if created_by_id:
-            created_by = CustomUser.objects.get(id=created_by_id).username
-            representation.update({"created_by": created_by})
+        today = datetime.now().date()
+        if value >= today:
+            logger.debug("Date cannot be the present date or a future date.")
 
-        if updated_by_id:
-            updated_by = CustomUser.objects.get(id=updated_by_id).username
-            representation.update({"updated_by": updated_by})
+            serializers.ValidationError(
+                "Date cannot be the present date or a future date."
+            )
 
-        if cause_of_termination_id:
-            cause = models.CausesOfTermination.objects.get(
-                id=cause_of_termination_id
-            ).termination_cause
-            representation.update({"cause": cause})
+        return value
 
-        if termination_status_id:
-            termination_status = models.TerminationStatus.objects.get(
-                id=termination_status_id
-            ).termination_status
-            representation.update({"status": termination_status})
+    def validate_authority(self, value):
+        if not value:
+            logger.debug("Authority is empty")
+            return value
 
-        return representation
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | set(string.digits) | {"/", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug(
+                    "Authority can only contain letters, numbers, and a forward slash (/)."
+                )
+
+                raise serializers.ValidationError(
+                    "Authority can only contain letters, numbers, and a forward slash (/)."
+                )
+
+        return value
+
+
+class TerminationOfAppointmentReadSerializer(serializers.ModelSerializer):
+    cause_display = serializers.StringRelatedField(source="cause", read_only=True)
+    status_display = serializers.StringRelatedField(source="status", read_only=True)
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
+
+    class Meta:
+        model = models.TerminationOfAppointment
+        fields = "__all__"
 
 
 class CausesOfTerminationSerializer(serializers.ModelSerializer):
@@ -46,9 +76,49 @@ class CausesOfTerminationSerializer(serializers.ModelSerializer):
         model = models.CausesOfTermination
         fields = "__all__"
 
+    def validate_termination_cause(field, value):
+        if not value:
+            logger.debug("Cause is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {" "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug("Cause can only contain letters and spaces.")
+
+                raise serializers.ValidationError(
+                    "Cause can only contain letters and spaces."
+                )
+
+        return value
+
 
 class TerminationStatusSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.TerminationStatus
         fields = "__all__"
+
+    def validate_termination_status(field, value):
+        if not value:
+            logger.debug("Status is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {" "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug("Status can only contain letters and spaces.")
+
+                raise serializers.ValidationError(
+                    "Status can only contain letters and spaces."
+                )
+
+        return value

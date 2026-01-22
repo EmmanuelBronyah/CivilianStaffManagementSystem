@@ -68,7 +68,16 @@ class CreateTerminationOfAppointmentAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -86,7 +95,16 @@ class CreateTerminationOfAppointmentAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_throttling(self):
         # Send create employee request
@@ -158,7 +176,7 @@ class EditTerminationStatusAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(response.data["cause"], "Awol")
+        self.assertEqual(response.data["cause_display"], "Awol")
         self.assertIn("Cause: Death → Awol", activity_feed)
 
     def test_invalid_data(self):
@@ -181,7 +199,16 @@ class EditTerminationStatusAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Date.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "date")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Date has wrong format. Use one of these formats instead: YYYY-MM-DD.",
+                )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -203,9 +230,13 @@ class EditTerminationStatusAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Cause cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "cause")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be null.")
 
     def test_throttling(self):
         # Send create employee request
@@ -357,7 +388,7 @@ class DeleteTerminationStatusAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_termination_of_appointment_url)
 
         # Get created activity feed
-        activity = "The Termination Of Appointment '000993 — Death' was deleted by Standard User"
+        activity = "The Termination Of Appointment(Service ID: 000993 — Status: Death) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

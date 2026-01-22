@@ -90,7 +90,6 @@ class EditIdentityAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeIdentityAPIView(generics.ListAPIView):
-    queryset = Identity.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.IdentityReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -98,7 +97,7 @@ class ListEmployeeIdentityAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        identity = employee.identity.all()
+        identity = employee.identity.select_related("created_by", "updated_by")
         return identity
 
 

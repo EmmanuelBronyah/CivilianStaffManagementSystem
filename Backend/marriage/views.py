@@ -21,19 +21,29 @@ class CreateSpouseAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.SpouseReadSerializer(self.spouse)
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        spouse = serializer.save(
+        self.spouse = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Spouse({spouse.spouse_name}) created.")
+        logger.debug(f"Spouse({self.spouse.spouse_name}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Spouse({spouse.spouse_name})",
+            activity=f"{self.request.user} added a new Spouse({self.spouse.spouse_name})",
         )
 
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Spouse({spouse.spouse_name})) created."
+            f"Activity Feed({self.request.user} added a new Spouse({self.spouse.spouse_name})) created."
         )
 
 
@@ -44,12 +54,24 @@ class EditSpouseAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.SpouseReadSerializer(self.spouse_update)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_spouse = self.get_object()
-        spouse_update = serializer.save()
+        self.spouse_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Spouse({previous_spouse.spouse_name}) updated.")
 
-        changes = spouse_record_changes(previous_spouse, spouse_update)
+        changes = spouse_record_changes(previous_spouse, self.spouse_update)
 
         if changes:
             ActivityFeeds.objects.create(
@@ -62,7 +84,6 @@ class EditSpouseAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeSpouseAPIView(generics.ListAPIView):
-    queryset = Spouse.objects.all()
     serializer_class = serializers.SpouseReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -70,12 +91,12 @@ class ListEmployeeSpouseAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        spouse = employee.spouse.all()
+        spouse = employee.spouse.select_related("created_by", "updated_by")
         return spouse
 
 
 class RetrieveSpouseAPIView(generics.RetrieveAPIView):
-    queryset = Spouse.objects.all()
+    queryset = Spouse.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.SpouseReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]

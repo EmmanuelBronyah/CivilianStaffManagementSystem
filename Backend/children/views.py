@@ -19,18 +19,28 @@ class CreateChildRecordAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.ChildrenReadSerializer(self.child_record)
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        child_record = serializer.save(
+        self.child_record = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Child Record({child_record}) created.")
+        logger.debug(f"Child Record({self.child_record}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Child Record(Child Name: {child_record.child_name} — Date of Birth: {child_record.dob})",
+            activity=f"{self.request.user} added a new Child Record(Child Name: {self.child_record.child_name} — Date of Birth: {self.child_record.dob})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Child Record(Child Name: {child_record.child_name} — Date of Birth: {child_record.dob})) created."
+            f"Activity Feed({self.request.user} added a new Child Record(Child Name: {self.child_record.child_name} — Date of Birth: {self.child_record.dob})) created."
         )
 
 
@@ -41,12 +51,24 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.ChildrenReadSerializer(self.child_record_update)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_child_record = self.get_object()
-        child_record_update = serializer.save()
+        self.child_record_update = serializer.save()
         logger.debug(f"Child Record({previous_child_record}) updated.")
 
-        changes = child_record_changes(previous_child_record, child_record_update)
+        changes = child_record_changes(previous_child_record, self.child_record_update)
 
         if changes:
             ActivityFeeds.objects.create(
@@ -59,7 +81,6 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
 
 
 class ListEmployeeChildrenAPIView(generics.ListAPIView):
-    queryset = Children.objects.select_related("created_by", "updated_by", "gender")
     serializer_class = serializers.ChildrenReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -67,7 +88,9 @@ class ListEmployeeChildrenAPIView(generics.ListAPIView):
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        children = employee.children.all()
+        children = employee.children.select_related(
+            "created_by", "updated_by", "gender"
+        )
         return children
 
 

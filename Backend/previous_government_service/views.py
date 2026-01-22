@@ -14,70 +14,99 @@ logger = logging.getLogger(__name__)
 
 
 class CreatePreviousGovernmentServiceAPIView(generics.CreateAPIView):
-    serializer_class = serializers.PreviousGovernmentServiceSerializer
+    serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     queryset = PreviousGovernmentService.objects.all()
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.PreviousGovernmentServiceReadSerializer(
+            self.government_service
+        )
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        government_service = serializer.save(
+        self.government_service = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Previous Government Service({government_service}) created.")
+        logger.debug(f"Previous Government Service({self.government_service}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Previous Government Service: '{government_service.institution} — {government_service.position}'",
+            activity=f"{self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Previous Government Service: '{government_service.institution} — {government_service.position}') created."
+            f"Activity Feed({self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})) created."
         )
 
 
 class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
     queryset = PreviousGovernmentService.objects.all()
-    serializer_class = serializers.PreviousGovernmentServiceSerializer
+    serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.PreviousGovernmentServiceReadSerializer(
+            self.government_service_update
+        )
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_government_service = self.get_object()
-        government_service_update = serializer.save()
+        self.government_service_update = serializer.save(updated_by=self.request.user)
         logger.debug(
             f"Previous Government Service({previous_government_service}) updated."
         )
 
         changes = previous_government_service_changes(
-            previous_government_service, government_service_update
+            previous_government_service, self.government_service_update
         )
 
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Previous Government Service '{previous_government_service.institution} — {previous_government_service.position}': {changes}",
+                activity=f"{self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Previous Government Service '{previous_government_service.institution} — {previous_government_service.position}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}) created."
             )
 
 
 class ListEmployeePreviousGovernmentServiceAPIView(generics.ListAPIView):
-    queryset = PreviousGovernmentService.objects.all()
-    serializer_class = serializers.PreviousGovernmentServiceSerializer
+    serializer_class = serializers.PreviousGovernmentServiceReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
         employee = get_object_or_404(Employee, pk=service_id)
-        previous_government_service = employee.previous_government_service.all()
+        previous_government_service = (
+            employee.previous_government_service.select_related(
+                "created_by", "updated_by"
+            )
+        )
         return previous_government_service
 
 
 class RetrievePreviousGovernmentServiceAPIView(generics.RetrieveAPIView):
     queryset = PreviousGovernmentService.objects.all()
-    serializer_class = serializers.PreviousGovernmentServiceSerializer
+    serializer_class = serializers.PreviousGovernmentServiceReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -85,7 +114,7 @@ class RetrievePreviousGovernmentServiceAPIView(generics.RetrieveAPIView):
 
 class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
     queryset = PreviousGovernmentService.objects.all()
-    serializer_class = serializers.PreviousGovernmentServiceSerializer
+    serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -96,8 +125,8 @@ class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Previous Government Service '{instance.institution} — {instance.position}' was deleted by {self.request.user}",
+            activity=f"The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Previous Government Service '{instance.institution} — {instance.position}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}) created."
         )
