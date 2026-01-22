@@ -24,7 +24,7 @@ class CreateLevelStepAPITest(BaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertIn("added a new Level|Step", activity_feed)
-        self.assertIn("18H01 — 6000.00", activity_feed)
+        self.assertIn("Level|Step: 18H01 — Monthly Salary: 6000.00", activity_feed)
 
     def test_omit_required_field(self):
         self.level_step_data = {"level_step": "", "monthly_salary": 6000}
@@ -35,13 +35,16 @@ class CreateLevelStepAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Level|Step cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "level_step")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_invalid_data(self):
-        self.level_step_data = {"level_step": "18H01", "monthly_salary": "yui"}
+        self.level_step_data = {"level_step": "18H01", "monthly_salary": 990}
         # Send create request
         response = self.client.post(
             self.create_level_step_url, self.level_step_data, format="json"
@@ -49,8 +52,13 @@ class CreateLevelStepAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(response.data["error"], "Invalid format for Monthly Salary.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "monthly_salary")
+
+            for error in field_errors:
+                self.assertEqual(error, "Salary cannot be lesser than 1000.00")
 
     def test_throttling(self):
         self.level_step_data = {"level_step": "18H01", "monthly_salary": 6000}
@@ -74,7 +82,7 @@ class EditLevelStepAPITest(BaseAPITestCase):
 
         self.authenticate_admin()
 
-    def test_successful_level_step_creation(self):
+    def test_successful_level_step_edit(self):
         edit_data = {"level_step": "25L01", "monthly_salary": "4004.89"}
         # Send create level|step request
         self.client.post(
@@ -106,10 +114,13 @@ class EditLevelStepAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn(
-            "Level|Step cannot be blank or is required", response.data["error"]
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "level_step")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_invalid_data(self):
         edit_data = {"level_step": "25H01", "monthly_salary": "rtyu"}
@@ -123,8 +134,13 @@ class EditLevelStepAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn("Invalid format for Monthly Salary.", response.data["error"])
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "monthly_salary")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid number is required.")
 
     def test_throttling(self):
         edit_data = {"level_step": "25H01", "monthly_salary": "4000.89"}
@@ -205,7 +221,7 @@ class DeleteLevelStepAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_level_step_url)
 
         # Get created activity feed
-        activity = "The Level|Step '18H01 — 6000.00' was deleted by Administrator"
+        activity = "The Level|Step(Level|Step: 18H01 — Monthly Salary: 6000.00) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

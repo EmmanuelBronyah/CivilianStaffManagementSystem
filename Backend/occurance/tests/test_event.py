@@ -35,13 +35,16 @@ class CreateEventAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Event cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "event_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_invalid_data(self):
-        self.event_data = {"event_name": "t" * 300}
+        self.event_data = {"event_name": "t*"}
         # Send create request
         response = self.client.post(
             self.create_event_url, self.event_data, format="json"
@@ -49,10 +52,13 @@ class CreateEventAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Event must not have more than 255 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "event_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "Event can only contain letters and spaces.")
 
     def test_throttling(self):
         self.event_data = {"event_name": "Dead"}
@@ -101,8 +107,13 @@ class EditEventAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn("Event cannot be blank or is required", response.data["error"])
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "event_name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_invalid_data(self):
         edit_data = {"event_name": "t" * 300}
@@ -114,10 +125,15 @@ class EditEventAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Event must not have more than 255 characters."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "event_name")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error, "Ensure this field has no more than 255 characters."
+                )
 
     def test_throttling(self):
         edit_data = {"event_name": "Dead"}
@@ -188,7 +204,7 @@ class DeleteEventAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_event_url)
 
         # Get created activity feed
-        activity = "The Event 'Dead' was deleted by Administrator"
+        activity = "The Event(Dead) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

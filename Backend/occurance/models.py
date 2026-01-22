@@ -44,9 +44,9 @@ class LevelStep(models.Model):
     monthly_salary = models.DecimalField(decimal_places=2, max_digits=15)
 
     class Meta:
-        db_table = "levelStep"
-        verbose_name = "levelStep"
-        verbose_name_plural = "levelStep"
+        db_table = "level_step"
+        verbose_name = "level_step"
+        verbose_name_plural = "level_step"
 
     def __str__(self):
         return f"{self.level_step}"
@@ -68,9 +68,9 @@ class SalaryAdjustmentPercentage(models.Model):
     percentage_adjustment = models.IntegerField()
 
     class Meta:
-        db_table = "salaryAdjustmentPercentage"
-        verbose_name = "salaryAdjustmentPercentage"
-        verbose_name_plural = "salaryAdjustmentPercentages"
+        db_table = "salary_adjustment_percentage"
+        verbose_name = "salary_adjustment_percentage"
+        verbose_name_plural = "salary_adjustment_percentages"
 
     def __str__(self):
         return f"{self.percentage_adjustment}"
@@ -90,9 +90,9 @@ class InvalidOccurrenceRecord(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "InvalidOccurrenceRecord"
-        verbose_name = "InvalidOccurrenceRecord"
-        verbose_name_plural = "InvalidOccurrenceRecords"
+        db_table = "invalid_occurrence_record"
+        verbose_name = "invalid_occurrence_record"
+        verbose_name_plural = "invalid_occurrence_records"
 
     def __str__(self):
         return f"{self.employee.service_id} - {self.event}"

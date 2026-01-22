@@ -39,14 +39,16 @@ class CreateSalaryAdjustmentPercentageAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"],
-            "Invalid format for Salary Percentage Adjustment.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "percentage_adjustment")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid integer is required.")
 
     def test_invalid_data(self):
-        self.percentage_adjustment_data = {"percentage_adjustment": "t" * 300}
+        self.percentage_adjustment_data = {"percentage_adjustment": "10.t"}
         # Send create request
         response = self.client.post(
             self.create_percentage_adjustment_url,
@@ -56,10 +58,13 @@ class CreateSalaryAdjustmentPercentageAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Invalid format for Salary Percentage Adjustment."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "percentage_adjustment")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid integer is required.")
 
     def test_throttling(self):
         self.percentage_adjustment_data = {"percentage_adjustment": "10"}
@@ -124,10 +129,13 @@ class EditSalaryAdjustmentPercentageAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertIn(
-            "Invalid format for Salary Percentage Adjustment.", response.data["error"]
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "percentage_adjustment")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid integer is required.")
 
     def test_invalid_data(self):
         edit_data = {"percentage_adjustment": "t" * 300}
@@ -145,10 +153,13 @@ class EditSalaryAdjustmentPercentageAPITest(BaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertIn("error", response.data)
-        self.assertEqual(
-            response.data["error"], "Invalid format for Salary Percentage Adjustment."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "percentage_adjustment")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid integer is required.")
 
     def test_throttling(self):
         edit_data = {"percentage_adjustment": "10"}
@@ -241,7 +252,7 @@ class DeleteSalaryAdjustmentPercentageAPITest(BaseAPITestCase):
         response = self.client.delete(self.delete_percentage_adjustment_url)
 
         # Get created activity feed
-        activity = "The Salary Adjustment Percentage '10%' was deleted by Administrator"
+        activity = "The Salary Adjustment Percentage(10%) was deleted by Administrator"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

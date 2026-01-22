@@ -15,9 +15,8 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
             "grade": self.grade.id,
             "authority": "CEM 20/24",
             "level_step": self.level_step.id,
-            "monthly_salary": "12971.8400",
-            "annual_salary": "155662.08",
             "event": self.event.id,
+            "percentage_adjustment": 10,
             "wef_date": "2024-09-23",
             "reason": "23% Salary Adjustment",
         }
@@ -45,7 +44,7 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["employee"], "000993")
-        self.assertIn("added a new occurrence", activity_feed)
+        self.assertIn("added a new Occurrence", activity_feed)
         self.assertIn("000993", activity_feed)
 
     def test_successful_multiple_occurrence_creation(self):
@@ -77,10 +76,16 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
             response.data[1]["employee"],
             "020124",
         )
-        self.assertIn("added a new occurrence", first_occurrence_feed)
-        self.assertIn("000993 — CEM 20/24 — Salary Adjustment", first_occurrence_feed)
-        self.assertIn("added a new occurrence", second_occurrence_feed)
-        self.assertIn("020124 — CEM 20/24 — Salary Adjustment", second_occurrence_feed)
+        self.assertIn("added a new Occurrence", first_occurrence_feed)
+        self.assertIn(
+            "Service ID: 000993 — Authority: CEM 20/24 — Event: Salary Adjustment",
+            first_occurrence_feed,
+        )
+        self.assertIn("added a new Occurrence", second_occurrence_feed)
+        self.assertIn(
+            "Service ID: 020124 — Authority: CEM 20/24 — Event: Salary Adjustment",
+            second_occurrence_feed,
+        )
 
     def test_single_occurrence_invalid_data(self):
         # Send create employee request
@@ -89,10 +94,8 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
         invalid_data = {
             "employee": "000993",
             "grade": self.grade.id,
-            "authority": "CEM 20/24",
+            "authority": "CEM _20/24",
             "level_step": self.level_step.id,
-            "monthly_salary": "yu",
-            "annual_salary": "155662.08",
             "event": self.event.id,
             "wef_date": "2024-09-23",
             "reason": "23% Salary Adjustment",
@@ -105,7 +108,16 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Monthly Salary.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(
+                    error,
+                    "Authority can only contain letters, numbers, and a forward slash (/).",
+                )
 
     def test_multiple_occurrence_invalid_data(self):
         # Send create employee request
@@ -114,7 +126,7 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
             self.create_employee_url, self.other_employee_data, format="json"
         )
 
-        self.occurrence_data_list[1].update(monthly_salary="edf")
+        self.occurrence_data_list[1].update(reason="edf*")
 
         # Send create request
         response = self.client.post(
@@ -123,7 +135,17 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Monthly Salary.")
+
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "reason")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "Reason can only contain letters, numbers, spaces, hyphens, commas, periods and the percentage sign (%).",
+                    )
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -139,9 +161,12 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Grade cannot be blank or is required."
-        )
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "grade")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be null.")
 
     def test_omit_required_field_multiple_occurrence(self):
         # Send create employee request
@@ -159,9 +184,17 @@ class CreateOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Grade cannot be blank or is required."
-        )
+
+        error_list = response.data
+        for error_dict in error_list:
+            for field, field_errors in error_dict.items():
+                self.assertEqual(field, "grade")
+
+                for error in field_errors:
+                    self.assertEqual(
+                        error,
+                        "This field may not be null.",
+                    )
 
     def test_throttling(self):
         # Send create employee request
@@ -189,9 +222,8 @@ class EditOccurrenceAPITest(EmployeeBaseAPITestCase):
             "grade": self.grade.id,
             "authority": "CEM 20/24",
             "level_step": self.level_step.id,
-            "monthly_salary": 12971.84,
-            "annual_salary": 155662.08,
             "event": self.event.id,
+            "percentage_adjustment": 10,
             "wef_date": "2024-09-23",
             "reason": "23% Salary Adjustment",
         }
@@ -219,7 +251,7 @@ class EditOccurrenceAPITest(EmployeeBaseAPITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["authority"], "CEM 13/20")
         self.assertEqual(response.data["monthly_salary"], "2997.56")
-        self.assertIn("Monthly Salary: 12971.84 → 2997.56", activity_feed)
+        self.assertIn("Monthly Salary: 14269.02 → 2997.56", activity_feed)
         self.assertIn("Authority: CEM 20/24 → CEM 13/20", activity_feed)
 
     def test_invalid_data(self):
@@ -238,7 +270,13 @@ class EditOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Invalid format for Annual Salary.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "annual_salary")
+
+            for error in field_errors:
+                self.assertEqual(error, "A valid number is required.")
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -256,9 +294,13 @@ class EditOccurrenceAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Authority cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "authority")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -295,9 +337,8 @@ class RetrieveEmployeeOccurrenceAPITest(EmployeeBaseAPITestCase):
             "grade": self.grade.id,
             "authority": "CEM 20/24",
             "level_step": self.level_step.id,
-            "monthly_salary": 12971.84,
-            "annual_salary": 155662.08,
             "event": self.event.id,
+            "percentage_adjustment": 23,
             "wef_date": "2024-09-23",
             "reason": "23% Salary Adjustment",
         }
@@ -366,9 +407,8 @@ class DeleteOccurrenceAPITest(EmployeeBaseAPITestCase):
             "grade": self.grade.id,
             "authority": "CEM 20/24",
             "level_step": self.level_step.id,
-            "monthly_salary": 12971.84,
-            "annual_salary": 155662.08,
             "event": self.event.id,
+            "percentage_adjustment": 23,
             "wef_date": "2024-09-23",
             "reason": "23% Salary Adjustment",
         }
@@ -388,7 +428,7 @@ class DeleteOccurrenceAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_occurrence_url)
 
         # Get created activity feed
-        activity = "The occurrence '000993 — CEM 20/24 — Salary Adjustment' was deleted by Standard User"
+        activity = "The Occurrence(Service ID: 000993 — Authority: CEM 20/24 — Event: Salary Adjustment) was deleted by Standard User"
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

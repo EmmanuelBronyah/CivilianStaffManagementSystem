@@ -50,7 +50,7 @@ class CreateNextOfKinAPITest(EmployeeBaseAPITestCase):
             "phone_number": "055498187378",
             "address": "caper st",
             "emergency_contact": "0202367489",
-            "relation": "Sister",
+            "relation": "Sister*",
             "next_of_kin_email": "email@gmail.com",
         }
 
@@ -61,9 +61,17 @@ class CreateNextOfKinAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        errors = response.data
+        self.assertTrue(errors.get("phone_number", None))
+        self.assertTrue(errors.get("relation", None))
         self.assertEqual(
-            response.data["error"],
-            "Phone Number must not have more than 10 characters.",
+            str(errors["phone_number"][0]),
+            "Ensure this field has no more than 10 characters.",
+        )
+        self.assertEqual(
+            str(errors["relation"][0]),
+            "Relation can only contain letters, spaces and hyphens.",
         )
 
     def test_omit_required_field(self):
@@ -80,9 +88,13 @@ class CreateNextOfKinAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"], "Relation cannot be blank or is required."
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "relation")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -152,7 +164,7 @@ class EditNextOfKinAPITest(EmployeeBaseAPITestCase):
             self.create_next_of_kin_url, self.next_of_kin_data, format="json"
         )
 
-        edit_data = {"phone_number": "tyui" * 30}
+        edit_data = {"next_of_kin_email": "tyui"}
 
         # Send edit next of kin request
         response = self.client.patch(
@@ -161,10 +173,13 @@ class EditNextOfKinAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(
-            response.data["error"],
-            "Phone Number must not have more than 10 characters.",
-        )
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "next_of_kin_email")
+
+            for error in field_errors:
+                self.assertEqual(error, "Enter a valid email address.")
 
     def test_omit_required_field(self):
         # Send create employee request
@@ -184,7 +199,13 @@ class EditNextOfKinAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        self.assertEqual(response.data["error"], "Name cannot be blank or is required.")
+
+        errors = response.data
+        for field, field_errors in errors.items():
+            self.assertEqual(field, "name")
+
+            for error in field_errors:
+                self.assertEqual(error, "This field may not be blank.")
 
     def test_throttling(self):
         # Send create employee request
@@ -310,7 +331,9 @@ class DeleteNextOfKinAPITest(EmployeeBaseAPITestCase):
         response = self.client.delete(self.delete_next_of_kin_url)
 
         # Get created activity feed
-        activity = "The Next Of Kin 'Ama — Sister' was deleted by Standard User"
+        activity = (
+            "The Next Of Kin(Name: Ama — Relation: Sister) was deleted by Standard User"
+        )
         activity_feed = ActivityFeeds.objects.last().activity
 
         # Assertions

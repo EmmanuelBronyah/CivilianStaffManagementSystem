@@ -9,58 +9,88 @@ from activity_feeds.models import ActivityFeeds
 from django.shortcuts import get_object_or_404
 from employees.models import Employee
 from .utils import next_of_kin_record_changes
+from rest_framework.response import Response
+from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
 
 class CreateNextOfKinAPIView(generics.CreateAPIView):
-    serializer_class = serializers.EmergencyOrNextOfKinSerializer
+    serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     queryset = EmergencyOrNextOfKin.objects.all()
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.EmergencyOrNextOfKinReadSerializer(
+            self.next_of_kin
+        )
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        next_of_kin = serializer.save(
+        self.next_of_kin = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"Next Of Kin({next_of_kin}) created.")
+        logger.debug(f"Next Of Kin({self.next_of_kin}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new Next Of Kin: '{next_of_kin.name} — {next_of_kin.relation}'",
+            activity=f"{self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})",
         )
         logger.debug(
-            f"Activity Feed({self.request.user} added a new Next Of Kin: '{next_of_kin.name} — {next_of_kin.relation}') created."
+            f"Activity Feed({self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})) created."
         )
 
 
 class EditNextOfKinAPIView(generics.UpdateAPIView):
     queryset = EmergencyOrNextOfKin.objects.all()
-    serializer_class = serializers.EmergencyOrNextOfKinSerializer
+    serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.EmergencyOrNextOfKinReadSerializer(
+            self.next_of_kin_update
+        )
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
         previous_next_of_kin = self.get_object()
-        next_of_kin_update = serializer.save()
+        self.next_of_kin_update = serializer.save(updated_by=self.request.user)
         logger.debug(f"Next Of Kin({previous_next_of_kin}) updated.")
 
-        changes = next_of_kin_record_changes(previous_next_of_kin, next_of_kin_update)
+        changes = next_of_kin_record_changes(
+            previous_next_of_kin, self.next_of_kin_update
+        )
 
         if changes:
             ActivityFeeds.objects.create(
                 creator=self.request.user,
-                activity=f"{self.request.user} updated Next Of Kin '{previous_next_of_kin.name} — {previous_next_of_kin.relation}': {changes}",
+                activity=f"{self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}",
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Next Of Kin '{previous_next_of_kin.name} — {previous_next_of_kin.relation}': {changes}) created."
+                f"Activity Feed({self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}) created."
             )
 
 
 class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
-    queryset = EmergencyOrNextOfKin.objects.all()
-    serializer_class = serializers.EmergencyOrNextOfKinSerializer
+    queryset = EmergencyOrNextOfKin.objects.select_related("created_by", "updated_by")
+    serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
@@ -72,8 +102,8 @@ class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
 
 
 class RetrieveNextOfKinAPIView(generics.RetrieveAPIView):
-    queryset = EmergencyOrNextOfKin.objects.all()
-    serializer_class = serializers.EmergencyOrNextOfKinSerializer
+    queryset = EmergencyOrNextOfKin.objects.select_related("created_by", "updated_by")
+    serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -81,7 +111,7 @@ class RetrieveNextOfKinAPIView(generics.RetrieveAPIView):
 
 class DeleteNextOfKinAPIView(generics.DestroyAPIView):
     queryset = EmergencyOrNextOfKin.objects.all()
-    serializer_class = serializers.EmergencyOrNextOfKinSerializer
+    serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
@@ -92,8 +122,8 @@ class DeleteNextOfKinAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"The Next Of Kin '{instance.name} — {instance.relation}' was deleted by {self.request.user}",
+            activity=f"The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(The Next Of Kin '{instance.name} — {instance.relation}' was deleted by {self.request.user}) created."
+            f"Activity feed(The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}) created."
         )
