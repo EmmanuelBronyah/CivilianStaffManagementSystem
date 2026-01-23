@@ -40,8 +40,15 @@ class Courses(models.Model):
         return f"{self.course_type}"
 
 
-class InvalidCourseRecords(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+class IncompleteCourseRecords(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="incomplete_course_records",
+    )
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     course_type = models.CharField(max_length=255, null=True, blank=True)
     place = models.CharField(max_length=255, null=True, blank=True)
     date_commenced = models.DateField(null=True, blank=True)
@@ -51,11 +58,25 @@ class InvalidCourseRecords(models.Model):
     authority = models.CharField(max_length=10, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        "api.CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_incomplete_course_records",
+    )
+    updated_by = models.ForeignKey(
+        "api.CustomUser",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_incomplete_course_records",
+    )
 
     class Meta:
-        db_table = "invalid_course_records"
-        verbose_name = "invalid_course_records"
-        verbose_name_plural = "invalid_course_records"
+        db_table = "incomplete_course_records"
+        verbose_name = "incomplete_course_records"
+        verbose_name_plural = "incomplete_course_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

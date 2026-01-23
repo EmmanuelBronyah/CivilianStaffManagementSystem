@@ -40,7 +40,7 @@ def generate_changes_text(model_name, user, previous_flag, current_flag):
     reason_changes = generate_reason_changes_made_text(previous_flag, current_flag)
 
     changes_text = (
-        f"Flagged {model_name} Record was updated by {user}:"
+        f"Flagged {model_name} was updated by {user}:"
         f"{flag_type_changes}"
         f"{field_changes}"
         f"{reason_changes}"

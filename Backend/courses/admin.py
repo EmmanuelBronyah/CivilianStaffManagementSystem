@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Courses, InvalidCourseRecords
+from .models import Courses, IncompleteCourseRecords
 
 
 admin.site.register(Courses)
-admin.site.register(InvalidCourseRecords)
+admin.site.register(IncompleteCourseRecords)
