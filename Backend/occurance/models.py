@@ -76,7 +76,7 @@ class SalaryAdjustmentPercentage(models.Model):
         return f"{self.percentage_adjustment}"
 
 
-class InvalidOccurrenceRecord(models.Model):
+class IncompleteOccurrence(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
     authority = models.CharField(max_length=10)
@@ -90,9 +90,9 @@ class InvalidOccurrenceRecord(models.Model):
     date_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = "invalid_occurrence_record"
-        verbose_name = "invalid_occurrence_record"
-        verbose_name_plural = "invalid_occurrence_records"
+        db_table = "incomplete_occurrence"
+        verbose_name = "incomplete_occurrence"
+        verbose_name_plural = "incomplete_occurrences"
 
     def __str__(self):
         return f"{self.employee.service_id} - {self.event}"

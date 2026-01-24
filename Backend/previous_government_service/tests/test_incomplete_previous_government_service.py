@@ -1,38 +1,39 @@
 from django.urls import reverse
-from ..models import IncompleteCourseRecords
+from ..models import IncompletePreviousGovernmentServiceRecords
 from rest_framework import status
 from activity_feeds.models import ActivityFeeds
-from employees.tests.base import EmployeeBaseAPITestCase
+from occurance.tests.base import EmployeeBaseAPITestCase
 from flags.models import FlagType
 
 
-class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
+class CreateIncompletePreviousGovernmentServiceRecordsAPITest(EmployeeBaseAPITestCase):
 
     def setUp(self):
-        self.create_course_record_url = reverse("create-incomplete-course-record")
+        self.create_incomplete_government_service_url = reverse(
+            "create-incomplete-previous-government-service"
+        )
         self.create_employee_url = reverse("create-employee")
         FlagType.objects.create(flag_type="Incomplete Record")
 
-        self.course = {
+        self.service_record = {
             "employee": "000993",
-            "course_type": "petroleum",
-            "authority": "",
-            "place": "",
-            "date_commenced": None,
-            "date_ended": None,
-            "qualification": "",
-            "result": "Second CLass",
+            "service_id": "",
+            "institution": "GAF",
+            "duration": "5 years",
+            "position": "SEO",
         }
 
-        self.authenticate_admin()
+        self.authenticate_standard_user()
 
-    def test_successful_course_creation(self):
+    def test_successful_service_record_creation(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, self.course, format="json"
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
         )
 
         # Get last activity
@@ -41,21 +42,27 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["course_type"], "petroleum")
-        self.assertTrue(IncompleteCourseRecords.objects.filter(id=1).exists())
-        self.assertIn("added a new Incomplete Course Record", activity_feed)
-        self.assertIn("Incomplete course records was flagged", last_feed)
+        self.assertEqual(response.data["institution"], "GAF")
+        self.assertTrue(
+            IncompletePreviousGovernmentServiceRecords.objects.filter(id=1).exists()
+        )
+        self.assertIn(
+            "added a new Incomplete Previous Government Service", activity_feed
+        )
+        self.assertIn(
+            "Incomplete previous government service records was flagged", last_feed
+        )
 
-    def test_create_course_with_invalid_data(self):
+    def test_create_service_record_with_invalid_data(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
-        course_record = self.course.copy()
-        course_record["place"] = "2002-09-009"
+        service_record = self.service_record.copy()
+        service_record["position"] = "HR1"
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, course_record, format="json"
+            self.create_incomplete_government_service_url, service_record, format="json"
         )
 
         # Assertions
@@ -63,24 +70,24 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         errors = response.data
         for field, field_errors in errors.items():
-            self.assertEqual(field, "place")
+            self.assertEqual(field, "position")
 
             for error in field_errors:
                 self.assertIn(
                     error,
-                    "Place can only contain letters, spaces, hyphens, commas, and periods.",
+                    "Position can only contain letters, spaces, hyphens, commas, and periods.",
                 )
 
     def test_all_fields_none(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
-        course_record = self.course.copy()
-        course_record = {key: None for key, _ in course_record.items()}
+        service_record = self.service_record.copy()
+        service_record = {key: None for key, _ in service_record.items()}
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, course_record, format="json"
+            self.create_incomplete_government_service_url, service_record, format="json"
         )
 
         # Assertions
@@ -92,14 +99,15 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
             for error in field_errors:
                 self.assertIn(
-                    error, "All fields for Incomplete Course Record cannot be empty."
+                    error,
+                    "All fields for Incomplete Previous Government Service cannot be empty.",
                 )
 
-    def test_only_authority_has_value(self):
-        course_record = self.course.copy()
-        course_record = {
-            key: "CEM 23/24" if key == "authority" else None
-            for key, value in course_record.items()
+    def test_only_duration_has_value(self):
+        service_record = self.service_record.copy()
+        service_record = {
+            key: "5years" if key == "duration" else None
+            for key, value in service_record.items()
         }
 
         # Send create employee request
@@ -107,7 +115,7 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, course_record, format="json"
+            self.create_incomplete_government_service_url, service_record, format="json"
         )
 
         # Assertions
@@ -120,7 +128,7 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
             for error in field_errors:
                 self.assertIn(
                     error,
-                    "Cannot save Incomplete Course Record with Result/Authority/Service ID as the only non-empty fields.",
+                    "Cannot save Incomplete Previous Government Service with Duration or Service ID as the only non-empty fields.",
                 )
 
     def test_throttling(self):
@@ -129,54 +137,61 @@ class CreateInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         for _ in range(13):
             response = self.client.post(
-                self.create_course_record_url, self.course, format="json"
+                self.create_incomplete_government_service_url,
+                self.service_record,
+                format="json",
             )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
-class RetrieveInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
+class RetrieveIncompletePreviousGovernmentServiceRecordsAPITest(
+    EmployeeBaseAPITestCase
+):
 
     def setUp(self):
         self.create_employee_url = reverse("create-employee")
-        self.create_course_record_url = reverse("create-incomplete-course-record")
-        self.retrieve_course_record_url = reverse(
-            "retrieve-incomplete-course-record", kwargs={"pk": 1}
+        self.create_incomplete_government_service_url = reverse(
+            "create-incomplete-previous-government-service"
+        )
+        self.retrieve_service_record_url = reverse(
+            "retrieve-incomplete-previous-government-service", kwargs={"pk": 1}
         )
         FlagType.objects.create(flag_type="Incomplete Record")
 
-        self.course = {
+        self.service_record = {
             "employee": "000993",
-            "course_type": "petroleum",
-            "authority": "",
-            "place": "",
-            "date_commenced": None,
-            "date_ended": None,
-            "qualification": "",
-            "result": "Second CLass",
+            "service_id": "",
+            "institution": "GAF",
+            "duration": "5 years",
+            "position": "SEO",
         }
 
-        self.authenticate_admin()
+        self.authenticate_standard_user()
 
-    def test_get_existing_course_record(self):
+    def test_get_existing_service_record(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         # Send get request
-        response = self.client.get(self.retrieve_course_record_url, format="json")
+        response = self.client.get(self.retrieve_service_record_url, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertIsInstance(response.data, dict)
         self.assertIn("service_id", response.data)
 
-    def test_get_non_existing_course_record(self):
+    def test_get_non_existing_service_record(self):
         # Send get request
-        response = self.client.get(self.retrieve_course_record_url, format="json")
+        response = self.client.get(self.retrieve_service_record_url, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -186,55 +201,60 @@ class RetrieveInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         # Send get requests
         for _ in range(13):
-            response = self.client.get(self.retrieve_course_record_url, format="json")
+            response = self.client.get(self.retrieve_service_record_url, format="json")
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
-class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
+class EditIncompletePreviousGovernmentServiceRecordsAPITest(EmployeeBaseAPITestCase):
 
     def setUp(self):
         self.create_employee_url = reverse("create-employee")
-        self.create_course_record_url = reverse("create-incomplete-course-record")
-        self.edit_course_record_url = reverse(
-            "edit-incomplete-course-record", kwargs={"pk": 1}
+        self.create_incomplete_government_service_url = reverse(
+            "create-incomplete-previous-government-service"
+        )
+        self.edit_service_record_url = reverse(
+            "edit-incomplete-previous-government-service", kwargs={"pk": 1}
         )
         FlagType.objects.create(flag_type="Incomplete Record")
 
-        self.course = {
+        self.service_record = {
             "employee": "000993",
-            "course_type": "petroleum",
-            "authority": "",
-            "place": "",
-            "date_commenced": None,
-            "date_ended": None,
-            "qualification": "",
-            "result": "Second CLass",
+            "service_id": "",
+            "institution": "GAF",
+            "duration": "5 years",
+            "position": "SEO",
         }
 
-        self.authenticate_admin()
+        self.authenticate_standard_user()
 
-    def test_edit_course_record(self):
+    def test_edit_service_record(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
         create_response = self.client.post(
-            self.create_course_record_url, self.course, format="json"
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
         )
 
         # Send patch/edit request
         edit_data = {
-            "qualification": "HND NURSING",
-            "result": "PASS",
+            "position": "nurse",
+            "institution": "GAF",
         }
         edit_response = self.client.patch(
-            self.edit_course_record_url, edit_data, format="json"
+            self.edit_service_record_url, edit_data, format="json"
         )
 
         # Get created activity feed
@@ -243,8 +263,10 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         # Assertions
         self.assertEqual(create_response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(edit_response.status_code, status.HTTP_200_OK)
-        self.assertTrue(IncompleteCourseRecords.objects.filter(id=1).exists())
-        self.assertIn("updated Incomplete Course Record", activity_feed)
+        self.assertTrue(
+            IncompletePreviousGovernmentServiceRecords.objects.filter(id=1).exists()
+        )
+        self.assertIn("updated Incomplete Previous Government Service", activity_feed)
 
     def test_all_fields_none(self):
         # Send create employee request
@@ -252,14 +274,16 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, self.course, format="json"
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
         )
 
         # Send patch/edit request
-        edit_data = self.course.copy()
+        edit_data = self.service_record.copy()
         edit_data = {key: None for key, _ in edit_data.items()}
         edit_response = self.client.patch(
-            self.edit_course_record_url, edit_data, format="json"
+            self.edit_service_record_url, edit_data, format="json"
         )
 
         # Assertions
@@ -271,7 +295,8 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
             for error in field_errors:
                 self.assertIn(
-                    error, "All fields for Incomplete Course Record cannot be empty."
+                    error,
+                    "All fields for Incomplete Previous Government Service cannot be empty.",
                 )
 
     def test_invalid_data_edit(self):
@@ -279,14 +304,18 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         # Send patch/edit request with a blank required field
         edit_data = {
-            "course_type": "tyu88*",
+            "institution": "tyu88*",
         }
         edit_response = self.client.patch(
-            self.edit_course_record_url, edit_data, format="json"
+            self.edit_service_record_url, edit_data, format="json"
         )
 
         # Get last activity
@@ -297,33 +326,35 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
 
         errors = edit_response.data
         for field, field_errors in errors.items():
-            self.assertEqual(field, "course_type")
+            self.assertEqual(field, "institution")
 
             for error in field_errors:
                 self.assertIn(
                     error,
-                    "Course Type can only contain letters, numbers, spaces, hyphens, commas, and periods.",
+                    "Institution can only contain letters, spaces, hyphens, commas, and periods.",
                 )
 
         self.assertNotIn("updated employee", activity_feed)
 
-    def test_only_authority_has_value(self):
+    def test_only_duration_has_value(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
         response = self.client.post(
-            self.create_course_record_url, self.course, format="json"
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
         )
 
         # Send edit request
-        edit_data = self.course.copy()
+        edit_data = self.service_record.copy()
         edit_data = {
-            key: "CEM 23/24" if key == "authority" else None
+            key: "5years" if key == "duration" else None
             for key, value in edit_data.items()
         }
         edit_response = self.client.patch(
-            self.edit_course_record_url, edit_data, format="json"
+            self.edit_service_record_url, edit_data, format="json"
         )
 
         # Assertions
@@ -336,7 +367,7 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
             for error in field_errors:
                 self.assertIn(
                     error,
-                    "Cannot save Incomplete Course Record with Result/Authority/Service ID as the only non-empty fields.",
+                    "Cannot save Incomplete Previous Government Service with Duration or Service ID as the only non-empty fields.",
                 )
 
     def test_throttling(self):
@@ -344,7 +375,11 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         edit_data = {
             "service_id": "012763",
@@ -353,45 +388,48 @@ class EditInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         # Send patch/edit request
         for _ in range(13):
             response = self.client.patch(
-                self.edit_course_record_url, edit_data, format="json"
+                self.edit_service_record_url, edit_data, format="json"
             )
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
 
 
-class DeleteInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
+class DeleteIncompletePreviousGovernmentServiceRecordsAPITest(EmployeeBaseAPITestCase):
 
     def setUp(self):
         self.create_employee_url = reverse("create-employee")
-        self.create_course_record_url = reverse("create-incomplete-course-record")
-        self.delete_course_record_url = reverse(
-            "delete-incomplete-course-record", kwargs={"pk": 1}
+        self.create_incomplete_government_service_url = reverse(
+            "create-incomplete-previous-government-service"
+        )
+        self.delete_service_record_url = reverse(
+            "delete-incomplete-previous-government-service", kwargs={"pk": 1}
         )
         FlagType.objects.create(flag_type="Incomplete Record")
 
-        self.course = {
+        self.service_record = {
             "employee": "000993",
-            "course_type": "petroleum",
-            "authority": "",
-            "place": "",
-            "date_commenced": None,
-            "date_ended": None,
-            "qualification": "",
-            "result": "Second CLass",
+            "service_id": "",
+            "institution": "GAF",
+            "duration": "5 years",
+            "position": "SEO",
         }
 
-        self.authenticate_admin()
+        self.authenticate_standard_user()
 
     def test_successful_deletion(self):
         # Send create employee request
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         # Send delete request
-        response = self.client.delete(self.delete_course_record_url)
+        response = self.client.delete(self.delete_service_record_url)
 
         # Get created activity feed
         activity_feed = ActivityFeeds.objects.all()[3].activity
@@ -400,11 +438,11 @@ class DeleteInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertEqual(
-            "The Incomplete Course Record(ID: 1) was deleted by Administrator",
+            "The Incomplete Previous Government Service(ID: 1) was deleted by Standard User",
             activity_feed,
         )
         self.assertIn(
-            "Incomplete course records flag was deleted by Administrator.",
+            "Incomplete previous government service records flag was deleted by Standard User.",
             last_activity_feed,
         )
 
@@ -413,7 +451,7 @@ class DeleteInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send delete request
-        response = self.client.delete(self.delete_course_record_url)
+        response = self.client.delete(self.delete_service_record_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
@@ -423,11 +461,15 @@ class DeleteInCompleteCourseRecordAPITest(EmployeeBaseAPITestCase):
         self.client.post(self.create_employee_url, self.employee_data, format="json")
 
         # Send create request
-        self.client.post(self.create_course_record_url, self.course, format="json")
+        self.client.post(
+            self.create_incomplete_government_service_url,
+            self.service_record,
+            format="json",
+        )
 
         # Send delete requests
         for _ in range(13):
-            response = self.client.delete(self.delete_course_record_url)
+            response = self.client.delete(self.delete_service_record_url)
 
         # Assertions
         self.assertEqual(response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)

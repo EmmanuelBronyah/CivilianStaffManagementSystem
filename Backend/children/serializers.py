@@ -207,7 +207,7 @@ class InCompleteChildRecordsWriteSerializer(serializers.ModelSerializer):
 
         if (authority or gender) and not non_authority_gender_value:
             raise serializers.ValidationError(
-                "Cannot save Unregistered Employee with Gender or Authority as the only non-empty field."
+                "Cannot save Child Record with Gender or Authority as the only non-empty field."
             )
 
         return attrs

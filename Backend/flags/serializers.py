@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Flags
+from .models import Flags, FlagType
 import logging
 
 logger = logging.getLogger(__name__)
@@ -69,3 +69,30 @@ class FlagReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Flags
         fields = "__all__"
+
+
+class FlagTypeSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = FlagType
+        fields = "__all__"
+
+    def validate_flag_type(self, value):
+        if not value:
+            logger.debug("Flag Type is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {" "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug("Flag Type can only contain letters and spaces.")
+
+                raise serializers.ValidationError(
+                    "Flag Type can only contain letters and spaces."
+                )
+
+        return value

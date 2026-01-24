@@ -1,7 +1,7 @@
 from rest_framework import generics
-from .serializers import FlagReadSerializer, FlagWriteSerializer
-from .models import Flags
-from rest_framework.permissions import IsAuthenticated
+from .serializers import FlagReadSerializer, FlagWriteSerializer, FlagTypeSerializer
+from .models import Flags, FlagType
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.throttling import UserRateThrottle
 import logging
 from activity_feeds.models import ActivityFeeds
@@ -132,4 +132,85 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
         )
         logger.debug(
             f"Activity feed({model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
+        )
+
+
+# FLAG TYPE
+class CreateFlagTypeAPIView(generics.CreateAPIView):
+    queryset = FlagType.objects.all()
+    serializer_class = FlagTypeSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_create(self, serializer):
+        flag_type = serializer.save()
+        logger.debug(f"Flag Type({flag_type}) created.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new Flag Type({flag_type.flag_type})",
+        )
+        logger.debug(
+            f"Activity feed({self.request.user} added a new Flag Type({flag_type.flag_type}) created."
+        )
+
+
+class RetrieveFlagTypeAPIView(generics.RetrieveAPIView):
+    queryset = FlagType.objects.all()
+    lookup_field = "pk"
+    serializer_class = FlagTypeSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
+class ListFlagTypeAPIView(generics.ListAPIView):
+    queryset = FlagType.objects.all()
+    serializer_class = FlagTypeSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    pagination_class = LargeResultsSetPagination
+
+
+class EditFlagTypeAPIView(generics.UpdateAPIView):
+    queryset = FlagType.objects.all()
+    lookup_field = "pk"
+    serializer_class = FlagTypeSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_update(self, serializer):
+        previous_flag_type = self.get_object()
+        flag_type = serializer.save()
+        logger.debug(f"Flag Type({previous_flag_type}) updated.")
+
+        changes = str(previous_flag_type.flag_type) != str(flag_type.flag_type)
+
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}) created."
+            )
+
+
+class DeleteFlagTypeAPIView(generics.DestroyAPIView):
+    queryset = FlagType.objects.all()
+    lookup_field = "pk"
+    serializer_class = FlagTypeSerializer
+    permission_classes = [IsAuthenticated, IsAdminUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        flag_type = instance.flag_type
+        instance.delete()
+        logger.debug(f"Flag Type({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Flag Type({flag_type}) was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Flag Type({flag_type}) was deleted by {self.request.user}) created."
         )

@@ -5,6 +5,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# todo: make sure edit requests with partial edit data are able to edit successfully
 class CoursesWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -152,6 +153,57 @@ class IncompleteCourseRecordsWriteSerializer(serializers.ModelSerializer):
 
         return value
 
+    @staticmethod
+    def validate_dates(attrs):
+        date_commenced = attrs.get("date_commenced", None)
+        date_ended = attrs.get("date_ended", None)
+
+        if all([date_commenced, date_ended]):
+            logger.debug("Date Commenced and Date Ended both have values")
+
+            if date_ended <= date_commenced:
+                logger.debug("Date Ended should be after Date Commenced.")
+
+                raise serializers.ValidationError(
+                    "Date Ended should be after Date Commenced."
+                )
+
+        return attrs
+
+    @staticmethod
+    def validate_null_values(attrs):
+        system_fields = {"created_by", "updated_by", "employee"}
+
+        has_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields
+        )
+
+        if not has_value:
+            raise serializers.ValidationError(
+                "All fields for Incomplete Course Record cannot be empty."
+            )
+
+        authority = attrs.get("authority")
+        result = attrs.get("result")
+        service_id = attrs.get("service_id")
+
+        non_authority_result_service_id_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields | {"authority", "result", "service_id"}
+        )
+
+        if (
+            authority or service_id or result
+        ) and not non_authority_result_service_id_value:
+            raise serializers.ValidationError(
+                "Cannot save Incomplete Course Record with Result/Authority/Service ID as the only non-empty fields."
+            )
+
+        return attrs
+
     def validate_course_type(self, value):
         if not value:
             logger.debug("Course Type is empty")
@@ -207,19 +259,22 @@ class IncompleteCourseRecordsWriteSerializer(serializers.ModelSerializer):
 
         return value
 
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Field can only contain numbers.")
+
+        return value
+
     def validate(self, attrs):
-        date_commenced = attrs.get("date_commenced", None)
-        date_ended = attrs.get("date_ended", None)
+        attrs = self.validate_dates(attrs)
 
-        if all([date_commenced, date_ended]):
-            logger.debug("Date Commenced and Date Ended both have values")
-
-            if date_ended <= date_commenced:
-                logger.debug("Date Ended should be after Date Commenced.")
-
-                raise serializers.ValidationError(
-                    "Date Ended should be after Date Commenced."
-                )
+        attrs = self.validate_null_values(attrs)
 
         return attrs
 

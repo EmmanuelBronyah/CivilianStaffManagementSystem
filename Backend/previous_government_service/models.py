@@ -8,8 +8,7 @@ class PreviousGovernmentService(models.Model):
         Employee, on_delete=models.CASCADE, related_name="previous_government_service"
     )
     institution = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField()
+    duration = models.CharField(max_length=255, null=True, blank=True)
     position = models.CharField(max_length=255)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -37,18 +36,39 @@ class PreviousGovernmentService(models.Model):
         return f"{self.institution}"
 
 
-class InvalidPreviousGovernmentServiceRecords(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+class IncompletePreviousGovernmentServiceRecords(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="incomplete_previous_government_service_records",
+    )
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     institution = models.CharField(max_length=255, null=True, blank=True)
     duration = models.CharField(max_length=255, null=True, blank=True)
     position = models.CharField(max_length=255, null=True, blank=True)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_incomplete_previous_government_service_records",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_incomplete_previous_government_service_records",
+    )
 
     class Meta:
-        db_table = "invalid_previous_government_service_records"
-        verbose_name = "invalid_previous_government_service_records"
-        verbose_name_plural = "invalid_previous_government_service_records"
+        db_table = "incomplete_previous_government_service_records"
+        verbose_name = "incomplete_previous_government_service_records"
+        verbose_name_plural = "incomplete_previous_government_service_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

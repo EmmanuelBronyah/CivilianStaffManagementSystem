@@ -27,4 +27,35 @@ urlpatterns = [
         views.DeletePreviousGovernmentServiceAPIView.as_view(),
         name="delete-previous-government-service",
     ),
+    # incomplete previous government service
+    path(
+        "incomplete-previous-government-service/create/",
+        views.CreateIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="create-incomplete-previous-government-service",
+    ),
+    path(
+        "incomplete-previous-government-service/<str:pk>/detail/",
+        views.RetrieveIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="retrieve-incomplete-previous-government-service",
+    ),
+    path(
+        "incomplete-previous-government-service/",
+        views.ListIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="list-incomplete-previous-government-service",
+    ),
+    path(
+        "incomplete-previous-government-service/<str:pk>/employee/",
+        views.ListEmployeeIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="list-employee-incomplete-previous-government-service",
+    ),
+    path(
+        "incomplete-previous-government-service/<str:pk>/edit/",
+        views.EditIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="edit-incomplete-previous-government-service",
+    ),
+    path(
+        "incomplete-previous-government-service/<str:pk>/delete/",
+        views.DeleteIncompletePreviousGovernmentServiceRecordsAPIView.as_view(),
+        name="delete-incomplete-previous-government-service",
+    ),
 ]
