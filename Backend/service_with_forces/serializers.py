@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import ServiceWithForces, MilitaryRanks
+from .models import ServiceWithForces, MilitaryRanks, IncompleteServiceWithForcesRecords
 import logging
 
 logger = logging.getLogger(__name__)
@@ -11,15 +11,15 @@ class ServiceWithForcesWriteSerializer(serializers.ModelSerializer):
         model = ServiceWithForces
         fields = "__all__"
 
-    def validate_service_number(self, value):
+    def validate_service_id(self, value):
         if not value:
-            logger.debug("Service Number is empty")
+            logger.debug("Service ID is empty")
             return value
 
         if not value.isdigit():
-            logger.debug("Service Number can only contain numbers.")
+            logger.debug("Service ID can only contain numbers.")
 
-            raise serializers.ValidationError("Field can only contain numbers.")
+            raise serializers.ValidationError("Service ID can only contain numbers.")
 
         return value
 
@@ -34,7 +34,7 @@ class ServiceWithForcesWriteSerializer(serializers.ModelSerializer):
         if value >= today:
             logger.debug("Service Date cannot be the present date or a future date.")
 
-            serializers.ValidationError(
+            raise serializers.ValidationError(
                 "Service Date cannot be the present date or a future date."
             )
 
@@ -96,3 +96,98 @@ class MilitaryRanksSerializer(serializers.ModelSerializer):
 
     def validate_branch(self, value):
         return self.validate_text("Branch", value)
+
+
+class IncompleteServiceWithForcesRecordsWriteSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = IncompleteServiceWithForcesRecords
+        fields = "__all__"
+
+    @staticmethod
+    def validate_null_values(attrs):
+        system_fields = {"created_by", "updated_by", "employee"}
+
+        has_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields
+        )
+
+        if not has_value:
+            raise serializers.ValidationError(
+                "All fields for Incomplete Service With Forces cannot be empty."
+            )
+
+        service_date = attrs.get("service_date")
+        service_id = attrs.get("service_id")
+
+        non_service_date_service_id_value = any(
+            value not in (None, "")
+            for key, value in attrs.items()
+            if key not in system_fields | {"service_date", "service_id"}
+        )
+
+        if (service_date or service_id) and not non_service_date_service_id_value:
+            raise serializers.ValidationError(
+                "Cannot save Incomplete Service With Forces with Service Date or Service ID as the only non-empty fields."
+            )
+
+        return attrs
+
+    def validate_service_date(self, value):
+        if not value:
+            logger.debug("Service Date is empty")
+            return value
+
+        from datetime import datetime
+
+        today = datetime.now().date()
+        if value >= today:
+            logger.debug("Service Date cannot be the present date or a future date.")
+
+            raise serializers.ValidationError(
+                "Service Date cannot be the present date or a future date."
+            )
+
+        return value
+
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Service ID can only contain numbers.")
+
+        return value
+
+    def validate(self, attrs):
+        attrs = self.validate_null_values(attrs)
+
+        return attrs
+
+
+class IncompleteServiceWithForcesReadSerializer(serializers.ModelSerializer):
+    military_rank_display = serializers.StringRelatedField(
+        source="military_rank", read_only=True
+    )
+    last_unit_display = serializers.StringRelatedField(
+        source="last_unit", read_only=True
+    )
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
+
+    class Meta:
+        model = IncompleteServiceWithForcesRecords
+        fields = "__all__"

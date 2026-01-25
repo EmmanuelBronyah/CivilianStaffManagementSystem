@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import ServiceWithForces, MilitaryRanks, InvalidServiceWithForcesRecords
+from .models import ServiceWithForces, MilitaryRanks, IncompleteServiceWithForcesRecords
 
 
 admin.site.register(ServiceWithForces)
 admin.site.register(MilitaryRanks)
-admin.site.register(InvalidServiceWithForcesRecords)
+admin.site.register(IncompleteServiceWithForcesRecords)

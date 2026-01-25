@@ -9,7 +9,7 @@ class ServiceWithForces(models.Model):
     )
     service_date = models.DateField()
     last_unit = models.ForeignKey(Units, on_delete=models.CASCADE)
-    service_number = models.CharField(max_length=7)
+    service_id = models.CharField(max_length=7)
     military_rank = models.ForeignKey("MilitaryRanks", on_delete=models.CASCADE)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
@@ -50,23 +50,43 @@ class MilitaryRanks(models.Model):
         return f"{self.rank}"
 
 
-class InvalidServiceWithForcesRecords(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+class IncompleteServiceWithForcesRecords(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="incomplete_service_with_forces_records",
+    )
     service_date = models.DateField(null=True, blank=True)
     last_unit = models.ForeignKey(
         Units, on_delete=models.CASCADE, null=True, blank=True
     )
-    service_number = models.CharField(max_length=7, null=True, blank=True)
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     military_rank = models.ForeignKey(
         MilitaryRanks, on_delete=models.CASCADE, null=True, blank=True
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_incomplete_service_with_forces_records",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_incomplete_service_with_forces_records",
+    )
 
     class Meta:
-        db_table = "invalid_service_with_forces_records"
-        verbose_name = "invalid_service_with_forces_records"
-        verbose_name_plural = "invalid_service_with_forces_records"
+        db_table = "incomplete_service_with_forces_records"
+        verbose_name = "incomplete_service_with_forces_records"
+        verbose_name_plural = "incomplete_service_with_forces_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

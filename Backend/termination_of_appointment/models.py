@@ -61,8 +61,15 @@ class TerminationStatus(models.Model):
         return f"{self.termination_status}"
 
 
-class InvalidTerminationOfAppointmentRecords(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+class IncompleteTerminationOfAppointmentRecords(models.Model):
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="incomplete_termination_of_appointment",
+    )
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     cause = models.ForeignKey(
         CausesOfTermination, on_delete=models.PROTECT, null=True, blank=True
     )
@@ -73,11 +80,25 @@ class InvalidTerminationOfAppointmentRecords(models.Model):
     )
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_incomplete_termination_of_appointment",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_incomplete_termination_of_appointment",
+    )
 
     class Meta:
-        db_table = "invalid_termination_of_appointment_records"
-        verbose_name = "invalid_termination_of_appointment_records"
-        verbose_name_plural = "invalid_termination_of_appointment_records"
+        db_table = "incomplete_termination_of_appointment_records"
+        verbose_name = "incomplete_termination_of_appointment_records"
+        verbose_name_plural = "incomplete_termination_of_appointment_records"
 
     def __str__(self):
         return f"{self.employee.service_id}"

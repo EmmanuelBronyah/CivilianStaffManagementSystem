@@ -54,4 +54,35 @@ urlpatterns = [
         views.DeleteMilitaryRanksAPIView.as_view(),
         name="delete-military-rank",
     ),
+    # Incomplete Service With Forces
+    path(
+        "incomplete-service-with-forces/create/",
+        views.CreateIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="create-incomplete-service-with-forces",
+    ),
+    path(
+        "incomplete-service-with-forces/<str:pk>/detail/",
+        views.RetrieveIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="retrieve-incomplete-service-with-forces",
+    ),
+    path(
+        "incomplete-service-with-forces/<str:pk>/employee/",
+        views.ListEmployeeIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="list-employee-incomplete-service-with-forces",
+    ),
+    path(
+        "incomplete-service-with-forces/",
+        views.ListIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="list-incomplete-service-with-forces",
+    ),
+    path(
+        "incomplete-service-with-forces/<str:pk>/edit/",
+        views.EditIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="edit-incomplete-service-with-forces",
+    ),
+    path(
+        "incomplete-service-with-forces/<str:pk>/delete/",
+        views.DeleteIncompleteServiceWithForcesRecordsAPIView.as_view(),
+        name="delete-incomplete-service-with-forces",
+    ),
 ]

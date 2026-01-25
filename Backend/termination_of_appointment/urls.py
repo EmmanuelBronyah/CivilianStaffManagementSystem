@@ -80,4 +80,35 @@ urlpatterns = [
         views.DeleteTerminationStatusAPIView.as_view(),
         name="delete-termination-status",
     ),
+    # Incomplete Termination of Appointment
+    path(
+        "incomplete-termination-of-appointment/create/",
+        views.CreateIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="create-incomplete-termination-of-appointment",
+    ),
+    path(
+        "incomplete-termination-of-appointment/<str:pk>/detail/",
+        views.RetrieveIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="retrieve-incomplete-termination-of-appointment",
+    ),
+    path(
+        "incomplete-termination-of-appointment/<str:pk>/employee/",
+        views.ListEmployeeIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="list-employee-incomplete-termination-of-appointment",
+    ),
+    path(
+        "incomplete-termination-of-appointment/",
+        views.ListIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="list-incomplete-termination-of-appointment",
+    ),
+    path(
+        "incomplete-termination-of-appointment/<str:pk>/edit/",
+        views.EditIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="edit-incomplete-termination-of-appointment",
+    ),
+    path(
+        "incomplete-termination-of-appointment/<str:pk>/delete/",
+        views.DeleteIncompleteTerminationOfAppointmentRecordsAPIView.as_view(),
+        name="delete-incomplete-termination-of-appointment",
+    ),
 ]

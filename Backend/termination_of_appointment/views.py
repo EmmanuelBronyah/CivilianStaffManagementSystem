@@ -9,6 +9,8 @@ from activity_feeds.models import ActivityFeeds
 from django.shortcuts import get_object_or_404
 from employees.models import Employee
 from . import utils
+from flags.services import create_flag, delete_flag
+from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
 
@@ -303,3 +305,144 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
         logger.debug(
             f"Activity feed(The Termination Status({instance.termination_status}) was deleted by {self.request.user}) created."
         )
+
+
+# INCOMPLETE TERMINATION OF APPOINTMENT
+class CreateIncompleteTerminationOfAppointmentRecordsAPIView(generics.CreateAPIView):
+    queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
+    serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+
+        read_serializer = serializers.IncompleteTerminationOfAppointmentReadSerializer(
+            self.termination
+        )
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        self.termination = serializer.save(
+            created_by=self.request.user, updated_by=self.request.user
+        )
+        logger.debug(
+            f"Incomplete Termination Of Appointment({self.termination}) created."
+        )
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"{self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})",
+        )
+        logger.debug(
+            f"Activity feed({self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})) created."
+        )
+
+        # Flag created record
+        create_flag(self.termination, self.request.user)
+
+
+class RetrieveIncompleteTerminationOfAppointmentRecordsAPIView(
+    generics.RetrieveAPIView
+):
+    queryset = models.IncompleteTerminationOfAppointmentRecords.objects.select_related(
+        "created_by", "updated_by", "cause", "status"
+    )
+    lookup_field = "pk"
+    serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+
+
+class ListIncompleteTerminationOfAppointmentRecordsAPIView(generics.ListAPIView):
+    queryset = models.IncompleteTerminationOfAppointmentRecords.objects.select_related(
+        "created_by", "updated_by", "cause", "status"
+    )
+    serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+    pagination_class = LargeResultsSetPagination
+
+
+class ListEmployeeIncompleteTerminationOfAppointmentRecordsAPIView(
+    generics.ListAPIView
+):
+    serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+
+    def get_queryset(self):
+        service_id = self.kwargs.get("pk")
+        employee = get_object_or_404(Employee, pk=service_id)
+        incomplete_termination_of_appointment = (
+            employee.incomplete_termination_of_appointment.select_related(
+                "created_by", "updated_by", "cause", "status"
+            )
+        )
+        return incomplete_termination_of_appointment
+
+
+class EditIncompleteTerminationOfAppointmentRecordsAPIView(generics.UpdateAPIView):
+    queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        read_serializer = serializers.IncompleteTerminationOfAppointmentReadSerializer(
+            self.termination
+        )
+        return Response(read_serializer.data)
+
+    def perform_update(self, serializer):
+        previous_termination = self.get_object()
+        self.termination = serializer.save(updated_by=self.request.user)
+        logger.debug(
+            f"Incomplete Termination Of Appointment({previous_termination}) updated."
+        )
+
+        changes = utils.incomplete_termination_of_appointment_changes(
+            previous_termination, self.termination
+        )
+
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}) created."
+            )
+
+
+class DeleteIncompleteTerminationOfAppointmentRecordsAPIView(generics.DestroyAPIView):
+    queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        termination_id = instance.id
+        instance.delete()
+        logger.debug(f"Incomplete Termination Of Appointment({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}) created."
+        )
+
+        # Delete associated flags
+        delete_flag(instance, termination_id, self.request.user)
