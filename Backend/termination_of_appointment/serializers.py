@@ -178,6 +178,18 @@ class IncompleteTerminationOfAppointmentWriteSerializer(serializers.ModelSeriali
 
         return value
 
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Service ID can only contain numbers.")
+
+        return value
+
     def validate_authority(self, value):
         if not value:
             logger.debug("Authority is empty")

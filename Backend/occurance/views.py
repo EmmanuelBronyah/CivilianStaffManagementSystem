@@ -1,5 +1,11 @@
 from rest_framework import generics
-from .models import Occurrence, LevelStep, SalaryAdjustmentPercentage, Event
+from .models import (
+    Occurrence,
+    LevelStep,
+    SalaryAdjustmentPercentage,
+    Event,
+    IncompleteOccurrence,
+)
 from . import serializers
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from employees.permissions import IsAdminUserOrStandardUser
@@ -8,12 +14,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from activity_feeds.models import ActivityFeeds
 import logging
-from .utils import occurrence_changes, level_step_changes
+from .utils import occurrence_changes, level_step_changes, incomplete_occurrence_changes
 from employees.models import Employee
 from django.shortcuts import get_object_or_404
 from .utils import two_dp
 from django.db.models import IntegerField, Value
 from django.db.models.functions import Cast, Substr, StrIndex
+from flags.services import create_flag, delete_flag
+from employees.views import LargeResultsSetPagination
+from rest_framework.response import Response
+from rest_framework import status
 
 
 logger = logging.getLogger(__name__)
@@ -106,11 +116,11 @@ class EditOccurrenceAPIView(generics.UpdateAPIView):
                 activity=f"{self.request.user} updated Occurrence(Service ID: {previous_occurrence.employee.service_id} — Authority: {previous_occurrence.authority} — Event: {previous_occurrence.event}): {changes}",
             )
             logger.debug(
-                f"Activity feed({self.request.user} updated Occurrence(Service ID: {previous_occurrence.employee.service_id} — Authority: {previous_occurrence.authority} — Event: {previous_occurrence.event})) created."
+                f"Activity feed({self.request.user} updated Occurrence(Service ID: {previous_occurrence.employee.service_id} — Authority: {previous_occurrence.authority} — Event: {previous_occurrence.event}): {changes})) created."
             )
 
 
-class RetrieveEmployeeOccurrenceAPIView(generics.ListAPIView):
+class ListEmployeeOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.OccurrenceReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
@@ -414,3 +424,144 @@ class DeleteSalaryAdjustmentPercentageAPIView(generics.DestroyAPIView):
         logger.debug(
             f"Activity feed(The Salary Adjustment Percentage({instance.percentage_adjustment}%) was deleted by {self.request.user}) created."
         )
+
+
+# *INCOMPLETE OCCURRENCE
+class CreateIncompleteOccurrenceAPIView(generics.CreateAPIView):
+    queryset = IncompleteOccurrence.objects.all()
+    serializer_class = serializers.IncompleteOccurrenceWriteSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.IncompleteOccurrenceReadSerializer(
+            self.incomplete_occurrence
+        )
+
+        return Response(read_serializer.data, status.HTTP_201_CREATED)
+
+    def perform_create(self, serializer):
+        self.incomplete_occurrence = serializer.save(
+            created_by=self.request.user, updated_by=self.request.user
+        )
+        logger.debug(f"Incomplete Occurrence({self.incomplete_occurrence}) created.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=(
+                f"{self.request.user} added a new Incomplete Occurrence(ID: {self.incomplete_occurrence.id} — Authority: {self.incomplete_occurrence.authority} — Event: {self.incomplete_occurrence.event})"
+            ),
+        )
+        logger.debug(
+            f"Activity Feed({self.request.user} added a new Incomplete Occurrence(ID: {self.incomplete_occurrence.id} — Authority: {self.incomplete_occurrence.authority} — Event: {self.incomplete_occurrence.event}) created."
+        )
+
+        # Flag created record
+        create_flag(self.incomplete_occurrence, self.request.user)
+
+
+class EditIncompleteOccurrenceAPIView(generics.UpdateAPIView):
+    queryset = IncompleteOccurrence.objects.all()
+    serializer_class = serializers.IncompleteOccurrenceUpdateSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.IncompleteOccurrenceReadSerializer(
+            self.incomplete_occurrence_update
+        )
+
+        return Response(read_serializer.data)
+
+    def perform_update(self, serializer):
+        previous_incomplete_occurrence = self.get_object()
+        self.incomplete_occurrence_update = serializer.save(
+            updated_by=self.request.user
+        )
+        logger.debug(
+            f"Incomplete Occurrence({previous_incomplete_occurrence}) updated."
+        )
+
+        changes = incomplete_occurrence_changes(
+            previous_incomplete_occurrence, self.incomplete_occurrence_update
+        )
+        print("changes -> ", changes)
+
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Incomplete Occurrence(ID: {previous_incomplete_occurrence.id} — Authority: {previous_incomplete_occurrence.authority} — Event: {previous_incomplete_occurrence.event}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Incomplete Occurrence(ID: {previous_incomplete_occurrence.id} — Authority: {previous_incomplete_occurrence.authority} — Event: {previous_incomplete_occurrence.event}): {changes})) created."
+            )
+
+
+class RetrieveIncompleteOccurrenceAPIView(generics.RetrieveAPIView):
+    queryset = IncompleteOccurrence.objects.select_related(
+        "created_by", "updated_by", "grade", "level_step", "event"
+    )
+    lookup_field = "pk"
+    serializer_class = serializers.IncompleteOccurrenceReadSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+
+
+class ListEmployeeIncompleteOccurrenceAPIView(generics.ListAPIView):
+    serializer_class = serializers.IncompleteOccurrenceReadSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def get_queryset(self):
+        service_id = self.kwargs.get("pk")
+        employee = get_object_or_404(Employee, pk=service_id)
+        incomplete_occurrence = employee.incomplete_occurrence.select_related(
+            "created_by", "updated_by", "grade", "level_step", "event"
+        )
+        return incomplete_occurrence
+
+
+class ListIncompleteOccurrenceAPIView(generics.ListAPIView):
+    queryset = IncompleteOccurrence.objects.select_related(
+        "created_by", "updated_by", "grade", "level_step", "event"
+    )
+    serializer_class = serializers.IncompleteOccurrenceReadSerializer
+    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    throttle_classes = [UserRateThrottle]
+    pagination_class = LargeResultsSetPagination
+
+
+class DeleteIncompleteOccurrenceAPIView(generics.DestroyAPIView):
+    queryset = IncompleteOccurrence.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.IncompleteOccurrenceWriteSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    def perform_destroy(self, instance):
+        incomplete_occurrence_id = instance.id
+        instance.delete()
+        logger.debug(f"Incomplete Occurrence({instance}) deleted.")
+
+        ActivityFeeds.objects.create(
+            creator=self.request.user,
+            activity=f"The Incomplete Occurrence(ID: {incomplete_occurrence_id} — Authority: {instance.authority} — Event: {instance.event}) was deleted by {self.request.user}",
+        )
+        logger.debug(
+            f"Activity feed(The Incomplete Occurrence(ID: {incomplete_occurrence_id} — Authority: {instance.authority} — Event: {instance.event})) created."
+        )
+
+        # Delete associated flags
+        delete_flag(instance, incomplete_occurrence_id, self.request.user)

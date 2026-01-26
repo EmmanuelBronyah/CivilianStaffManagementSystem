@@ -1,11 +1,18 @@
 from rest_framework import serializers
-from .models import Occurrence, LevelStep, SalaryAdjustmentPercentage, Event
+from .models import (
+    Occurrence,
+    LevelStep,
+    SalaryAdjustmentPercentage,
+    Event,
+    IncompleteOccurrence,
+)
 import logging
 from .utils import two_dp
 
 
 logger = logging.getLogger(__name__)
 
+# todo: internet connection and all network connection retries
 # todo: make sure when an edit request is sent, required fields whom no value is sent for is checked
 
 
@@ -213,4 +220,101 @@ class SalaryAdjustmentPercentageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = SalaryAdjustmentPercentage
+        fields = "__all__"
+
+
+class IncompleteOccurrenceWriteSerializer(BaseOccurrenceSerializer):
+    percentage_adjustment = serializers.IntegerField(write_only=True, required=False)
+
+    class Meta:
+        model = IncompleteOccurrence
+        exclude = ("monthly_salary", "annual_salary")
+
+    def assign_annual_salary(self, attrs):
+        event = attrs.get("event", None)
+        event = event.event_name
+
+        level_step = attrs.get("level_step", None)
+        monthly_salary = level_step.monthly_salary
+        monthly_salary = two_dp(monthly_salary)
+
+        if event != "Salary Adjustment":
+            # Remove percentage_adjustment key
+            attrs.pop("percentage_adjustment")
+
+            attrs["monthly_salary"] = str(monthly_salary)
+
+            annual_salary = two_dp(two_dp(12) * monthly_salary)
+            attrs["annual_salary"] = str(annual_salary)
+
+        else:
+            percentage_adjustment = attrs.pop("percentage_adjustment")
+            percentage_adjustment = two_dp(two_dp(percentage_adjustment) / two_dp(100))
+
+            monthly_salary = two_dp(
+                (two_dp(monthly_salary * percentage_adjustment)) + monthly_salary
+            )
+            attrs["monthly_salary"] = str(monthly_salary)
+
+            annual_salary = two_dp(two_dp(12) * monthly_salary)
+            attrs["annual_salary"] = str(annual_salary)
+
+        return attrs
+
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Service ID can only contain numbers.")
+
+        return value
+
+    def validate(self, attrs):
+        attrs = self.assign_annual_salary(attrs)
+
+        return attrs
+
+
+class IncompleteOccurrenceUpdateSerializer(BaseOccurrenceSerializer):
+
+    class Meta:
+        model = IncompleteOccurrence
+        fields = "__all__"
+
+    def validate_service_id(self, value):
+        if not value:
+            logger.debug("Service ID is empty")
+            return value
+
+        if not value.isdigit():
+            logger.debug("Service ID can only contain numbers.")
+
+            raise serializers.ValidationError("Service ID can only contain numbers.")
+
+        return value
+
+
+class IncompleteOccurrenceReadSerializer(serializers.ModelSerializer):
+    grade_display = serializers.StringRelatedField(source="grade", read_only=True)
+    level_step_display = serializers.StringRelatedField(
+        source="level_step", read_only=True
+    )
+    event_display = serializers.StringRelatedField(source="event", read_only=True)
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    date_added = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    date_modified = serializers.DateTimeField(
+        format="%Y-%m-%d %I:%M %p", read_only=True
+    )
+
+    class Meta:
+        model = IncompleteOccurrence
         fields = "__all__"

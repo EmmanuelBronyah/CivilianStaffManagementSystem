@@ -9,7 +9,7 @@ urlpatterns = [
     ),
     path(
         "<str:pk>/employee/",
-        views.RetrieveEmployeeOccurrenceAPIView.as_view(),
+        views.ListEmployeeOccurrenceAPIView.as_view(),
         name="list-employee-occurrence",
     ),
     path(
@@ -91,5 +91,36 @@ urlpatterns = [
         "percentage-adjustment/<str:pk>/delete/",
         views.DeleteSalaryAdjustmentPercentageAPIView.as_view(),
         name="delete-percentage-adjustment",
+    ),
+    # Incomplete Occurrence
+    path(
+        "incomplete-occurrence/create/",
+        views.CreateIncompleteOccurrenceAPIView.as_view(),
+        name="create-incomplete-occurrence",
+    ),
+    path(
+        "incomplete-occurrence/<str:pk>/edit/",
+        views.EditIncompleteOccurrenceAPIView.as_view(),
+        name="edit-incomplete-occurrence",
+    ),
+    path(
+        "incomplete-occurrence/<str:pk>/detail/",
+        views.RetrieveIncompleteOccurrenceAPIView.as_view(),
+        name="retrieve-incomplete-occurrence",
+    ),
+    path(
+        "incomplete-occurrence/<str:pk>/employee/",
+        views.ListEmployeeIncompleteOccurrenceAPIView.as_view(),
+        name="list-employee-incomplete-occurrence",
+    ),
+    path(
+        "incomplete-occurrence/",
+        views.ListIncompleteOccurrenceAPIView.as_view(),
+        name="list-incomplete-occurrence",
+    ),
+    path(
+        "incomplete-occurrence/<str:pk>/delete/",
+        views.DeleteIncompleteOccurrenceAPIView.as_view(),
+        name="delete-incomplete-occurrence",
     ),
 ]

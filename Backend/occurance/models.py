@@ -19,12 +19,14 @@ class Occurrence(models.Model):
         CustomUser,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="created_occurrences",
     )
     updated_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,
         null=True,
+        blank=True,
         related_name="updated_occurrences",
     )
     date_added = models.DateTimeField(auto_now_add=True)
@@ -77,7 +79,14 @@ class SalaryAdjustmentPercentage(models.Model):
 
 
 class IncompleteOccurrence(models.Model):
-    employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name="incomplete_occurrence",
+    )
+    service_id = models.CharField(max_length=7, null=True, blank=True)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
     authority = models.CharField(max_length=10)
     level_step = models.ForeignKey("LevelStep", on_delete=models.PROTECT)
@@ -85,9 +94,23 @@ class IncompleteOccurrence(models.Model):
     annual_salary = models.DecimalField(decimal_places=4, max_digits=15)
     event = models.ForeignKey("Event", on_delete=models.PROTECT)
     wef_date = models.DateField(null=True, blank=True)
-    reason = models.CharField(max_length=255, null=True, blank=True)
+    reason = models.CharField(max_length=255)
     date_added = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
+    created_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="created_incomplete_occurrences",
+    )
+    updated_by = models.ForeignKey(
+        CustomUser,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="updated_incomplete_occurrences",
+    )
 
     class Meta:
         db_table = "incomplete_occurrence"
