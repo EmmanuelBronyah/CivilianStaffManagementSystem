@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from .models import Identity
 import logging
+from employees.models import Employee
 
 logger = logging.getLogger(__name__)
 
 
 class IdentityWriteSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Identity
         fields = "__all__"

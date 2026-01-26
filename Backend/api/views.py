@@ -18,6 +18,8 @@ from .throttles import CustomAnonRateThrottle, CustomUserRateThrottle, UserRateT
 import logging
 from . import models
 from activity_feeds.models import ActivityFeeds
+from rest_framework.response import Response
+from rest_framework import status
 
 
 logger = logging.getLogger(__name__)
@@ -30,33 +32,47 @@ class CreateUserView(generics.CreateAPIView):
     throttle_classes = [CustomUserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_create(serializer)
+
+        read_serializer = serializers.UserReadSerializer(self.user)
+
+        return Response(read_serializer.data, status=status.HTTP_201_CREATED)
+
     def perform_create(self, serializer):
-        user = serializer.save(
+        self.user = serializer.save(
             created_by=self.request.user, updated_by=self.request.user
         )
-        logger.debug(f"User account({user}) created.")
+        logger.debug(f"User Account({self.user}) created.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new user: {user.username}",
+            activity=f"{self.request.user} added a new User(Username: {self.user.username})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new user: {user.username}) created."
+            f"Activity feed({self.request.user} added a new User(Username: {self.user.username})) created."
         )
 
 
 class RetrieveUserView(generics.RetrieveAPIView):
-    serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
-    queryset = CustomUser.objects.all()
+    serializer_class = serializers.UserReadSerializer
+    queryset = CustomUser.objects.select_related(
+        "created_by", "updated_by", "grade", "division"
+    )
     lookup_field = "pk"
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
 
 
 class RetrieveAllUsersView(generics.ListAPIView):
-    serializer_class = serializers.RetrieveCreateUserSerializer
-    queryset = CustomUser.objects.all()
-    throttle_classes = [CustomUserRateThrottle]
+    serializer_class = serializers.UserReadSerializer
+    queryset = CustomUser.objects.select_related(
+        "created_by", "updated_by", "grade", "division"
+    )
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
 
 
@@ -64,19 +80,31 @@ class UpdateUserView(generics.UpdateAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop("partial", False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+
+        self.perform_update(serializer)
+
+        read_serializer = serializers.UserReadSerializer(self.user)
+
+        return Response(read_serializer.data)
+
     def perform_update(self, serializer):
-        user = serializer.save(updated_by=self.request.user)
-        logger.debug(f"User account({user}) updated.")
+        self.user = serializer.save(updated_by=self.request.user)
+        logger.debug(f"User Account({self.user}) updated.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} updated account details for: {user.username}",
+            activity=f"{self.request.user} updated User Account(Username: {self.user.username})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} updated account details for: {user.username}) created."
+            f"Activity feed({self.request.user} updated User Account(Username: {self.user.username})) created."
         )
 
 
@@ -84,25 +112,25 @@ class DeactivateUserView(generics.DestroyAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def delete(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.is_active = False
         instance.save()
-        logger.debug(f"User account({instance}) deactivated.")
+        logger.debug(f"User Account({instance}) deactivated.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"User account '{instance.username}' was deactivated by {self.request.user}",
+            activity=f"User Account(Username: {instance.username}) was deactivated by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(User account '{instance.username}' was deactivated by {self.request.user}) created."
+            f"Activity feed(User Account(Username: {instance.username}) was deactivated by {self.request.user}) created."
         )
 
         return Response(
-            {"detail": "User account deactivated."}, status=status.HTTP_200_OK
+            {"detail": "User Account deactivated."}, status=status.HTTP_200_OK
         )
 
 
@@ -110,44 +138,44 @@ class RestoreUserAccountView(generics.UpdateAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         instance.is_active = True
         instance.save()
-        logger.debug(f"User account({instance}) restored.")
+        logger.debug(f"User Account({instance}) restored.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"User account '{instance.username}' was restored by {self.request.user}",
+            activity=f"User Account(Username: {instance.username}) was restored by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(User account '{instance.username}' was restored by {self.request.user}) created."
+            f"Activity feed(User Account(Username: {instance.username}) was restored by {self.request.user}) created."
         )
 
-        return Response({"detail": "User account restored."}, status=status.HTTP_200_OK)
+        return Response({"detail": "User Account restored."}, status=status.HTTP_200_OK)
 
 
 class DeleteUserView(generics.DestroyAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
         username = instance.username
         instance.delete()
-        logger.debug(f"User account({instance}) deleted.")
+        logger.debug(f"User Account(Username: {instance}) deleted.")
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"User account {username} was deleted by {self.request.user}",
+            activity=f"User Account(Username: {username}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(User account {username} was deleted by {self.request.user}) created."
+            f"Activity feed(User Account(Username: {username}) was deleted by {self.request.user}) created."
         )
 
 
@@ -164,10 +192,10 @@ class CreateDivisionAPIView(generics.CreateAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"{self.request.user} added a new division: {division.division_name}",
+            activity=f"{self.request.user} added a new Division({division.division_name})",
         )
         logger.debug(
-            f"Activity feed({self.request.user} added a new division: {division.division_name}) created."
+            f"Activity feed({self.request.user} added a new Division({division.division_name})) created."
         )
 
 
@@ -200,13 +228,16 @@ class EditDivisionAPIView(generics.UpdateAPIView):
         division = serializer.save()
         logger.debug(f"Division({previous_division_name}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} modified division from '{previous_division_name}' to '{division.division_name}'",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} modified division from '{previous_division_name}' to '{division.division_name}') created."
-        )
+        changes = previous_division_name != division.division_name
+
+        if changes:
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Division({previous_division_name}): {previous_division_name} → {division.division_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Division({previous_division_name}): {previous_division_name} → {division.division_name}) created."
+            )
 
 
 class DeleteDivisionAPIView(generics.DestroyAPIView):
@@ -223,10 +254,10 @@ class DeleteDivisionAPIView(generics.DestroyAPIView):
 
         ActivityFeeds.objects.create(
             creator=self.request.user,
-            activity=f"Division '{division_name}' was deleted by {self.request.user}",
+            activity=f"Division({division_name}) was deleted by {self.request.user}",
         )
         logger.debug(
-            f"Activity feed(Division '{division_name}' was deleted by {self.request.user}') deleted."
+            f"Activity feed(Division({division_name}) was deleted by {self.request.user}') deleted."
         )
 
 

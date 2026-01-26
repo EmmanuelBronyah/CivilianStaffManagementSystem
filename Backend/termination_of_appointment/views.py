@@ -16,8 +16,6 @@ from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
-# TODO: Ensure all perform update functions include the updated by key
-
 
 # * TERMINATION OF APPOINTMENT
 class CreateTerminationOfAppointmentAPIView(generics.CreateAPIView):

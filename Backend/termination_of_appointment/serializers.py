@@ -186,7 +186,14 @@ class IncompleteTerminationOfAppointmentWriteSerializer(serializers.ModelSeriali
         if not value.isdigit():
             logger.debug("Service ID can only contain numbers.")
 
-            raise serializers.ValidationError("Service ID can only contain numbers.")
+            raise serializers.ValidationError("Field can only contain numbers.")
+
+        if len(value) < 5:
+            logger.debug("Service ID must have more than five(5) digits.")
+
+            raise serializers.ValidationError(
+                "Service ID must have more than five(5) digits."
+            )
 
         return value
 

@@ -11,7 +11,11 @@ def common_fields(previous, current):
     return [
         ("Child Name", previous.child_name, current.child_name),
         ("Date of Birth", previous.dob, current.dob),
-        ("Gender", previous.gender.sex, current.gender.sex),
+        (
+            "Gender",
+            getattr(previous.gender, "sex", None),
+            getattr(current.gender, "sex", None),
+        ),
         ("Other Parent", previous.other_parent, current.other_parent),
         ("Authority", previous.authority, current.authority),
     ]

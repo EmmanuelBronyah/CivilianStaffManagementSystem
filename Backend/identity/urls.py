@@ -5,13 +5,8 @@ urlpatterns = [
     path("create/", views.CreateIdentityAPIView.as_view(), name="create-identity"),
     path(
         "<str:pk>/detail/",
-        views.RetrieveIdentityAPIView.as_view(),
+        views.RetrieveEmployeeIdentityAPIView.as_view(),
         name="retrieve-identity",
-    ),
-    path(
-        "<str:pk>/employee/",
-        views.ListEmployeeIdentityAPIView.as_view(),
-        name="list-employee-identity",
     ),
     path("<str:pk>/edit/", views.EditIdentityAPIView.as_view(), name="edit-identity"),
     path(

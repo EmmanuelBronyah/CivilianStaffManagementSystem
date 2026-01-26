@@ -14,9 +14,6 @@ from rest_framework import status
 
 logger = logging.getLogger(__name__)
 
-# todo: make sure identity can only store one entry
-# todo: make sure none are n/a
-
 
 class CreateIdentityAPIView(generics.CreateAPIView):
     serializer_class = serializers.IdentityWriteSerializer
@@ -89,24 +86,18 @@ class EditIdentityAPIView(generics.UpdateAPIView):
             )
 
 
-class ListEmployeeIdentityAPIView(generics.ListAPIView):
-    serializer_class = serializers.IdentityReadSerializer
-    throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-
-    def get_queryset(self):
-        service_id = self.kwargs.get("pk")
-        employee = get_object_or_404(Employee, pk=service_id)
-        identity = employee.identity.select_related("created_by", "updated_by")
-        return identity
-
-
-class RetrieveIdentityAPIView(generics.RetrieveAPIView):
-    queryset = Identity.objects.select_related("created_by", "updated_by")
+class RetrieveEmployeeIdentityAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.IdentityReadSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+
+    def get_object(self):
+        service_id = self.kwargs.get("pk")
+        return get_object_or_404(
+            Identity.objects.select_related("created_by", "updated_by"),
+            employee__pk=service_id,
+        )
 
 
 class DeleteIdentityAPIView(generics.DestroyAPIView):

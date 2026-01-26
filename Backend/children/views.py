@@ -17,8 +17,7 @@ from rest_framework.response import Response
 logger = logging.getLogger(__name__)
 
 
-# todo: implement search
-# todo: service id lesser than 5
+# todo: implement search and record generation
 class CreateChildRecordAPIView(generics.CreateAPIView):
     serializer_class = serializers.ChildrenWriteSerializer
     queryset = Children.objects.all()

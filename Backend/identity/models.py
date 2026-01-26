@@ -2,11 +2,9 @@ from django.db import models
 from employees.models import Employee
 from api.models import CustomUser
 
-# TODO: Validate when saving an instance with all fields NULL
-
 
 class Identity(models.Model):
-    employee = models.ForeignKey(
+    employee = models.OneToOneField(
         Employee, on_delete=models.CASCADE, related_name="identity"
     )
     voters_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
@@ -14,8 +12,8 @@ class Identity(models.Model):
     glico_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     nhis_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     tin_number = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    date_added = models.DateField(auto_now_add=True)
-    date_modified = models.DateField(auto_now=True)
+    date_added = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
         CustomUser,
         on_delete=models.SET_NULL,

@@ -1,6 +1,3 @@
-# todo: check for none in the utils function and use getattr
-
-
 def generate_text(fields):
     changes = [
         f'{label}: {"N/A" if old == "" or old is None else old} → {"N/A" if new == "" or new is None else new}'

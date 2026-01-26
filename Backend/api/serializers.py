@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Divisions
-from employees.models import Grades
+from .models import CustomUser
 from django.contrib.auth.models import Group
 import logging
 from . import models
@@ -51,44 +50,6 @@ class RetrieveCreateUserSerializer(serializers.ModelSerializer):
 
         return user
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-
-        division_id = representation.pop("division", None)
-        division_name = Divisions.objects.get(id=division_id).division_name
-
-        grade_id = representation.pop("grade", None)
-        grade_name = Grades.objects.get(id=grade_id).grade_name
-
-        created_by_id = representation.pop("created_by", None)
-        updated_by_id = representation.pop("updated_by", None)
-
-        if created_by_id:
-            created_by = CustomUser.objects.get(id=created_by_id).username
-            representation.update({"created_by": created_by})
-
-        if updated_by_id:
-            updated_by = CustomUser.objects.get(id=updated_by_id).username
-            representation.update({"updated_by": updated_by})
-
-        representation.pop("id", None)
-        representation.pop("password", None)
-        representation.pop("first_name", None)
-        representation.pop("last_name", None)
-        representation.pop("last_login", None)
-        representation.pop("is_superuser", None)
-        representation.pop("is_staff", None)
-        representation.pop("date_joined", None)
-        representation.pop("groups", None)
-        representation.pop("user_permissions", None)
-        representation.pop("created_at", None)
-        representation.pop("updated_at", None)
-
-        representation.update({"grade": grade_name})
-        representation.update({"division": division_name})
-
-        return representation
-
 
 class RetrieveUpdateDestroyUserSerializer(serializers.ModelSerializer):
 
@@ -124,43 +85,37 @@ class RetrieveUpdateDestroyUserSerializer(serializers.ModelSerializer):
         else:
             return super().update(instance, validated_data)
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
 
-        division_id = representation.pop("division", None)
-        division_name = Divisions.objects.get(id=division_id).division_name
+class UserReadSerializer(serializers.ModelSerializer):
+    grade_display = serializers.StringRelatedField(source="grade", read_only=True)
+    division_display = serializers.StringRelatedField(source="division", read_only=True)
+    created_by_display = serializers.StringRelatedField(
+        source="created_by", read_only=True
+    )
+    updated_by_display = serializers.StringRelatedField(
+        source="updated_by", read_only=True
+    )
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
 
-        grade_id = representation.pop("grade", None)
-        grade_name = Grades.objects.get(id=grade_id).grade_name
-
-        created_by_id = representation.pop("created_by", None)
-        updated_by_id = representation.pop("updated_by", None)
-
-        if created_by_id:
-            created_by = CustomUser.objects.get(id=created_by_id).username
-            representation.update({"created_by": created_by})
-
-        if updated_by_id:
-            updated_by = CustomUser.objects.get(id=updated_by_id).username
-            representation.update({"updated_by": updated_by})
-
-        representation.pop("id", None)
-        representation.pop("password", None)
-        representation.pop("first_name", None)
-        representation.pop("last_name", None)
-        representation.pop("last_login", None)
-        representation.pop("is_superuser", None)
-        representation.pop("is_staff", None)
-        representation.pop("date_joined", None)
-        representation.pop("groups", None)
-        representation.pop("user_permissions", None)
-        representation.pop("created_at", None)
-        representation.pop("updated_at", None)
-
-        representation.update({"grade": grade_name})
-        representation.update({"division": division_name})
-
-        return representation
+    class Meta:
+        model = CustomUser
+        fields = (
+            "username",
+            "fullname",
+            "role",
+            "email",
+            "grade",
+            "division",
+            "created_by",
+            "updated_by",
+            "grade_display",
+            "division_display",
+            "created_by_display",
+            "updated_by_display",
+            "created_at",
+            "updated_at",
+        )
 
 
 class DivisionSerializer(serializers.ModelSerializer):
@@ -169,10 +124,25 @@ class DivisionSerializer(serializers.ModelSerializer):
         model = models.Divisions
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     representation.pop("id", None)
-    #     return representation
+    def validate_division_name(self, value):
+        if not value:
+            logger.debug("Division is empty")
+            return value
+
+        import string
+
+        VALID_CHARS = set(string.ascii_letters) | {"-", " "}
+
+        for char in value:
+
+            if char not in VALID_CHARS:
+                logger.debug("Division can only contain letters, spaces and hyphens.")
+
+                raise serializers.ValidationError(
+                    "Division can only contain letters, spaces and hyphens."
+                )
+
+        return value
 
 
 class LoginSerializer(serializers.Serializer):

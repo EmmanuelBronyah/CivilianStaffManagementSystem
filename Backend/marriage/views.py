@@ -12,8 +12,6 @@ from .utils import spouse_record_changes
 
 logger = logging.getLogger(__name__)
 
-# TODO: Sort Occurrences based on CEM number
-
 
 class CreateSpouseAPIView(generics.CreateAPIView):
     serializer_class = serializers.SpouseWriteSerializer
