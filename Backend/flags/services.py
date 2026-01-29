@@ -60,11 +60,11 @@ def delete_flag(instance, id, user):
 
         ActivityFeeds.objects.create(
             creator=user,
-            activity=f"{model_name.replace('_', ' ')} flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}",
+            activity=f"{model_name.replace('_', ' ')} flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'N/A'} — Field: {flag.field.replace('_', ' ').capitalize() or 'N/A'} — Reason: {flag.reason or 'N/A'}",
         )
 
         logger.debug(
-            f"Activity feed({model_name.replace('_', ' ')} flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {flag.field.replace('_', ' ').capitalize() or 'None'} — Reason: {flag.reason or 'None'}) created."
+            f"Activity feed({model_name.replace('_', ' ')} flag was deleted by {user}. Flag Type: {flag.flag_type.flag_type.replace('_', ' ').capitalize() or 'N/A'} — Field: {flag.field.replace('_', ' ').capitalize() or 'N/A'} — Reason: {flag.reason or 'N/A'}) created."
         )
 
     Flags.objects.filter(id__in=[flag.id for flag in flags]).delete()

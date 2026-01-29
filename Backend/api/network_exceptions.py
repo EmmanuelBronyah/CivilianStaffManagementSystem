@@ -25,7 +25,8 @@ NETWORK_EXCEPTIONS = (
     smtplib.SMTPException,
     smtplib.SMTPServerDisconnected,
     smtplib.SMTPConnectError,
-    smtplib.SMTPAuthenticationError,
+    smtplib.SMTPDataError,
+    smtplib.SMTPResponseException,
     # Redis errors
     redis.exceptions.ConnectionError,
     redis.exceptions.TimeoutError,
@@ -62,7 +63,9 @@ EMAIL_ERRORS = (
     smtplib.SMTPException,
     smtplib.SMTPServerDisconnected,
     smtplib.SMTPConnectError,
-    smtplib.SMTPAuthenticationError,
+    smtplib.SMTPDataError,
+    smtplib.SMTPResponseException,
+    socket.timeout,
 )
 
 # --- Redis Connection Errors ---

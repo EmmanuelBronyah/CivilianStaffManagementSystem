@@ -19,7 +19,7 @@ function LoginUser({ route }) {
 
     if (!hasInternetConnection) {
       console.log(
-        "Network issue detected. Please ensure you are connected to the internet and try again."
+        "Network issue detected. Please ensure you are connected to the internet and try again.",
       );
       return;
     }
@@ -30,8 +30,12 @@ function LoginUser({ route }) {
         password,
       });
       if (res.status === 200) {
-        localStorage.setItem(TEMP_TOKEN, res.data.temp_token);
-        console.log("Response: ", res.data.detail);
+        if (localStorage.getItem(TEMP_TOKEN)) {
+          console.log("Response: ", res.data.detail);
+        } else {
+          localStorage.setItem(TEMP_TOKEN, res.data.temp_token);
+          console.log("Response: ", res.data.detail);
+        }
 
         navigate("/auth/otp");
       }

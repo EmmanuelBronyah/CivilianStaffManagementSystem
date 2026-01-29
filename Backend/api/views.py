@@ -20,6 +20,12 @@ from . import models
 from activity_feeds.models import ActivityFeeds
 from rest_framework.response import Response
 from rest_framework import status
+from .services import (
+    cache_temp_token,
+    send_otp_email_task,
+    get_temp_token,
+    delete_temp_token,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -268,50 +274,61 @@ class LoginView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.LoginSerializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
+
         username = serializer.validated_data.get("username", None)
         password = serializer.validated_data.get("password", None)
         user = authenticate(request, username=username, password=password)
+
         logger.debug(f"User found: {user}")
-        try:
 
-            if not user:
-                logger.warning("User credentials provided is invalid.")
-                return Response(
-                    {"detail": "Invalid credentials."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+        if not user:
+            logger.warning("User credentials provided is invalid.")
 
-            device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-            device.generate_challenge()
-            str_uuid = str(uuid.uuid4())
-            temp_token = f"otp_token:{str_uuid}"
-            logger.debug(f"Temporary token has been created for user({user})")
-            cache.set(temp_token, user.id, timeout=300)
-
-            logger.info(f"OTP will be dully sent to user's({user}'s) email.")
             return Response(
-                {"detail": "OTP sent to your email.", "temp_token": temp_token},
-                status=status.HTTP_200_OK,
+                {"detail": "Invalid credentials."},
+                status=status.HTTP_400_BAD_REQUEST,
             )
 
-        except network_exceptions.REDIS_ERRORS as e:
-            logger.exception(f"A redis server error occurred. Exception({e})")
-            device.delete()
+        otp_cache_key = f"otp_email_sent:{user.id}"
+        if cache.get(otp_cache_key):
+
+            logger.debug(f"OTP already sent.")
+
+            return Response({"detail": "OTP already sent."}, status=status.HTTP_200_OK)
+
+        temp_token = f"otp_token:{uuid.uuid4()}"
+
+        logger.debug(f"Temporary token has been created for user({user}).")
+
+        device = None
+
+        try:
+            cache_temp_token(temp_token, user.id)
+
+            logger.info(f"OTP will be dully sent to user's({user}'s) email.")
+
+            device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
+            send_otp_email_task.delay(device.id)
+
+            cache.set(otp_cache_key, True, timeout=60)
+
+        except Exception as e:
+            logger.exception(f"Temporary server error: {e}")
+
+            if device:
+                device.delete()
+
             return Response(
                 {"detail": "Temporary server issue. Please try again shortly."},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
-        except network_exceptions.NETWORK_EXCEPTIONS as e:
-            logger.exception(f"A network error occurred. Exception({e})")
-            device.delete()
-            return Response(
-                {
-                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
-                },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+        return Response(
+            {"detail": "OTP sent to your email.", "temp_token": temp_token},
+            status=status.HTTP_200_OK,
+        )
 
 
 class VerifyOTPView(APIView):
@@ -321,75 +338,61 @@ class VerifyOTPView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.VerifyOTPSerializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
+
         tokens = serializer.validated_data.get("tokens", None)
         temp_token = tokens.get("temp_token", None)
         otp_token = tokens.get("otp_token", None)
 
-        try:
+        if not all([temp_token, otp_token]):
+            delete_temp_token(temp_token)
+            logger.warning("Invalid OTP. Please start the login process again.")
 
-            if not all([temp_token, otp_token]):
-                cache.delete(temp_token)
-                logger.warning("Invalid OTP. Please start the login process again.")
-                return Response(
-                    {"detail": "Invalid OTP. Please start the login process again."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+            return Response(
+                {"detail": "Invalid OTP. Please start the login process again."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-            user_id = cache.get(temp_token)
+        user_id = get_temp_token(temp_token)
 
-            if user_id is None:
-                logger.warning(
-                    "Token expired or invalid. Please start the login process again."
-                )
-                return Response(
-                    {
-                        "detail": "Token expired or invalid. Please start the login process again.",
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            user = CustomUser.objects.get(id=user_id)
-            device = EmailDevice.objects.filter(user=user, name="default").first()
-
-            if device and device.verify_token(otp_token):
-                refresh = RefreshToken.for_user(user)
-                cache.delete(temp_token)
-                logger.info(
-                    "User has been verified. Refresh and access token will be dully created."
-                )
-                return Response(
-                    {
-                        "refresh_token": str(refresh),
-                        "access_token": str(refresh.access_token),
-                    },
-                    status=status.HTTP_200_OK,
-                )
-
+        if user_id is None:
             logger.warning(
                 "Token expired or invalid. Please start the login process again."
             )
             return Response(
                 {
-                    "detail": "Token expired or invalid. Please start the login process again."
+                    "detail": "Token expired or invalid. Please start the login process again.",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
+        user = CustomUser.objects.get(id=user_id)
+        device = EmailDevice.objects.filter(user=user, name="default").first()
 
-        except network_exceptions.REDIS_ERRORS as e:
-            logger.exception(f"A redis server error occurred. Exception({e})")
-            return Response(
-                {"detail": "Temporary server issue. Please try again shortly."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        if device and device.verify_token(otp_token):
+            refresh = RefreshToken.for_user(user)
+
+            delete_temp_token(temp_token)
+            logger.info(
+                "User has been verified. Refresh and access token will be dully created."
             )
-
-        except network_exceptions.NETWORK_EXCEPTIONS as e:
-            logger.exception(f"A network error occurred. Exception({e})")
             return Response(
                 {
-                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
+                    "refresh_token": str(refresh),
+                    "access_token": str(refresh.access_token),
                 },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                status=status.HTTP_200_OK,
             )
+
+        logger.warning(
+            "Token expired or invalid. Please start the login process again."
+        )
+        return Response(
+            {
+                "detail": "Token expired or invalid. Please start the login process again."
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
 
 
 class ResendOTPView(APIView):
@@ -399,56 +402,39 @@ class ResendOTPView(APIView):
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.VerifyOTPSerializer(data=request.data)
+
         serializer.is_valid(raise_exception=True)
+
         tokens = serializer.validated_data.get("tokens", None)
         temp_token = tokens.get("temp_token", None)
-        user_id = cache.get(temp_token)
+        user_id = get_temp_token(temp_token)
 
-        try:
-
-            if user_id is None:
-                logger.warning(
-                    "Your session has expired. Please start the login process again."
-                )
-                return Response(
-                    {
-                        "detail": "Your session has expired. Please start the login process again."
-                    },
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-
-            user = CustomUser.objects.get(id=user_id)
-            device = EmailDevice.objects.filter(user=user, name="default").first()
-
-            if device:
-                device.delete()
-
-            device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-            device.generate_challenge()
-
-            logger.info(f"OTP will be dully sent to user's({user}'s) email.")
-            return Response(
-                {"detail": "OTP sent to your email.", "temp_token": temp_token},
-                status=status.HTTP_200_OK,
+        if user_id is None:
+            logger.warning(
+                "Your session has expired. Please start the login process again."
             )
-
-        except network_exceptions.REDIS_ERRORS as e:
-            logger.exception(f"A redis server error occurred. Exception({e})")
-            device.delete()
-            return Response(
-                {"detail": "Temporary server issue. Please try again shortly."},
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
-
-        except network_exceptions.NETWORK_EXCEPTIONS as e:
-            logger.exception(f"A network error occurred. Exception({e})")
-            device.delete()
             return Response(
                 {
-                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
+                    "detail": "Your session has expired. Please start the login process again."
                 },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+                status=status.HTTP_400_BAD_REQUEST,
             )
+
+        user = CustomUser.objects.get(id=user_id)
+        device = EmailDevice.objects.filter(user=user, name="default").first()
+
+        if device:
+            device.delete()
+
+        logger.info(f"OTP will be dully sent to user's({user}'s) email.")
+
+        device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
+        send_otp_email_task.delay(device.id)
+
+        return Response(
+            {"detail": "OTP sent to your email.", "temp_token": temp_token},
+            status=status.HTTP_200_OK,
+        )
 
 
 class PasswordResetConfirmRedirectView(RedirectView):
@@ -467,6 +453,7 @@ class PasswordResetConfirmRedirectView(RedirectView):
 
         except network_exceptions.NETWORK_EXCEPTIONS as e:
             logger.exception(f"A network error occurred. Exception({e})")
+
             return Response(
                 {
                     "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
@@ -498,6 +485,7 @@ class LogoutView(APIView):
 
         except TokenError as e:
             logger.warning("Invalid or expired token.")
+
             return Response(
                 {"detail": "Invalid or expired token."},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -505,6 +493,7 @@ class LogoutView(APIView):
 
         except network_exceptions.NETWORK_EXCEPTIONS as e:
             logger.exception(f"A network error occurred. Exception({e})")
+
             return Response(
                 {
                     "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
