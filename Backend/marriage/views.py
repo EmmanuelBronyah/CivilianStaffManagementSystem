@@ -9,6 +9,7 @@ from activity_feeds.models import ActivityFeeds
 from django.shortcuts import get_object_or_404
 from employees.models import Employee
 from .utils import spouse_record_changes
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -30,19 +31,20 @@ class CreateSpouseAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.spouse = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Spouse({self.spouse.spouse_name}) created.")
+        with transaction.atomic():
+            self.spouse = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Spouse({self.spouse.spouse_name}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Spouse({self.spouse.spouse_name})",
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Spouse({self.spouse.spouse_name})",
+            )
 
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Spouse({self.spouse.spouse_name})) created."
-        )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Spouse({self.spouse.spouse_name})) created."
+            )
 
 
 class EditSpouseAPIView(generics.UpdateAPIView):
@@ -65,20 +67,21 @@ class EditSpouseAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_spouse = self.get_object()
-        self.spouse_update = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Spouse({previous_spouse.spouse_name}) updated.")
+        with transaction.atomic():
+            previous_spouse = self.get_object()
+            self.spouse_update = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Spouse({previous_spouse.spouse_name}) updated.")
 
-        changes = spouse_record_changes(previous_spouse, self.spouse_update)
+            changes = spouse_record_changes(previous_spouse, self.spouse_update)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Spouse({previous_spouse.spouse_name}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Spouse({previous_spouse.spouse_name}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Spouse({previous_spouse.spouse_name}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Spouse({previous_spouse.spouse_name}): {changes}) created."
+                )
 
 
 class ListEmployeeSpouseAPIView(generics.ListAPIView):
@@ -109,13 +112,14 @@ class DeleteSpouseAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Spouse({instance.spouse_name}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Spouse({instance.spouse_name}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Spouse({instance.spouse_name}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Spouse({instance.spouse_name}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Spouse({instance.spouse_name}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Spouse({instance.spouse_name}) was deleted by {self.request.user}) created."
+            )

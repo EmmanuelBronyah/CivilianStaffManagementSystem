@@ -19,6 +19,7 @@ from flags.services import create_flag, delete_flag
 from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -42,18 +43,21 @@ class CreatePreviousGovernmentServiceAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.government_service = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Previous Government Service({self.government_service}) created.")
+        with transaction.atomic():
+            self.government_service = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(
+                f"Previous Government Service({self.government_service}) created."
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Previous Government Service(Institution: {self.government_service.institution} — Position: {self.government_service.position})) created."
+            )
 
 
 class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
@@ -78,24 +82,27 @@ class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_government_service = self.get_object()
-        self.government_service_update = serializer.save(updated_by=self.request.user)
-        logger.debug(
-            f"Previous Government Service({previous_government_service}) updated."
-        )
-
-        changes = previous_government_service_changes(
-            previous_government_service, self.government_service_update
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}",
+        with transaction.atomic():
+            previous_government_service = self.get_object()
+            self.government_service_update = serializer.save(
+                updated_by=self.request.user
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}) created."
+                f"Previous Government Service({previous_government_service}) updated."
             )
+
+            changes = previous_government_service_changes(
+                previous_government_service, self.government_service_update
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Previous Government Service(Institution: {previous_government_service.institution} — Position: {previous_government_service.position}): {changes}) created."
+                )
 
 
 class ListEmployeePreviousGovernmentServiceAPIView(generics.ListAPIView):
@@ -130,16 +137,17 @@ class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Previous Government Service({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Previous Government Service({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Previous Government Service(Institution: {instance.institution} — Position: {instance.position}) was deleted by {self.request.user}) created."
+            )
 
 
 # INCOMPLETE PREVIOUS GOVERNMENT SERVICE
@@ -160,23 +168,24 @@ class CreateIncompletePreviousGovernmentServiceRecordsAPIView(generics.CreateAPI
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.government_service = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(
-            f"Incomplete Previous Government Service({self.government_service}) created."
-        )
+        with transaction.atomic():
+            self.government_service = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(
+                f"Incomplete Previous Government Service({self.government_service}) created."
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Previous Government Service(ID: {self.government_service.id})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Previous Government Service(ID: {self.government_service.id})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Incomplete Previous Government Service(ID: {self.government_service.id})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Incomplete Previous Government Service(ID: {self.government_service.id})) created."
+            )
 
-        # Flag created record
-        create_flag(self.government_service, self.request.user)
+            # Flag created record
+            create_flag(self.government_service, self.request.user)
 
 
 class RetrieveIncompletePreviousGovernmentServiceRecordsAPIView(
@@ -239,23 +248,24 @@ class EditIncompletePreviousGovernmentServiceRecordsAPIView(generics.UpdateAPIVi
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_government_service = self.get_object()
-        self.government_service = serializer.save(updated_by=self.request.user)
-        logger.debug(
-            f"Incomplete Previous Government Service({previous_government_service}) updated."
-        )
+        with transaction.atomic():
+            previous_government_service = self.get_object()
+            self.government_service = serializer.save(updated_by=self.request.user)
+            logger.debug(
+                f"Incomplete Previous Government Service({previous_government_service}) updated."
+            )
 
-        changes = incomplete_previous_government_service_changes(
-            previous_government_service, self.government_service
-        )
+            changes = incomplete_previous_government_service_changes(
+                previous_government_service, self.government_service
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Incomplete Previous Government Service(ID: {self.government_service.id}): {changes}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Incomplete Previous Government Service(ID: {self.government_service.id}): {changes}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Incomplete Previous Government Service(ID: {self.government_service.id}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Incomplete Previous Government Service(ID: {self.government_service.id}): {changes}) created."
+            )
 
 
 class DeleteIncompletePreviousGovernmentServiceRecordsAPIView(generics.DestroyAPIView):
@@ -266,17 +276,18 @@ class DeleteIncompletePreviousGovernmentServiceRecordsAPIView(generics.DestroyAP
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        government_service_id = instance.id
-        instance.delete()
-        logger.debug(f"Incomplete Previous Government Service({instance}) deleted.")
+        with transaction.atomic():
+            government_service_id = instance.id
+            instance.delete()
+            logger.debug(f"Incomplete Previous Government Service({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Incomplete Previous Government Service(ID: {government_service_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Incomplete Previous Government Service(ID: {government_service_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Incomplete Previous Government Service(ID: {government_service_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Incomplete Previous Government Service(ID: {government_service_id}) was deleted by {self.request.user}) created."
+            )
 
-        # Delete associated flags
-        delete_flag(instance, government_service_id, self.request.user)
+            # Delete associated flags
+            delete_flag(instance, government_service_id, self.request.user)

@@ -3,9 +3,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from api import network_exceptions
 import logging
-from rest_framework.exceptions import ValidationError
-from .utils import handle_validation_error
 from django.db.models.deletion import ProtectedError
+from django.db import DatabaseError
+
 
 logger = logging.getLogger(__name__)
 
@@ -79,11 +79,13 @@ def custom_exception_handler(exc, context):
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
         )
 
-    # Handles all validation errors
-    # elif isinstance(exc, ValidationError):
-    #     message = handle_validation_error(exc)
-    #     logger.exception(message)
-    #     return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
+    elif isinstance(exc, DatabaseError):
+        logger.exception("Database error", exc_info=exc)
+
+        return Response(
+            {"error": "Temporary server issue. Please try again shortly."},
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
 
     elif isinstance(exc, ProtectedError):
         return Response(

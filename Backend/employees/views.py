@@ -15,6 +15,7 @@ from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
 from . import utils
 from flags.services import create_flag, delete_flag
+from django.db import transaction
 
 
 logger = logging.getLogger(__name__)
@@ -52,18 +53,19 @@ class CreateEmployeeAPIView(generics.CreateAPIView):
         return Response(response_data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.employee = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Employee({self.employee}) created.")
+        with transaction.atomic():
+            self.employee = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Employee({self.employee}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}) created."
+            )
 
 
 class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
@@ -127,20 +129,21 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
         return Response(response_data)
 
     def perform_update(self, serializer):
-        previous_employee = self.get_object()
-        self.employee = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Employee({previous_employee}) updated.")
+        with transaction.atomic():
+            previous_employee = self.get_object()
+            self.employee = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Employee({previous_employee}) updated.")
 
-        changes = utils.employee_record_changes(previous_employee, self.employee)
+            changes = utils.employee_record_changes(previous_employee, self.employee)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}",
-            )
-            logger.debug(
-                f"Activity feed({self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}",
+                )
+                logger.debug(
+                    f"Activity feed({self.request.user} updated Employee(Service ID: {self.employee.service_id} — Last Name: {self.employee.last_name} — Other Names: {self.employee.other_names}): {changes}) created."
+                )
 
 
 class DeleteEmployeeAPIView(generics.DestroyAPIView):
@@ -151,17 +154,18 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        service_id = instance.service_id
-        instance.delete()
-        logger.debug(f"Employee({instance}) deleted.")
+        with transaction.atomic():
+            service_id = instance.service_id
+            instance.delete()
+            logger.debug(f"Employee({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"Employee record with Service ID({service_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(Employee record with Service ID({service_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"Employee record with Service ID({service_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(Employee record with Service ID({service_id}) was deleted by {self.request.user}) created."
+            )
 
 
 class TotalNumberOfEmployeesAPIView(APIView):
@@ -213,16 +217,17 @@ class CreateCategoryAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        category = serializer.save()
-        logger.debug(f"Category({category}) created.")
+        with transaction.atomic():
+            category = serializer.save()
+            logger.debug(f"Category({category}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Category({category.category_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Category({category.category_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Category({category.category_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Category({category.category_name}) created."
+            )
 
 
 class RetrieveCategoryAPIView(generics.RetrieveAPIView):
@@ -248,17 +253,18 @@ class EditCategoryAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_category = self.get_object()
-        category = serializer.save()
-        logger.debug(f"Category({previous_category}) updated.")
+        with transaction.atomic():
+            previous_category = self.get_object()
+            category = serializer.save()
+            logger.debug(f"Category({previous_category}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Category({previous_category.category_name}): {previous_category.category_name} → {category.category_name}) created."
+            )
 
 
 class DeleteCategoryAPIView(generics.DestroyAPIView):
@@ -269,17 +275,18 @@ class DeleteCategoryAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        category = instance.category_name
-        instance.delete()
-        logger.debug(f"Category({instance}) deleted.")
+        with transaction.atomic():
+            category = instance.category_name
+            instance.delete()
+            logger.debug(f"Category({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Category({category}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Category({category}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Category({category}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Category({category}) was deleted by {self.request.user}) created."
+            )
 
 
 # * GRADE
@@ -300,16 +307,17 @@ class CreateGradeAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.grade = serializer.save()
-        logger.debug(f"Grade({self.grade}) created.")
+        with transaction.atomic():
+            self.grade = serializer.save()
+            logger.debug(f"Grade({self.grade}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Grade({self.grade.grade_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Grade({self.grade.grade_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Grade({self.grade.grade_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Grade({self.grade.grade_name}) created."
+            )
 
 
 class RetrieveGradeAPIView(generics.RetrieveAPIView):
@@ -348,20 +356,21 @@ class EditGradeAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_grade = self.get_object()
-        self.grade = serializer.save()
-        logger.debug(f"Grade({previous_grade}) updated.")
+        with transaction.atomic():
+            previous_grade = self.get_object()
+            self.grade = serializer.save()
+            logger.debug(f"Grade({previous_grade}) updated.")
 
-        changes = utils.grade_record_changes(previous_grade, self.grade)
+            changes = utils.grade_record_changes(previous_grade, self.grade)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Grade({previous_grade.grade_name}): {changes}",
-            )
-            logger.debug(
-                f"Activity feed({self.request.user} updated Grade({previous_grade.grade_name}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Grade({previous_grade.grade_name}): {changes}",
+                )
+                logger.debug(
+                    f"Activity feed({self.request.user} updated Grade({previous_grade.grade_name}): {changes}) created."
+                )
 
 
 class DeleteGradeAPIView(generics.DestroyAPIView):
@@ -372,17 +381,18 @@ class DeleteGradeAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        grade = instance.grade_name
-        instance.delete()
-        logger.debug(f"Grade({instance}) deleted.")
+        with transaction.atomic():
+            grade = instance.grade_name
+            instance.delete()
+            logger.debug(f"Grade({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Grade({grade}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Grade({grade}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Grade({grade}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Grade({grade}) was deleted by {self.request.user}) created."
+            )
 
 
 # * UNITS
@@ -393,16 +403,17 @@ class CreateUnitAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        unit = serializer.save()
-        logger.debug(f"Unit({unit}) created.")
+        with transaction.atomic():
+            unit = serializer.save()
+            logger.debug(f"Unit({unit}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Unit({unit.unit_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Unit({unit.unit_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Unit({unit.unit_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Unit({unit.unit_name})) created."
+            )
 
 
 class RetrieveUnitAPIView(generics.RetrieveAPIView):
@@ -438,17 +449,18 @@ class EditUnitAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_unit = self.get_object()
-        unit = serializer.save()
-        logger.debug(f"Unit({previous_unit}) updated.")
+        with transaction.atomic():
+            previous_unit = self.get_object()
+            unit = serializer.save()
+            logger.debug(f"Unit({previous_unit}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Unit({previous_unit.unit_name}): {previous_unit.unit_name} → {unit.unit_name}) created."
+            )
 
 
 class DeleteUnitAPIView(generics.DestroyAPIView):
@@ -459,17 +471,18 @@ class DeleteUnitAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        unit = instance.unit_name
-        instance.delete()
-        logger.debug(f"Unit({unit}) deleted.")
+        with transaction.atomic():
+            unit = instance.unit_name
+            instance.delete()
+            logger.debug(f"Unit({unit}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Unit({unit}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Unit({unit}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Unit({unit}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Unit({unit}) was deleted by {self.request.user}) created."
+            )
 
 
 # * GENDER
@@ -480,16 +493,17 @@ class CreateGenderAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        gender = serializer.save()
-        logger.debug(f"Gender({gender}) created.")
+        with transaction.atomic():
+            gender = serializer.save()
+            logger.debug(f"Gender({gender}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Gender({gender.sex})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Gender({gender.sex})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Gender({gender.sex})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Gender({gender.sex})) created."
+            )
 
 
 class RetrieveGenderAPIView(generics.RetrieveAPIView):
@@ -515,17 +529,18 @@ class EditGenderAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_gender = self.get_object()
-        gender = serializer.save()
-        logger.debug(f"Gender({previous_gender}) updated.")
+        with transaction.atomic():
+            previous_gender = self.get_object()
+            gender = serializer.save()
+            logger.debug(f"Gender({previous_gender}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Gender({previous_gender.sex}): {previous_gender.sex} → {gender.sex}) created."
+            )
 
 
 class DeleteGenderAPIView(generics.DestroyAPIView):
@@ -536,17 +551,18 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        gender = instance.sex
-        instance.delete()
-        logger.debug(f"Gender({gender}) deleted.")
+        with transaction.atomic():
+            gender = instance.sex
+            instance.delete()
+            logger.debug(f"Gender({gender}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Gender({gender}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Gender({gender}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Gender({gender}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Gender({gender}) was deleted by {self.request.user}) created."
+            )
 
 
 class TotalMaleAndFemaleAPIView(APIView):
@@ -566,16 +582,17 @@ class CreateMaritalStatusAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        marital_status = serializer.save()
-        logger.debug(f"Marital Status({marital_status}) created.")
+        with transaction.atomic():
+            marital_status = serializer.save()
+            logger.debug(f"Marital Status({marital_status}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Marital Status({marital_status.marital_status_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Marital Status({marital_status.marital_status_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Marital Status({marital_status.marital_status_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Marital Status({marital_status.marital_status_name})) created."
+            )
 
 
 class RetrieveMaritalStatusAPIView(generics.RetrieveAPIView):
@@ -601,17 +618,18 @@ class EditMaritalStatusAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_marital_status = self.get_object()
-        marital_status = serializer.save()
-        logger.debug(f"Marital Status({previous_marital_status}) updated.")
+        with transaction.atomic():
+            previous_marital_status = self.get_object()
+            marital_status = serializer.save()
+            logger.debug(f"Marital Status({previous_marital_status}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Marital Status({previous_marital_status.marital_status_name}): {previous_marital_status.marital_status_name} → {marital_status.marital_status_name}) created."
+            )
 
 
 class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
@@ -622,17 +640,18 @@ class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        marital_status = instance.marital_status_name
-        instance.delete()
-        logger.debug(f"Marital Status({marital_status}) deleted.")
+        with transaction.atomic():
+            marital_status = instance.marital_status_name
+            instance.delete()
+            logger.debug(f"Marital Status({marital_status}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Marital Status({marital_status}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Marital Status({marital_status}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Marital Status({marital_status}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Marital Status({marital_status}) was deleted by {self.request.user}) created."
+            )
 
 
 # * REGION
@@ -643,16 +662,17 @@ class CreateRegionAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        region = serializer.save()
-        logger.debug(f"Region({region}) created.")
+        with transaction.atomic():
+            region = serializer.save()
+            logger.debug(f"Region({region}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Region({region.region_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Region({region.region_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Region({region.region_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Region({region.region_name})) created."
+            )
 
 
 class RetrieveRegionAPIView(generics.RetrieveAPIView):
@@ -678,17 +698,18 @@ class EditRegionAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_region = self.get_object()
-        region = serializer.save()
-        logger.debug(f"Region({region}) updated.")
+        with transaction.atomic():
+            previous_region = self.get_object()
+            region = serializer.save()
+            logger.debug(f"Region({region}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Region({previous_region.region_name}): {previous_region.region_name} → {region.region_name}) created."
+            )
 
 
 class DeleteRegionAPIView(generics.DestroyAPIView):
@@ -699,17 +720,18 @@ class DeleteRegionAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        region = instance.region_name
-        instance.delete()
-        logger.debug(f"Region({region}) deleted.")
+        with transaction.atomic():
+            region = instance.region_name
+            instance.delete()
+            logger.debug(f"Region({region}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Region({region}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Region({region}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Region({region}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Region({region}) was deleted by {self.request.user}) created."
+            )
 
 
 # * RELIGION
@@ -720,16 +742,17 @@ class CreateReligionAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        religion = serializer.save()
-        logger.debug(f"Religion({religion}) created.")
+        with transaction.atomic():
+            religion = serializer.save()
+            logger.debug(f"Religion({religion}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Religion({religion.religion_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Religion({religion.religion_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Religion({religion.religion_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Religion({religion.religion_name})) created."
+            )
 
 
 class RetrieveReligionAPIView(generics.RetrieveAPIView):
@@ -755,17 +778,18 @@ class EditReligionAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_religion = self.get_object()
-        religion = serializer.save()
-        logger.debug(f"Religion({previous_religion}) updated.")
+        with transaction.atomic():
+            previous_religion = self.get_object()
+            religion = serializer.save()
+            logger.debug(f"Religion({previous_religion}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Religion({previous_religion.religion_name}): {previous_religion.religion_name} → {religion.religion_name}) created."
+            )
 
 
 class DeleteReligionAPIView(generics.DestroyAPIView):
@@ -776,17 +800,18 @@ class DeleteReligionAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        religion = instance.religion_name
-        instance.delete()
-        logger.debug(f"Religion({religion}) deleted.")
+        with transaction.atomic():
+            religion = instance.religion_name
+            instance.delete()
+            logger.debug(f"Religion({religion}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Religion({religion}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Religion({religion}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Religion({religion}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Religion({religion}) was deleted by {self.request.user}) created."
+            )
 
 
 # * STRUCTURE
@@ -797,16 +822,17 @@ class CreateStructureAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        structure = serializer.save()
-        logger.debug(f"Structure({structure}) created.")
+        with transaction.atomic():
+            structure = serializer.save()
+            logger.debug(f"Structure({structure}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Structure({structure.structure_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Structure({structure.structure_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Structure({structure.structure_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Structure({structure.structure_name})) created."
+            )
 
 
 class RetrieveStructureAPIView(generics.RetrieveAPIView):
@@ -832,17 +858,18 @@ class EditStructureAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_structure = self.get_object()
-        structure = serializer.save()
-        logger.debug(f"Structure({previous_structure}) updated.")
+        with transaction.atomic():
+            previous_structure = self.get_object()
+            structure = serializer.save()
+            logger.debug(f"Structure({previous_structure}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Structure({previous_structure.structure_name}): {previous_structure.structure_name} → {structure.structure_name}) created."
+            )
 
 
 class DeleteStructureAPIView(generics.DestroyAPIView):
@@ -853,17 +880,18 @@ class DeleteStructureAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        structure = instance.structure_name
-        instance.delete()
-        logger.debug(f"Structure({structure}) deleted.")
+        with transaction.atomic():
+            structure = instance.structure_name
+            instance.delete()
+            logger.debug(f"Structure({structure}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Structure({structure}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Structure({structure}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Structure({structure}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Structure({structure}) was deleted by {self.request.user}) created."
+            )
 
 
 # * BLOOD GROUP
@@ -874,16 +902,17 @@ class CreateBloodGroupAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        blood_group = serializer.save()
-        logger.debug(f"Blood Group({blood_group}) created.")
+        with transaction.atomic():
+            blood_group = serializer.save()
+            logger.debug(f"Blood Group({blood_group}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Blood Group({blood_group.blood_group_name})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Blood Group({blood_group.blood_group_name})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Blood Group({blood_group.blood_group_name})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Blood Group({blood_group.blood_group_name})) created."
+            )
 
 
 class RetrieveBloodGroupAPIView(generics.RetrieveAPIView):
@@ -909,17 +938,18 @@ class EditBloodGroupAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_blood_group = self.get_object()
-        blood_group = serializer.save()
-        logger.debug(f"Blood Group({previous_blood_group}) updated.")
+        with transaction.atomic():
+            previous_blood_group = self.get_object()
+            blood_group = serializer.save()
+            logger.debug(f"Blood Group({previous_blood_group}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Blood Group({previous_blood_group.blood_group_name}): {previous_blood_group.blood_group_name} → {blood_group.blood_group_name}) created."
+            )
 
 
 class DeleteBloodGroupAPIView(generics.DestroyAPIView):
@@ -930,17 +960,18 @@ class DeleteBloodGroupAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        blood_group = instance.blood_group_name
-        instance.delete()
-        logger.debug(f"Blood Group({blood_group}) deleted.")
+        with transaction.atomic():
+            blood_group = instance.blood_group_name
+            instance.delete()
+            logger.debug(f"Blood Group({blood_group}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Blood Group({blood_group}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Blood Group({blood_group}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Blood Group({blood_group}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Blood Group({blood_group}) was deleted by {self.request.user}) created."
+            )
 
 
 # * DOCUMENT FILE
@@ -951,16 +982,17 @@ class CreateDocumentFileAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        document_file = serializer.save()
-        logger.debug(f"Document File({document_file}) created.")
+        with transaction.atomic():
+            document_file = serializer.save()
+            logger.debug(f"Document File({document_file}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Document File({document_file.file_data})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Document File({document_file.file_data})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Document File({document_file.file_data})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Document File({document_file.file_data})) created."
+            )
 
 
 class RetrieveDocumentFileAPIView(generics.RetrieveAPIView):
@@ -986,17 +1018,18 @@ class EditDocumentFileAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_document_file = self.get_object()
-        document_file = serializer.save()
-        logger.debug(f"Document File({previous_document_file}) updated.")
+        with transaction.atomic():
+            previous_document_file = self.get_object()
+            document_file = serializer.save()
+            logger.debug(f"Document File({previous_document_file}) updated.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Document File({previous_document_file.file_data}): {previous_document_file.file_data} → {document_file.file_data}) created."
+            )
 
 
 class DeleteDocumentFileAPIView(generics.DestroyAPIView):
@@ -1007,17 +1040,18 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        document_file = instance.file_data
-        instance.delete()
-        logger.debug(f"Document File({document_file}) deleted.")
+        with transaction.atomic():
+            document_file = instance.file_data
+            instance.delete()
+            logger.debug(f"Document File({document_file}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Document File({document_file}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Document File({document_file}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Document File({document_file}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Document File({document_file}) was deleted by {self.request.user}) created."
+            )
 
 
 # * UNREGISTERED EMPLOYEES
@@ -1036,21 +1070,22 @@ class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.employee = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Unregistered Employee({self.employee}) created.")
+        with transaction.atomic():
+            self.employee = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Unregistered Employee({self.employee}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Incomplete Employee Record(ID: {self.employee.id})) created."
+            )
 
-        # Flag created record
-        create_flag(self.employee, self.request.user)
+            # Flag created record
+            create_flag(self.employee, self.request.user)
 
 
 class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
@@ -1091,21 +1126,22 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_employee = self.get_object()
-        self.employee = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Unregistered Employee({previous_employee}) updated.")
+        with transaction.atomic():
+            previous_employee = self.get_object()
+            self.employee = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Unregistered Employee({previous_employee}) updated.")
 
-        changes = utils.unregistered_employee_record_changes(
-            previous_employee, self.employee
-        )
+            changes = utils.unregistered_employee_record_changes(
+                previous_employee, self.employee
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Incomplete Employee Record(ID: {self.employee.id}): {changes}) created."
+            )
 
 
 class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
@@ -1116,17 +1152,18 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        employee_id = instance.id
-        instance.delete()
-        logger.debug(f"Unregistered Employee({instance}) deleted.")
+        with transaction.atomic():
+            employee_id = instance.id
+            instance.delete()
+            logger.debug(f"Unregistered Employee({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Incomplete Employee Record(ID: {employee_id}) was deleted by {self.request.user}) created."
+            )
 
-        # Delete associated flags
-        delete_flag(instance, employee_id, self.request.user)
+            # Delete associated flags
+            delete_flag(instance, employee_id, self.request.user)

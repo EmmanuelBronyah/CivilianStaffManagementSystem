@@ -13,6 +13,7 @@ from flags.services import create_flag, delete_flag
 from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -37,20 +38,21 @@ class CreateTerminationOfAppointmentAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.termination_of_appointment = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(
-            f"Termination Of Appointment({self.termination_of_appointment}) created."
-        )
+        with transaction.atomic():
+            self.termination_of_appointment = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(
+                f"Termination Of Appointment({self.termination_of_appointment}) created."
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Termination Of Appointment(Service ID: {self.termination_of_appointment.employee.service_id} — Cause: {self.termination_of_appointment.cause})) created."
+            )
 
 
 class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
@@ -75,26 +77,28 @@ class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_termination_of_appointment = self.get_object()
-        self.termination_of_appointment_update = serializer.save(
-            updated_by=self.request.user
-        )
-        logger.debug(
-            f"Termination Of Appointment({previous_termination_of_appointment}) updated."
-        )
-
-        changes = utils.termination_of_appointment_changes(
-            previous_termination_of_appointment, self.termination_of_appointment_update
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}",
+        with transaction.atomic():
+            previous_termination_of_appointment = self.get_object()
+            self.termination_of_appointment_update = serializer.save(
+                updated_by=self.request.user
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}) created."
+                f"Termination Of Appointment({previous_termination_of_appointment}) updated."
             )
+
+            changes = utils.termination_of_appointment_changes(
+                previous_termination_of_appointment,
+                self.termination_of_appointment_update,
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Termination Of Appointment(Service ID: {previous_termination_of_appointment.employee.service_id} — Cause: {previous_termination_of_appointment.cause}): {changes}) created."
+                )
 
 
 class ListEmployeeTerminationOfAppointmentAPIView(generics.ListAPIView):
@@ -129,16 +133,17 @@ class DeleteTerminationOfAppointmentAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Termination Of Appointment({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Termination Of Appointment({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Termination Of Appointment(Service ID: {instance.employee.service_id} — Status: {instance.cause}) was deleted by {self.request.user}) created."
+            )
 
 
 # * CAUSES OF TERMINATION
@@ -149,16 +154,17 @@ class CreateCausesOfTerminationAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
-        causes_of_termination = serializer.save()
-        logger.debug(f"Causes Of Termination({causes_of_termination}) created.")
+        with transaction.atomic():
+            causes_of_termination = serializer.save()
+            logger.debug(f"Causes Of Termination({causes_of_termination}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Causes Of Termination({causes_of_termination.termination_cause}) created."
+            )
 
 
 class EditCausesOfTerminationAPIView(generics.UpdateAPIView):
@@ -169,24 +175,25 @@ class EditCausesOfTerminationAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
-        previous_causes_of_termination = self.get_object()
-        causes_of_termination_update = serializer.save()
-        logger.debug(
-            f"Causes Of Termination({previous_causes_of_termination}) updated."
-        )
-
-        changes = utils.causes_of_termination_changes(
-            previous_causes_of_termination, causes_of_termination_update
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}",
-            )
+        with transaction.atomic():
+            previous_causes_of_termination = self.get_object()
+            causes_of_termination_update = serializer.save()
             logger.debug(
-                f"Activity Feed({self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}) created."
+                f"Causes Of Termination({previous_causes_of_termination}) updated."
             )
+
+            changes = utils.causes_of_termination_changes(
+                previous_causes_of_termination, causes_of_termination_update
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Causes Of Termination({previous_causes_of_termination.termination_cause}): {changes}) created."
+                )
 
 
 class ListCausesOfTerminationAPIView(generics.ListAPIView):
@@ -212,16 +219,17 @@ class DeleteCausesOfTerminationAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Causes Of Termination({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Causes Of Termination({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Causes Of Termination({instance.termination_cause}) was deleted by {self.request.user}) created."
+            )
 
 
 # * TERMINATION STATUS
@@ -232,16 +240,17 @@ class CreateTerminationStatusAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
-        termination_status = serializer.save()
-        logger.debug(f"Termination Status({termination_status}) created.")
+        with transaction.atomic():
+            termination_status = serializer.save()
+            logger.debug(f"Termination Status({termination_status}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Termination Status({termination_status.termination_status})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Termination Status({termination_status.termination_status})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Termination Status({termination_status.termination_status})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Termination Status({termination_status.termination_status})) created."
+            )
 
 
 class EditTerminationStatusAPIView(generics.UpdateAPIView):
@@ -252,22 +261,23 @@ class EditTerminationStatusAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
-        previous_termination_status = self.get_object()
-        termination_status_update = serializer.save()
-        logger.debug(f"Termination Status({previous_termination_status}) updated.")
+        with transaction.atomic():
+            previous_termination_status = self.get_object()
+            termination_status_update = serializer.save()
+            logger.debug(f"Termination Status({previous_termination_status}) updated.")
 
-        changes = utils.termination_status_changes(
-            previous_termination_status, termination_status_update
-        )
+            changes = utils.termination_status_changes(
+                previous_termination_status, termination_status_update
+            )
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Termination Status({previous_termination_status.termination_status}): {changes}) created."
+                )
 
 
 class ListTerminationStatusAPIView(generics.ListAPIView):
@@ -293,16 +303,17 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Termination(Status {instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Termination(Status {instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Termination Status({instance.termination_status}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Termination Status({instance.termination_status}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Termination Status({instance.termination_status}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Termination Status({instance.termination_status}) was deleted by {self.request.user}) created."
+            )
 
 
 # INCOMPLETE TERMINATION OF APPOINTMENT
@@ -323,23 +334,24 @@ class CreateIncompleteTerminationOfAppointmentRecordsAPIView(generics.CreateAPIV
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.termination = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(
-            f"Incomplete Termination Of Appointment({self.termination}) created."
-        )
+        with transaction.atomic():
+            self.termination = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(
+                f"Incomplete Termination Of Appointment({self.termination}) created."
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Incomplete Termination Of Appointment(ID: {self.termination.id})) created."
+            )
 
-        # Flag created record
-        create_flag(self.termination, self.request.user)
+            # Flag created record
+            create_flag(self.termination, self.request.user)
 
 
 class RetrieveIncompleteTerminationOfAppointmentRecordsAPIView(
@@ -402,24 +414,25 @@ class EditIncompleteTerminationOfAppointmentRecordsAPIView(generics.UpdateAPIVie
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_termination = self.get_object()
-        self.termination = serializer.save(updated_by=self.request.user)
-        logger.debug(
-            f"Incomplete Termination Of Appointment({previous_termination}) updated."
-        )
-
-        changes = utils.incomplete_termination_of_appointment_changes(
-            previous_termination, self.termination
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}",
-            )
+        with transaction.atomic():
+            previous_termination = self.get_object()
+            self.termination = serializer.save(updated_by=self.request.user)
             logger.debug(
-                f"Activity feed({self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}) created."
+                f"Incomplete Termination Of Appointment({previous_termination}) updated."
             )
+
+            changes = utils.incomplete_termination_of_appointment_changes(
+                previous_termination, self.termination
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}",
+                )
+                logger.debug(
+                    f"Activity feed({self.request.user} updated Incomplete Termination Of Appointment(ID: {self.termination.id}): {changes}) created."
+                )
 
 
 class DeleteIncompleteTerminationOfAppointmentRecordsAPIView(generics.DestroyAPIView):
@@ -430,17 +443,18 @@ class DeleteIncompleteTerminationOfAppointmentRecordsAPIView(generics.DestroyAPI
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        termination_id = instance.id
-        instance.delete()
-        logger.debug(f"Incomplete Termination Of Appointment({instance}) deleted.")
+        with transaction.atomic():
+            termination_id = instance.id
+            instance.delete()
+            logger.debug(f"Incomplete Termination Of Appointment({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Incomplete Termination Of Appointment(ID: {termination_id}) was deleted by {self.request.user}) created."
+            )
 
-        # Delete associated flags
-        delete_flag(instance, termination_id, self.request.user)
+            # Delete associated flags
+            delete_flag(instance, termination_id, self.request.user)

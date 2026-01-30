@@ -11,6 +11,7 @@ from employees.models import Employee
 from .utils import absences_changes
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -37,33 +38,34 @@ class CreateAbsencesAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.absences = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        records = (
-            ", ".join([str(record) for record in self.absences])
-            if isinstance(self.absences, list)
-            else self.absences
-        )
-        logger.debug(f"Absences({records}) created.")
+        with transaction.atomic():
+            self.absences = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            records = (
+                ", ".join([str(record) for record in self.absences])
+                if isinstance(self.absences, list)
+                else self.absences
+            )
+            logger.debug(f"Absences({records}) created.")
 
-        if isinstance(self.absences, list):
-            for record in self.absences:
+            if isinstance(self.absences, list):
+                for record in self.absences:
+                    ActivityFeeds.objects.create(
+                        creator=self.request.user,
+                        activity=f"{self.request.user} added a new Absences({record.absence})",
+                    )
+                    logger.debug(
+                        f"Activity Feed({self.request.user} added a new Absences({record.absence})) created."
+                    )
+            else:
                 ActivityFeeds.objects.create(
                     creator=self.request.user,
-                    activity=f"{self.request.user} added a new Absences({record.absence})",
+                    activity=f"{self.request.user} added a new Absences({self.absences.absence})",
                 )
                 logger.debug(
-                    f"Activity Feed({self.request.user} added a new Absences({record.absence})) created."
+                    f"Activity Feed({self.request.user} added a new Absences({self.absences.absence})) created."
                 )
-        else:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} added a new Absences({self.absences.absence})",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} added a new Absences({self.absences.absence})) created."
-            )
 
 
 class EditAbsencesAPIView(generics.UpdateAPIView):
@@ -86,20 +88,21 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_absences = self.get_object()
-        self.absences_update = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Absences({previous_absences}) updated.")
+        with transaction.atomic():
+            previous_absences = self.get_object()
+            self.absences_update = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Absences({previous_absences}) updated.")
 
-        changes = absences_changes(previous_absences, self.absences_update)
+            changes = absences_changes(previous_absences, self.absences_update)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Absences({previous_absences.absence}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Absences({previous_absences.absence}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Absences({previous_absences.absence}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Absences({previous_absences.absence}): {changes}) created."
+                )
 
 
 class ListEmployeeAbsencesAPIView(generics.ListAPIView):
@@ -130,13 +133,14 @@ class DeleteAbsencesAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Absences({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Absences({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Absences({instance.absence}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Absences({instance.absence}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Absences({instance.absence}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Absences({instance.absence}) was deleted by {self.request.user}) created."
+            )

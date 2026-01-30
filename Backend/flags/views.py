@@ -8,6 +8,7 @@ from activity_feeds.models import ActivityFeeds
 from employees.permissions import IsAdminUserOrStandardUser
 from employees.views import LargeResultsSetPagination
 from .utils import generate_changes_text
+from django.db import transaction
 
 
 logger = logging.getLogger(__name__)
@@ -30,35 +31,36 @@ class CreateFlagsAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.flag = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
+        with transaction.atomic():
+            self.flag = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
 
-        logger.debug(f"Flags({self.flag}) created.")
+            logger.debug(f"Flags({self.flag}) created.")
 
-        model_name = self.flag.content_type.name.capitalize()
+            model_name = self.flag.content_type.name.capitalize()
 
-        flagged_field_text = (
-            f" — Flagged Field: {self.flag.field.replace('_', ' ').capitalize()}"
-            if self.flag.field
-            else ""
-        )
+            flagged_field_text = (
+                f" — Flagged Field: {self.flag.field.replace('_', ' ').capitalize()}"
+                if self.flag.field
+                else ""
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=(
-                f"{model_name.replace('_', ' ').capitalize()} was flagged by {self.request.user}: "
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=(
+                    f"{model_name.replace('_', ' ').capitalize()} was flagged by {self.request.user}: "
+                    f"Flag Type: {self.flag.flag_type.flag_type}"
+                    f"{flagged_field_text}"
+                    f" — Reason: {self.flag.reason}"
+                ),
+            )
+            logger.debug(
+                f"Activity feed({model_name.replace('_', ' ').capitalize()} was flagged by {self.request.user}: "
                 f"Flag Type: {self.flag.flag_type.flag_type}"
                 f"{flagged_field_text}"
                 f" — Reason: {self.flag.reason}"
-            ),
-        )
-        logger.debug(
-            f"Activity feed({model_name.replace('_', ' ').capitalize()} was flagged by {self.request.user}: "
-            f"Flag Type: {self.flag.flag_type.flag_type}"
-            f"{flagged_field_text}"
-            f" — Reason: {self.flag.reason}"
-        )
+            )
 
 
 class RetrieveFlagAPIView(generics.RetrieveAPIView):
@@ -101,17 +103,22 @@ class EditFlagsAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_flag = self.get_object()
-        self.flag = serializer.save()
-        logger.debug(f"Flags({previous_flag}) updated.")
+        with transaction.atomic():
+            previous_flag = self.get_object()
+            self.flag = serializer.save()
+            logger.debug(f"Flags({previous_flag}) updated.")
 
-        model_name = self.flag.content_type.name.capitalize()
-        user = self.request.user
+            model_name = self.flag.content_type.name.capitalize()
+            user = self.request.user
 
-        changes_text = generate_changes_text(model_name, user, previous_flag, self.flag)
+            changes_text = generate_changes_text(
+                model_name, user, previous_flag, self.flag
+            )
 
-        ActivityFeeds.objects.create(creator=self.request.user, activity=changes_text)
-        logger.debug(f"Activity feed({changes_text})")
+            ActivityFeeds.objects.create(
+                creator=self.request.user, activity=changes_text
+            )
+            logger.debug(f"Activity feed({changes_text})")
 
 
 class DeleteFlagsAPIView(generics.DestroyAPIView):
@@ -122,17 +129,18 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        model_name = instance.content_type.name.capitalize()
-        instance.delete()
-        logger.debug(f"Flags({instance}) deleted.")
+        with transaction.atomic():
+            model_name = instance.content_type.name.capitalize()
+            instance.delete()
+            logger.debug(f"Flags({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
-        )
-        logger.debug(
-            f"Activity feed({model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}",
+            )
+            logger.debug(
+                f"Activity feed({model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
+            )
 
 
 # FLAG TYPE
@@ -143,16 +151,17 @@ class CreateFlagTypeAPIView(generics.CreateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
-        flag_type = serializer.save()
-        logger.debug(f"Flag Type({flag_type}) created.")
+        with transaction.atomic():
+            flag_type = serializer.save()
+            logger.debug(f"Flag Type({flag_type}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Flag Type({flag_type.flag_type})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Flag Type({flag_type.flag_type}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Flag Type({flag_type.flag_type})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Flag Type({flag_type.flag_type}) created."
+            )
 
 
 class RetrieveFlagTypeAPIView(generics.RetrieveAPIView):
@@ -179,20 +188,21 @@ class EditFlagTypeAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
-        previous_flag_type = self.get_object()
-        flag_type = serializer.save()
-        logger.debug(f"Flag Type({previous_flag_type}) updated.")
+        with transaction.atomic():
+            previous_flag_type = self.get_object()
+            flag_type = serializer.save()
+            logger.debug(f"Flag Type({previous_flag_type}) updated.")
 
-        changes = str(previous_flag_type.flag_type) != str(flag_type.flag_type)
+            changes = str(previous_flag_type.flag_type) != str(flag_type.flag_type)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}",
-            )
-            logger.debug(
-                f"Activity feed({self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}",
+                )
+                logger.debug(
+                    f"Activity feed({self.request.user} updated Flag Type({previous_flag_type.flag_type}): {previous_flag_type.flag_type} → {flag_type.flag_type}) created."
+                )
 
 
 class DeleteFlagTypeAPIView(generics.DestroyAPIView):
@@ -203,14 +213,15 @@ class DeleteFlagTypeAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        flag_type = instance.flag_type
-        instance.delete()
-        logger.debug(f"Flag Type({instance}) deleted.")
+        with transaction.atomic():
+            flag_type = instance.flag_type
+            instance.delete()
+            logger.debug(f"Flag Type({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Flag Type({flag_type}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Flag Type({flag_type}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Flag Type({flag_type}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Flag Type({flag_type}) was deleted by {self.request.user}) created."
+            )

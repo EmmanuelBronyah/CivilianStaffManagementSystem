@@ -11,6 +11,7 @@ from employees.models import Employee
 from .utils import next_of_kin_record_changes
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -34,18 +35,19 @@ class CreateNextOfKinAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.next_of_kin = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Next Of Kin({self.next_of_kin}) created.")
+        with transaction.atomic():
+            self.next_of_kin = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Next Of Kin({self.next_of_kin}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Next Of Kin(Name: {self.next_of_kin.name} — Relation: {self.next_of_kin.relation})) created."
+            )
 
 
 class EditNextOfKinAPIView(generics.UpdateAPIView):
@@ -70,22 +72,23 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_next_of_kin = self.get_object()
-        self.next_of_kin_update = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Next Of Kin({previous_next_of_kin}) updated.")
+        with transaction.atomic():
+            previous_next_of_kin = self.get_object()
+            self.next_of_kin_update = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Next Of Kin({previous_next_of_kin}) updated.")
 
-        changes = next_of_kin_record_changes(
-            previous_next_of_kin, self.next_of_kin_update
-        )
+            changes = next_of_kin_record_changes(
+                previous_next_of_kin, self.next_of_kin_update
+            )
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Next Of Kin(Name: {previous_next_of_kin.name} — Relation: {previous_next_of_kin.relation}): {changes}) created."
+                )
 
 
 class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
@@ -116,13 +119,14 @@ class DeleteNextOfKinAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Next Of Kin({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Next Of Kin({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}) created."
+            )

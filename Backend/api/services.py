@@ -4,16 +4,19 @@ import logging
 from celery import shared_task
 from django_otp.plugins.otp_email.models import EmailDevice
 
+
 logger = logging.getLogger(__name__)
 
 
 @network_retry()
 def cache_temp_token(temp_token, user_id):
+    logger.debug("Set Temporary token in cache.")
     cache.set(temp_token, user_id, timeout=300)
 
 
 @network_retry()
 def get_temp_token(temp_token):
+    logger.debug("Retrieving Temporary token from cache.")
     return cache.get(temp_token)
 
 

@@ -17,6 +17,7 @@ from flags.services import create_flag, delete_flag
 from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -41,18 +42,19 @@ class CreateServiceWithForcesAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.service_with_forces = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Service With Forces({self.service_with_forces}) created.")
+        with transaction.atomic():
+            self.service_with_forces = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Service With Forces({self.service_with_forces}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Service With Forces(Service Date: {self.service_with_forces.service_date} — Last Unit: {self.service_with_forces.last_unit})) created."
+            )
 
 
 class EditServiceWithForcesAPIView(generics.UpdateAPIView):
@@ -77,22 +79,27 @@ class EditServiceWithForcesAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        pervious_service_with_forces = self.get_object()
-        self.service_with_forces_update = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Service With Forces({pervious_service_with_forces}) updated.")
-
-        changes = service_with_forces_changes(
-            pervious_service_with_forces, self.service_with_forces_update
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}",
+        with transaction.atomic():
+            pervious_service_with_forces = self.get_object()
+            self.service_with_forces_update = serializer.save(
+                updated_by=self.request.user
             )
             logger.debug(
-                f"Activity Feed({self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}) created."
+                f"Service With Forces({pervious_service_with_forces}) updated."
             )
+
+            changes = service_with_forces_changes(
+                pervious_service_with_forces, self.service_with_forces_update
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Service With Forces(Service Date: {pervious_service_with_forces.service_date} — Last Unit: {pervious_service_with_forces.last_unit}): {changes}) created."
+                )
 
 
 class ListEmployeeServiceWithForcesAPIView(generics.ListAPIView):
@@ -127,16 +134,17 @@ class DeleteServiceWithForcesAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Service With Forces({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Service With Forces({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Service With Forces(Service Date: {instance.service_date} — Last Unit: {instance.last_unit}) was deleted by {self.request.user}) created."
+            )
 
 
 # * MILITARY RANKS
@@ -147,16 +155,17 @@ class CreateMilitaryRanksAPIView(generics.CreateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
-        military_rank = serializer.save()
-        logger.debug(f"Military Rank({military_rank}) created.")
+        with transaction.atomic():
+            military_rank = serializer.save()
+            logger.debug(f"Military Rank({military_rank}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Military Rank({military_rank.rank})",
-        )
-        logger.debug(
-            f"Activity Feed({self.request.user} added a new Military Rank({military_rank.rank})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Military Rank({military_rank.rank})",
+            )
+            logger.debug(
+                f"Activity Feed({self.request.user} added a new Military Rank({military_rank.rank})) created."
+            )
 
 
 class EditMilitaryRanksAPIView(generics.UpdateAPIView):
@@ -167,20 +176,23 @@ class EditMilitaryRanksAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
-        previous_military_rank = self.get_object()
-        military_rank_update = serializer.save()
-        logger.debug(f"Military Rank({previous_military_rank}) updated.")
+        with transaction.atomic():
+            previous_military_rank = self.get_object()
+            military_rank_update = serializer.save()
+            logger.debug(f"Military Rank({previous_military_rank}) updated.")
 
-        changes = military_rank_changes(previous_military_rank, military_rank_update)
+            changes = military_rank_changes(
+                previous_military_rank, military_rank_update
+            )
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Military Rank({previous_military_rank.rank}): {changes}) created."
+                )
 
 
 class ListMilitaryRanksAPIView(generics.ListAPIView):
@@ -206,16 +218,17 @@ class DeleteMilitaryRanksAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Military Rank({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Military Rank({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Military Rank({instance.rank}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Military Rank({instance.rank}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Military Rank({instance.rank}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Military Rank({instance.rank}) was deleted by {self.request.user}) created."
+            )
 
 
 # INCOMPLETE SERVICE WITH FORCES
@@ -236,23 +249,24 @@ class CreateIncompleteServiceWithForcesRecordsAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.service_with_forces = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(
-            f"Incomplete Service With Forces({self.service_with_forces}) created."
-        )
+        with transaction.atomic():
+            self.service_with_forces = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(
+                f"Incomplete Service With Forces({self.service_with_forces}) created."
+            )
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Service With Forces(ID: {self.service_with_forces.id})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Service With Forces(ID: {self.service_with_forces.id})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Incomplete Service With Forces(ID: {self.service_with_forces.id})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Incomplete Service With Forces(ID: {self.service_with_forces.id})) created."
+            )
 
-        # Flag created record
-        create_flag(self.service_with_forces, self.request.user)
+            # Flag created record
+            create_flag(self.service_with_forces, self.request.user)
 
 
 class RetrieveIncompleteServiceWithForcesRecordsAPIView(generics.RetrieveAPIView):
@@ -311,24 +325,25 @@ class EditIncompleteServiceWithForcesRecordsAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_service_with_forces = self.get_object()
-        self.service_with_forces = serializer.save(updated_by=self.request.user)
-        logger.debug(
-            f"Incomplete Service With Forces({previous_service_with_forces}) updated."
-        )
-
-        changes = incomplete_service_with_forces_changes(
-            previous_service_with_forces, self.service_with_forces
-        )
-
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Incomplete Service With Forces(ID: {self.service_with_forces.id}): {changes}",
-            )
+        with transaction.atomic():
+            previous_service_with_forces = self.get_object()
+            self.service_with_forces = serializer.save(updated_by=self.request.user)
             logger.debug(
-                f"Activity feed({self.request.user} updated Incomplete Service With Forces(ID: {self.service_with_forces.id}): {changes}) created."
+                f"Incomplete Service With Forces({previous_service_with_forces}) updated."
             )
+
+            changes = incomplete_service_with_forces_changes(
+                previous_service_with_forces, self.service_with_forces
+            )
+
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Incomplete Service With Forces(ID: {self.service_with_forces.id}): {changes}",
+                )
+                logger.debug(
+                    f"Activity feed({self.request.user} updated Incomplete Service With Forces(ID: {self.service_with_forces.id}): {changes}) created."
+                )
 
 
 class DeleteIncompleteServiceWithForcesRecordsAPIView(generics.DestroyAPIView):
@@ -339,17 +354,18 @@ class DeleteIncompleteServiceWithForcesRecordsAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        service_with_forces_id = instance.id
-        instance.delete()
-        logger.debug(f"Incomplete Service With Forces({instance}) deleted.")
+        with transaction.atomic():
+            service_with_forces_id = instance.id
+            instance.delete()
+            logger.debug(f"Incomplete Service With Forces({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Incomplete Service With Forces(ID: {service_with_forces_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Incomplete Service With Forces(ID: {service_with_forces_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Incomplete Service With Forces(ID: {service_with_forces_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Incomplete Service With Forces(ID: {service_with_forces_id}) was deleted by {self.request.user}) created."
+            )
 
-        # Delete associated flags
-        delete_flag(instance, service_with_forces_id, self.request.user)
+            # Delete associated flags
+            delete_flag(instance, service_with_forces_id, self.request.user)

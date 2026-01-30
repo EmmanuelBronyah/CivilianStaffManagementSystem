@@ -13,6 +13,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from flags.services import create_flag, delete_flag
 from employees.views import LargeResultsSetPagination
+from django.db import transaction
 
 logger = logging.getLogger(__name__)
 
@@ -37,33 +38,34 @@ class CreateCourseAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.courses = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        records = (
-            ", ".join([str(record) for record in self.courses])
-            if isinstance(self.courses, list)
-            else self.courses
-        )
-        logger.debug(f"Courses({records}) created.")
+        with transaction.atomic():
+            self.courses = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            records = (
+                ", ".join([str(record) for record in self.courses])
+                if isinstance(self.courses, list)
+                else self.courses
+            )
+            logger.debug(f"Courses({records}) created.")
 
-        if isinstance(self.courses, list):
-            for record in self.courses:
+            if isinstance(self.courses, list):
+                for record in self.courses:
+                    ActivityFeeds.objects.create(
+                        creator=self.request.user,
+                        activity=f"{self.request.user} added a new Course({record.course_type})",
+                    )
+                    logger.debug(
+                        f"Activity Feed({self.request.user} added a new Course({record.course_type}) created."
+                    )
+            else:
                 ActivityFeeds.objects.create(
                     creator=self.request.user,
-                    activity=f"{self.request.user} added a new Course({record.course_type})",
+                    activity=f"{self.request.user} added a new Course({self.courses.course_type})",
                 )
                 logger.debug(
-                    f"Activity Feed({self.request.user} added a new Course({record.course_type}) created."
+                    f"Activity Feed({self.request.user} added a new Course({self.courses.course_type}) created."
                 )
-        else:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} added a new Course({self.courses.course_type})",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} added a new Course({self.courses.course_type}) created."
-            )
 
 
 class EditCourseAPIView(generics.UpdateAPIView):
@@ -86,20 +88,21 @@ class EditCourseAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_courses = self.get_object()
-        self.courses_update = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Courses({previous_courses}) updated.")
+        with transaction.atomic():
+            previous_courses = self.get_object()
+            self.courses_update = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Courses({previous_courses}) updated.")
 
-        changes = course_record_changes(previous_courses, self.courses_update)
+            changes = course_record_changes(previous_courses, self.courses_update)
 
-        if changes:
-            ActivityFeeds.objects.create(
-                creator=self.request.user,
-                activity=f"{self.request.user} updated Courses({previous_courses.course_type}): {changes}",
-            )
-            logger.debug(
-                f"Activity Feed({self.request.user} updated Courses({previous_courses.course_type}): {changes}) created."
-            )
+            if changes:
+                ActivityFeeds.objects.create(
+                    creator=self.request.user,
+                    activity=f"{self.request.user} updated Courses({previous_courses.course_type}): {changes}",
+                )
+                logger.debug(
+                    f"Activity Feed({self.request.user} updated Courses({previous_courses.course_type}): {changes}) created."
+                )
 
 
 class ListEmployeeCoursesAPIView(generics.ListAPIView):
@@ -130,16 +133,17 @@ class DeleteCourseAPIView(generics.DestroyAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
-        instance.delete()
-        logger.debug(f"Course({instance}) deleted.")
+        with transaction.atomic():
+            instance.delete()
+            logger.debug(f"Course({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Course({instance.course_type}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Course({instance.course_type}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Course({instance.course_type}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Course({instance.course_type}) was deleted by {self.request.user}) created."
+            )
 
 
 # * INCOMPLETE COURSES
@@ -158,21 +162,22 @@ class CreateIncompleteCourseRecordsAPIView(generics.CreateAPIView):
         return Response(read_serializer.data, status=status.HTTP_201_CREATED)
 
     def perform_create(self, serializer):
-        self.course = serializer.save(
-            created_by=self.request.user, updated_by=self.request.user
-        )
-        logger.debug(f"Incomplete Course Record({self.course}) created.")
+        with transaction.atomic():
+            self.course = serializer.save(
+                created_by=self.request.user, updated_by=self.request.user
+            )
+            logger.debug(f"Incomplete Course Record({self.course}) created.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} added a new Incomplete Course Record(ID: {self.course.id})",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} added a new Incomplete Course Record(ID: {self.course.id})) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} added a new Incomplete Course Record(ID: {self.course.id})",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} added a new Incomplete Course Record(ID: {self.course.id})) created."
+            )
 
-        # Flag created record
-        create_flag(self.course, self.request.user)
+            # Flag created record
+            create_flag(self.course, self.request.user)
 
 
 class RetrieveIncompleteCourseRecordsAPIView(generics.RetrieveAPIView):
@@ -227,19 +232,20 @@ class EditIncompleteCourseRecordsAPIView(generics.UpdateAPIView):
         return Response(read_serializer.data)
 
     def perform_update(self, serializer):
-        previous_course = self.get_object()
-        self.course = serializer.save(updated_by=self.request.user)
-        logger.debug(f"Incomplete Course Record({previous_course}) updated.")
+        with transaction.atomic():
+            previous_course = self.get_object()
+            self.course = serializer.save(updated_by=self.request.user)
+            logger.debug(f"Incomplete Course Record({previous_course}) updated.")
 
-        changes = incomplete_course_changes(previous_course, self.course)
+            changes = incomplete_course_changes(previous_course, self.course)
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"{self.request.user} updated Incomplete Course Record(ID: {self.course.id}): {changes}",
-        )
-        logger.debug(
-            f"Activity feed({self.request.user} updated Incomplete Course Record(ID: {self.course.id}): {changes}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"{self.request.user} updated Incomplete Course Record(ID: {self.course.id}): {changes}",
+            )
+            logger.debug(
+                f"Activity feed({self.request.user} updated Incomplete Course Record(ID: {self.course.id}): {changes}) created."
+            )
 
 
 class DeleteIncompleteCourseRecordsAPIView(generics.DestroyAPIView):
@@ -250,17 +256,18 @@ class DeleteIncompleteCourseRecordsAPIView(generics.DestroyAPIView):
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
-        course_id = instance.id
-        instance.delete()
-        logger.debug(f"Incomplete Course Record({instance}) deleted.")
+        with transaction.atomic():
+            course_id = instance.id
+            instance.delete()
+            logger.debug(f"Incomplete Course Record({instance}) deleted.")
 
-        ActivityFeeds.objects.create(
-            creator=self.request.user,
-            activity=f"The Incomplete Course Record(ID: {course_id}) was deleted by {self.request.user}",
-        )
-        logger.debug(
-            f"Activity feed(The Incomplete Course Record(ID: {course_id}) was deleted by {self.request.user}) created."
-        )
+            ActivityFeeds.objects.create(
+                creator=self.request.user,
+                activity=f"The Incomplete Course Record(ID: {course_id}) was deleted by {self.request.user}",
+            )
+            logger.debug(
+                f"Activity feed(The Incomplete Course Record(ID: {course_id}) was deleted by {self.request.user}) created."
+            )
 
-        # Delete associated flags
-        delete_flag(instance, course_id, self.request.user)
+            # Delete associated flags
+            delete_flag(instance, course_id, self.request.user)

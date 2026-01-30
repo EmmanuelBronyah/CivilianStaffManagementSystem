@@ -101,6 +101,7 @@ class UserReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = (
+            "id",
             "username",
             "fullname",
             "role",
