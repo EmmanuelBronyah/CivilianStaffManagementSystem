@@ -6,5 +6,10 @@ urlpatterns = [
         "",
         views.ListActivityFeedAPIView.as_view(),
         name="all-activity-feeds",
-    )
+    ),
+    path(
+        "search/",
+        views.SearchActivityAPIView.as_view(),
+        name="search-activity-feeds",
+    ),
 ]

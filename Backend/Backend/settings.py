@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.postgres",
     # ----- INSTALLED APPS -----
     "api",
     "employees",
@@ -56,9 +57,10 @@ INSTALLED_APPS = [
     "occurance",
     "previous_government_service",
     "service_with_forces",
+    "activity_feeds.apps.ActivityFeedsConfig",
     "termination_of_appointment",
-    "activity_feeds",
     "flags",
+    "search_and_export",
     # ----- THIRD PARTY APPS -----
     "rest_framework",
     "rest_framework.authtoken",

@@ -8,4 +8,4 @@ class ActivityFeedsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.ActivityFeeds
-        fields = "__all__"
+        exclude = ("search_vector",)

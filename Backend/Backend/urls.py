@@ -25,6 +25,7 @@ urlpatterns = [
     ),
     path("api/service-with-forces/", include("service_with_forces.urls")),
     path("api/termination-of-appointment/", include("termination_of_appointment.urls")),
+    path("api/search-and-export/", include("search_and_export.urls")),
     path("api/", include("api.urls")),
 ]
 
