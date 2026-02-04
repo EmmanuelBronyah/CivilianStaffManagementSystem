@@ -27,6 +27,8 @@ class SearchActivityAPIView(generics.ListAPIView):
     @staticmethod
     def parse_date(date_str):
         try:
+            if not date_str:
+                return
             date_str = date_str.split()[0]
             dt = datetime.strptime(date_str, "%Y-%m-%d")
             return timezone.make_aware(dt)
@@ -44,9 +46,7 @@ class SearchActivityAPIView(generics.ListAPIView):
             search_query = SearchQuery(q, config="english")
 
             qs = (
-                ActivityFeeds.objects.annotate(
-                    rank=SearchRank(F("search_vector"), search_query)
-                )
+                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
                 .filter(search_vector=search_query, rank__gte=0.1)
                 .order_by("-rank")
             )

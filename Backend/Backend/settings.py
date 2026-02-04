@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.postgres",
     # ----- INSTALLED APPS -----
     "api",
-    "employees",
+    "employees.apps.EmployeesConfig",
     "abscences",
     "children",
     "courses",
@@ -59,7 +59,7 @@ INSTALLED_APPS = [
     "service_with_forces",
     "activity_feeds.apps.ActivityFeedsConfig",
     "termination_of_appointment",
-    "flags",
+    "flags.apps.FlagsConfig",
     "search_and_export",
     # ----- THIRD PARTY APPS -----
     "rest_framework",

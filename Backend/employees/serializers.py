@@ -365,7 +365,7 @@ class EmployeeReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Employee
-        fields = "__all__"
+        exclude = ("search_vector",)
 
 
 class CategorySerializer(serializers.ModelSerializer):

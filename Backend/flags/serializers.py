@@ -75,7 +75,7 @@ class FlagReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Flags
-        fields = "__all__"
+        exclude = ("search_vector",)
 
 
 class FlagTypeSerializer(serializers.ModelSerializer):

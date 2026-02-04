@@ -3,6 +3,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from api.models import CustomUser
 import logging
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +27,14 @@ class Flags(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True)
 
+    search_vector = SearchVectorField(null=True)
+
     class Meta:
         db_table = "flags"
         verbose_name = "flags"
         verbose_name_plural = "flags"
+
+        indexes = [GinIndex(fields=["search_vector"])]
 
     # Override save method to populate service_id in objects where it is found
     def save(self, *args, **kwargs):

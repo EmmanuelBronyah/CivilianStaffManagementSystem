@@ -16,6 +16,8 @@ from activity_feeds.models import ActivityFeeds
 from . import utils
 from flags.services import create_flag, delete_flag
 from django.db import transaction
+from .models import Employee
+from django.contrib.postgres.search import SearchQuery, SearchRank
 
 
 logger = logging.getLogger(__name__)
@@ -207,6 +209,43 @@ class ForecastedRetireesAPIView(APIView):
             )
 
         return Response({"results": results}, status=status.HTTP_200_OK)
+
+
+class SearchEmployeeAPIView(generics.ListAPIView):
+    serializer_class = serializers.EmployeeReadSerializer
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+    pagination_class = LargeResultsSetPagination
+
+    def get_queryset(self):
+        service_id = self.request.query_params.get("service_id")
+        last_name = self.request.query_params.get("last_name")
+        other_names = self.request.query_params.get("other_names")
+
+        qs = Employee.objects.all()
+
+        if last_name:
+            search_query = SearchQuery(last_name, config="english")
+
+            qs = (
+                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
+                .filter(search_vector=search_query, rank__gte=0.1)
+                .order_by("-rank")
+            )
+
+        if other_names:
+            search_query = SearchQuery(other_names, config="english")
+
+            qs = (
+                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
+                .filter(search_vector=search_query, rank__gte=0.1)
+                .order_by("-rank")
+            )
+
+        if service_id:
+            qs = qs.filter(service_id=service_id)
+
+        return qs
 
 
 # * CATEGORY

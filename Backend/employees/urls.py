@@ -6,6 +6,9 @@ urlpatterns = [
     # ----- EMPLOYEES -----
     path("staff/", views.ListEmployeesAPIView.as_view(), name="list-all-employees"),
     path(
+        "staff/search/", views.SearchEmployeeAPIView.as_view(), name="search-employees"
+    ),
+    path(
         "staff/create/", views.CreateEmployeeAPIView.as_view(), name="create-employee"
     ),
     path(

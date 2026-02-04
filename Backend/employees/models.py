@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 
 class Employee(models.Model):
@@ -51,9 +53,13 @@ class Employee(models.Model):
         related_name="updated_employees",
     )
 
+    search_vector = SearchVectorField(null=True)
+
     class Meta:
         db_table = "employee"
         verbose_name = "employee"
+
+        indexes = [GinIndex(fields=["search_vector"])]
 
     def __str__(self):
         return f"{self.service_id}"

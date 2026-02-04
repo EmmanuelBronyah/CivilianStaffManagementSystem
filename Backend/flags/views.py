@@ -9,6 +9,11 @@ from employees.permissions import IsAdminUserOrStandardUser
 from employees.views import LargeResultsSetPagination
 from .utils import generate_changes_text
 from django.db import transaction
+from datetime import datetime
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError
+from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.db.models import F
 
 
 logger = logging.getLogger(__name__)
@@ -141,6 +146,60 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed({model_name.replace('_', ' ').capitalize()} flag was deleted by {self.request.user}. Flag Type: {instance.flag_type.flag_type.replace('_', ' ').capitalize() or 'None'} — Field: {instance.field.replace('_', ' ').capitalize() or 'None'} — Reason: {instance.reason or 'None'}) created."
             )
+
+
+class SearchFlagsAPIView(generics.ListAPIView):
+    serializer_class = FlagReadSerializer
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+    pagination_class = LargeResultsSetPagination
+
+    @staticmethod
+    def parse_date(date_str):
+        try:
+            if not date_str:
+                return
+            date_str = date_str.split()[0]
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+            return timezone.make_aware(dt)
+        except ValueError:
+            raise ValidationError({"detail": f"Invalid date format: {date_str}"})
+
+    def get_queryset(self):
+        reason = self.request.query_params.get("reason")
+        flag_type = self.request.query_params.get("flag_type")
+        field = self.request.query_params.get("field")
+        created_by = self.request.query_params.get("created_by")
+        updated_by = self.request.query_params.get("updated_by")
+        created_at = self.parse_date(self.request.query_params.get("created_at"))
+
+        qs = Flags.objects.all()
+
+        if reason:
+            search_query = SearchQuery(reason, config="english")
+
+            qs = (
+                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
+                .filter(search_vector=search_query, rank__gte=0.1)
+                .order_by("-rank")
+            )
+
+        if flag_type:
+            qs = qs.filter(flag_type__flag_type__iexact=flag_type)
+
+        if field:
+            qs = qs.filter(field__iexact=field)
+
+        if created_by:
+            qs = qs.filter(created_by__username__iexact=created_by.strip())
+
+        if updated_by:
+            qs = qs.filter(updated_by__username__iexact=updated_by.strip())
+
+        if created_at:
+            qs = qs.filter(created_at__date=created_at.date())
+
+        return qs.order_by("-created_at")
 
 
 # FLAG TYPE
