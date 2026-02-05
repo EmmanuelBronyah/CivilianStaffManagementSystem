@@ -12,8 +12,6 @@ from .utils import two_dp
 
 logger = logging.getLogger(__name__)
 
-# todo: internet connection and all network connection retries
-
 
 class BaseOccurrenceSerializer(serializers.ModelSerializer):
 

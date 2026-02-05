@@ -182,30 +182,31 @@ class ForecastedRetireesAPIView(APIView):
     def get(self, request):
         current_year = datetime.now().year
         number_of_years = 11
+        end_year = current_year + number_of_years - 1
 
-        # Computes and associates retirement year to each employee
-        employees_and_retirement_year = models.Employee.objects.annotate(
-            retirement_year=ExtractYear(F("dob")) + 60
+        # Annotate retirement year
+        employees = (
+            models.Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
+            .filter(retirement_year__range=(current_year, end_year))
+            .values("service_id", "retirement_year")
         )
 
+        # Group employees by year
+        grouped = {}
+
+        for emp in employees:
+            year = emp["retirement_year"]
+            grouped.setdefault(year, []).append(emp["service_id"])
+
+        # Build results
         results = []
 
         for offset in range(number_of_years):
-
             year = current_year + offset
-
-            retirees_queryset = employees_and_retirement_year.filter(
-                retirement_year=year
-            )
-
-            employees = list(retirees_queryset.values("service_id"))
+            employee_ids = grouped.get(year, [])
 
             results.append(
-                {
-                    "year": year,
-                    "count": retirees_queryset.count(),
-                    "employees": [employee["service_id"] for employee in employees],
-                }
+                {"year": year, "count": len(employee_ids), "employees": employee_ids}
             )
 
         return Response({"results": results}, status=status.HTTP_200_OK)
