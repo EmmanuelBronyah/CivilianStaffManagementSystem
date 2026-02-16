@@ -3,6 +3,7 @@ import api from "../../../api";
 import { TEMP_TOKEN } from "../../../constants";
 import { useNavigate, Link } from "react-router-dom";
 import { checkInternetConnection } from "../../../utils";
+import "../../../styles/loginscreen.css";
 
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
@@ -49,31 +50,37 @@ function LoginUser({ route }) {
   };
 
   return (
-    <>
-      <form onSubmit={handleSubmit}>
-        <h1>Login Form</h1>
-        <div>
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-          />
-        </div>
+    <div className="login-page">
+      <div className="logo-text">CiviBase</div>
+      <div className="image-form-grid">
+        <div><img src="" alt="" /></div>
+        <div className="login-form">
+          <form onSubmit={handleSubmit}>
+            <h1>Login Form</h1>
+            <div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Username"
+              />
+            </div>
 
-        <div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-        </div>
+            <div>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Password"
+              />
+            </div>
 
-        <button type="submit">Login</button>
-      </form>
-      <Link to="/reset-password">Forgot Password?</Link>
-    </>
+            <button type="submit">Login</button>
+          </form>
+          <Link to="/reset-password">Forgot Password?</Link>
+        </div>
+      </div>
+    </div>
   );
 }
 

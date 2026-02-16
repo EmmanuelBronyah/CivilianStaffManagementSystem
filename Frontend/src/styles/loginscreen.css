@@ -1,0 +1,12 @@
+body {
+  min-height: 100dvh;
+  overflow: hidden;
+  margin: 0;
+}
+
+.login-page {
+  display: grid;
+  min-height: 100dvh;
+  place-content: center;
+  font-family: "Roboto", sans-serif;
+}
