@@ -1,0 +1,185 @@
+:root {
+  --button-text: clamp(0.6rem, 0.7rem + 1vw, 1rem);
+  --all-text: clamp(0.7rem, 1rem + 0.6vw, 1.6rem);
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+}
+
+.loginPage {
+  /* border: 2px solid blue; */
+  background-color: #f3f3f3;
+  display: grid;
+  grid-template-rows: 10% 1fr;
+  gap: 1rem;
+  min-height: 100dvh;
+  font-family: "Roboto", sans-serif;
+}
+
+.logoText {
+  /* border: 2px solid red; */
+  font-size: clamp(2.5rem, 3vw + 1rem, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-align: center;
+  color: #004700;
+}
+
+.imageFormGrid {
+  place-content: center;
+  background-color: #b2dbb2;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10rem;
+  width: min(70rem, 90%);
+  height: 76vh;
+  padding-inline: 1rem;
+  margin-inline: auto;
+  border-radius: 0.5rem;
+}
+
+.imageContainer {
+  /* border: 2px solid red; */
+  max-width: 100%;
+  text-align: center;
+  margin-block: auto;
+
+  img {
+    width: 100%;
+  }
+}
+
+.loginForm {
+  /* border: 2px solid black; */
+  margin-block: auto;
+}
+
+.textButtonContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+
+  h3 {
+    padding: 0;
+    margin: 0;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+
+  .buttonContainer {
+    display: flex;
+    gap: 0.6rem;
+
+    button {
+      font-size: var(--button-text);
+      padding: 0.7vh 1vw;
+      border-radius: 0.25rem;
+      background-color: #004700;
+      color: #d7fdd7;
+      border: None;
+      text-wrap: nowrap;
+    }
+
+    button:hover {
+      outline: 3px solid #356b35;
+      cursor: pointer;
+    }
+
+    button:active {
+      background-color: #d7fdd7;
+      color: #004700;
+      outline: 1px solid #356b35;
+      cursor: pointer;
+    }
+  }
+}
+
+.usernameTextbox {
+  margin-top: 2.5rem;
+}
+
+.passwordTextbox {
+  margin-top: 1.5rem;
+}
+
+.loginForm input {
+  width: 79%;
+  height: 6vh;
+  border-radius: 2rem;
+  background-color: #d7fdd7;
+  border: none;
+  color: #004700;
+  font-weight: 900;
+  padding-left: 1rem;
+}
+
+.loginForm input::placeholder {
+  color: #004700;
+  font-weight: bold;
+}
+
+input:hover {
+  outline: 1px solid #004700;
+}
+
+.roleContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-left: 1rem;
+  margin-top: 1rem;
+
+  h4 {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+}
+
+.roleDiv {
+  width: fit-content;
+  text-align: center;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  color: #d7fdd7;
+  background-color: #004700;
+}
+
+.loginButton {
+  width: 82%;
+  height: 6vh;
+  border-radius: 2rem;
+  background-color: #004700;
+  border: none;
+  color: #d7fdd7;
+  font-weight: 900;
+  margin-top: 1.7rem;
+}
+
+.loginButton:hover {
+  outline: 3px solid #356b35;
+  cursor: pointer;
+}
+
+.loginButton:active {
+  background-color: #d7fdd7;
+  color: #004700;
+  outline: 1px solid #356b35;
+  cursor: pointer;
+}
+
+.forgotPassword {
+  margin-top: 1rem;
+  padding-left: 1rem;
+
+  a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 1rem;
+  }
+}

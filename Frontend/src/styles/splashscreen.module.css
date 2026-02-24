@@ -4,7 +4,7 @@ body {
   margin: 0;
 }
 
-.splash-screen {
+.splashScreen {
   display: grid;
   min-height: 100dvh;
   place-content: center;
@@ -14,11 +14,11 @@ body {
   transition: opacity 0.8s ease;
 }
 
-.fade-out {
+.fadeOut {
   opacity: 0;
 }
 
-.logo-text {
+.logoText {
   font-size: clamp(2.5rem, 8vw, 4.5rem);
   font-weight: 900;
   letter-spacing: 0.15em;
@@ -54,14 +54,14 @@ body {
 }
 
 @media (max-width: 600px) {
-  .logo-text {
+  .logoText {
     font-size: clamp(2rem, 10vw, 3rem);
     letter-spacing: 0.1em;
   }
 }
 
 @media (max-width: 400px) {
-  .logo-text {
+  .logoText {
     font-size: clamp(1.5rem, 12vw, 2.5rem);
   }
 }

@@ -53,7 +53,7 @@ class Employee(models.Model):
         related_name="updated_employees",
     )
 
-    search_vector = SearchVectorField(null=True)
+    search_vector = SearchVectorField(null=True, blank=True)
 
     class Meta:
         db_table = "employee"

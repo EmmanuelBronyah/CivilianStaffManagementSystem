@@ -3,7 +3,8 @@ import api from "../../../api";
 import { TEMP_TOKEN } from "../../../constants";
 import { useNavigate, Link } from "react-router-dom";
 import { checkInternetConnection } from "../../../utils";
-import "../../../styles/loginscreen.css";
+import style from "../../../styles/loginscreen.module.css";
+import image from "../../../images/image.svg";
 
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
@@ -50,14 +51,27 @@ function LoginUser({ route }) {
   };
 
   return (
-    <div className="login-page">
-      <div className="logo-text">CiviBase</div>
-      <div className="image-form-grid">
-        <div><img src="" alt="" /></div>
-        <div className="login-form">
+    <div className={style.loginPage}>
+      {/* LOGO SECTION */}
+      <div className={style.logoText}>CiviBase</div>
+      {/* IMAGE AND LOGIN FORM GRID */}
+      <div className={style.imageFormGrid}>
+        {/* IMAGE SECTION */}
+        <div className={style.imageContainer}>
+          <img src={image} alt="" />
+        </div>
+        {/* LOGIN FORM SECTION */}
+        <div className={style.loginForm}>
           <form onSubmit={handleSubmit}>
-            <h1>Login Form</h1>
-            <div>
+            <div className={style.textButtonContainer}>
+              <h3>Login as</h3>
+              <div className={style.buttonContainer}>
+                <button>Admin User</button>
+                <button>Standard User</button>
+                <button>Viewer</button>
+              </div>
+            </div>
+            <div className={style.usernameTextbox}>
               <input
                 type="text"
                 value={username}
@@ -65,8 +79,7 @@ function LoginUser({ route }) {
                 placeholder="Username"
               />
             </div>
-
-            <div>
+            <div className={style.passwordTextbox}>
               <input
                 type="password"
                 value={password}
@@ -75,9 +88,18 @@ function LoginUser({ route }) {
               />
             </div>
 
-            <button type="submit">Login</button>
+            <div className={style.roleContainer}>
+              <h4>Role</h4>
+              <div className={style.roleDiv}>Standard User</div>
+            </div>
+
+            <button type="submit" className={style.loginButton}>
+              Login
+            </button>
           </form>
-          <Link to="/reset-password">Forgot Password?</Link>
+          <div className={style.forgotPassword}>
+            <Link to="/reset-password">Forgot Password?</Link>
+          </div>
         </div>
       </div>
     </div>

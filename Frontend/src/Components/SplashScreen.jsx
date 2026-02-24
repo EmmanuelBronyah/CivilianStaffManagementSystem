@@ -1,4 +1,4 @@
-import "../styles/splashscreen.css";
+import style from "../styles/splashscreen.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -24,19 +24,19 @@ function SplashScreen() {
   }, [navigate]);
 
   return (
-    <div className={`splash-screen ${fadeOut ? "fade-out" : ""}`}>
-      <h1 className="logo-text">
+    <div className={`${style.splashScreen} ${fadeOut ? style.fadeOut : ""}`}>
+      <h1 className={style.logoText}>
         {text.split("").map((letter, index) => (
           <span
             key={index}
-            className="letter"
+            className={style.letter}
             style={{ animationDelay: `${index * 0.2}s` }}
           >
             {letter}
           </span>
         ))}
 
-        <span className="cursor">|</span>
+        <span className={style.cursor}>|</span>
       </h1>
     </div>
   );

@@ -319,7 +319,10 @@ class LoginView(APIView):
             logger.info(f"OTP will be dully sent to user's({user}'s) email.")
 
             device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-            send_otp_email_task.delay(device.id)
+            transaction.on_commit(
+                lambda: send_otp_email_task.delay(device.id)
+            )
+
 
             cache.set(otp_cache_key, True, timeout=60)
 
