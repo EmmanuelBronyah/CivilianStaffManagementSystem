@@ -9,7 +9,10 @@ import image from "../../../images/image.svg";
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [selectedRole, setSelectedRole] = useState("Standard User");
   const navigate = useNavigate();
+
+  const roles = ["Admin User", "Standard User", "Viewer"];
 
   useEffect(() => {
     localStorage.clear();
@@ -63,12 +66,18 @@ function LoginUser({ route }) {
         {/* LOGIN FORM SECTION */}
         <div className={style.loginForm}>
           <form onSubmit={handleSubmit}>
-            <div className={style.textButtonContainer}>
+            <div className={style.textRolesContainer}>
               <h3>Login as</h3>
-              <div className={style.buttonContainer}>
-                <button>Admin User</button>
-                <button>Standard User</button>
-                <button>Viewer</button>
+              <div className={style.rolesContainer}>
+                {roles.map((role) => (
+                  <div
+                    key={role}
+                    onClick={() => setSelectedRole(role)}
+                    className={selectedRole === role ? style.activeRole : ""}
+                  >
+                    {role}
+                  </div>
+                ))}
               </div>
             </div>
             <div className={style.usernameTextbox}>
@@ -90,14 +99,16 @@ function LoginUser({ route }) {
 
             <div className={style.roleContainer}>
               <h4>Role</h4>
-              <div className={style.roleDiv}>Standard User</div>
+              <div className={style.roleDiv}>{selectedRole}</div>
             </div>
 
             <button type="submit" className={style.loginButton}>
               Login
             </button>
           </form>
-          <div className={style.forgotPassword}>
+          <div
+            className={`${selectedRole === "Admin User" ? style.forgotPassword : style.forgotPasswordDisabled}`}
+          >
             <Link to="/reset-password">Forgot Password?</Link>
           </div>
         </div>

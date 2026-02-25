@@ -56,7 +56,7 @@ body {
   margin-block: auto;
 }
 
-.textButtonContainer {
+.textRolesContainer {
   display: flex;
   align-items: center;
   gap: 0.4em;
@@ -70,50 +70,48 @@ body {
     font-size: 1rem;
   }
 
-  .buttonContainer {
+  .rolesContainer {
     display: flex;
     gap: 0.6rem;
 
-    button {
+    div {
       font-size: var(--button-text);
-      padding: 0.7vh 1vw;
-      border-radius: 0.25rem;
-      background-color: #004700;
-      color: #d7fdd7;
-      border: None;
+      color: #004700;
+      font-weight: 900;
       text-wrap: nowrap;
     }
 
-    button:hover {
-      outline: 3px solid #356b35;
-      cursor: pointer;
-    }
-
-    button:active {
-      background-color: #d7fdd7;
-      color: #004700;
-      outline: 1px solid #356b35;
+    div:hover {
+      color: #356b35;
       cursor: pointer;
     }
   }
 }
 
+.activeRole {
+  background-color: #d7fdd7;
+  padding-inline: 0.3rem;
+  cursor: pointer;
+}
+
 .usernameTextbox {
   margin-top: 2.5rem;
+  width: min(30vw, 80%);
 }
 
 .passwordTextbox {
   margin-top: 1.5rem;
+  width: min(30vw, 80%);
 }
 
 .loginForm input {
-  width: 79%;
+  width: 100%;
   height: 6vh;
   border-radius: 2rem;
   background-color: #d7fdd7;
   border: none;
   color: #004700;
-  font-weight: 900;
+  font-weight: bold;
   padding-left: 1rem;
 }
 
@@ -150,7 +148,7 @@ input:hover {
 }
 
 .loginButton {
-  width: 82%;
+  width: min(32vw, 80%);
   height: 6vh;
   border-radius: 2rem;
   background-color: #004700;
@@ -181,5 +179,43 @@ input:hover {
     color: black;
     font-weight: bold;
     font-size: 1rem;
+  }
+}
+
+.forgotPasswordDisabled {
+  margin-top: 1rem;
+  padding-left: 1rem;
+
+  a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+    font-size: 1rem;
+    pointer-events: none;
+    opacity: 0.6;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .imageContainer {
+    display: none;
+  }
+
+  .imageFormGrid {
+    display: grid;
+    grid-template-columns: 1fr;
+    place-items: center;
+  }
+
+  .usernameTextbox {
+    width: 100%;
+  }
+
+  .passwordTextbox {
+    width: 100%;
+  }
+
+  .loginButton {
+    width: 105%;
   }
 }
