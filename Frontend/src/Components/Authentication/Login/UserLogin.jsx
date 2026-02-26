@@ -136,7 +136,7 @@ function LoginUser({ route }) {
 
             <button
               type="submit"
-              className={style.loginButton}
+              className={`${style.loginButton} ${isLoading ? style.buttonDisabled : ""}`}
               onClick={() => setIsLoading(true)}
             >
               {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
@@ -150,8 +150,9 @@ function LoginUser({ route }) {
         </div>
       </div>
       <div
-        className={`${visible ? style.notificationContainer : style.hidden} 
-          ${response?.type === "error" ? style.error : ""}`}
+        className={`${style.notificationContainer} ${
+          visible ? style.show : ""
+        } ${response?.type === "error" ? style.error : ""}`}
       >
         {response?.message}
       </div>

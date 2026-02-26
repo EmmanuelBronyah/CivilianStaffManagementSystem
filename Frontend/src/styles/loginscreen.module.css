@@ -175,6 +175,11 @@ input:hover {
   display: none;
 }
 
+.buttonDisabled {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
 .forgotPassword {
   margin-top: 1rem;
   padding-left: 1rem;
@@ -211,18 +216,15 @@ input:hover {
   color: #d7fdd7;
   border-radius: 6px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  animation: slideIn 0.3s ease-out;
+
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
 }
 
-@keyframes slideIn {
-  from {
-    transform: translateY(20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+.show {
+  transform: translateY(0);
+  opacity: 1;
 }
 
 .error {
