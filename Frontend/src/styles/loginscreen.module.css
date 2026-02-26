@@ -148,6 +148,7 @@ input:hover {
 }
 
 .loginButton {
+  position: relative;
   width: min(32vw, 80%);
   height: 6vh;
   border-radius: 2rem;
@@ -168,6 +169,10 @@ input:hover {
   color: #004700;
   outline: 1px solid #356b35;
   cursor: pointer;
+}
+
+.hidden {
+  display: none;
 }
 
 .forgotPassword {
@@ -194,6 +199,36 @@ input:hover {
     pointer-events: none;
     opacity: 0.6;
   }
+}
+
+.notificationContainer {
+  position: fixed;
+  width: fit-content;
+  bottom: 4%;
+  right: 4%;
+  padding: 10px 16px;
+  background: #004700;
+  color: #d7fdd7;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.error {
+  background-color: rgb(147, 33, 33);
+  font-weight: bold;
+  color: white;
 }
 
 @media screen and (max-width: 900px) {

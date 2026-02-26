@@ -149,6 +149,7 @@ class DivisionSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField()
+    selectedRole = serializers.CharField()
 
 
 class LogoutSerializer(serializers.Serializer):

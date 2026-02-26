@@ -5,27 +5,47 @@ import { useNavigate, Link } from "react-router-dom";
 import { checkInternetConnection } from "../../../utils";
 import style from "../../../styles/loginscreen.module.css";
 import image from "../../../images/image.svg";
+import getResponseMessages from "../Login/utils.js";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("Standard User");
+  const [response, setResponse] = useState(null);
+  const [isLoading, setIsLoading] = useState(null);
+  const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
-  const roles = ["Admin User", "Standard User", "Viewer"];
+  const roles = ["Administrator", "Standard User", "Viewer"];
 
   useEffect(() => {
     localStorage.clear();
   }, []);
+
+  useEffect(() => {
+    if (response?.message) {
+      setVisible(true);
+    }
+
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [response]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
-      console.log(
-        "Network issue detected. Please ensure you are connected to the internet and try again.",
-      );
+      setIsLoading(false);
+
+      const message =
+        "Network issue detected. Please ensure you are connected to the internet and try again.";
+
+      setResponse({ message: message, type: "error", id: Date.now() });
       return;
     }
 
@@ -33,22 +53,34 @@ function LoginUser({ route }) {
       const res = await api.post(route, {
         username,
         password,
+        selectedRole,
       });
+
       if (res.status === 200) {
-        if (localStorage.getItem(TEMP_TOKEN)) {
-          console.log("Response: ", res.data.detail);
-        } else {
-          localStorage.setItem(TEMP_TOKEN, res.data.temp_token);
-          console.log("Response: ", res.data.detail);
+        const response = res;
+        const tempToken = res.data.temp_token;
+
+        if (!localStorage.getItem(TEMP_TOKEN)) {
+          localStorage.setItem(TEMP_TOKEN, tempToken);
         }
 
-        navigate("/auth/otp");
+        setIsLoading(false);
+
+        const message = getResponseMessages(response);
+        setResponse({ message: message, id: Date.now() });
+
+        setTimeout(() => {
+          navigate("/auth/otp");
+        }, 3000);
       }
     } catch (error) {
-      if (error.response) {
-        console.log("Error: ", error.response.data);
-      } else {
-        console.log("Unexpected Error: ", error);
+      const errorObj = error.response;
+
+      if (errorObj) {
+        setIsLoading(false);
+
+        const message = getResponseMessages(errorObj);
+        setResponse({ message: message, type: "error", id: Date.now() });
       }
     }
   };
@@ -102,16 +134,26 @@ function LoginUser({ route }) {
               <div className={style.roleDiv}>{selectedRole}</div>
             </div>
 
-            <button type="submit" className={style.loginButton}>
-              Login
+            <button
+              type="submit"
+              className={style.loginButton}
+              onClick={() => setIsLoading(true)}
+            >
+              {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
             </button>
           </form>
           <div
-            className={`${selectedRole === "Admin User" ? style.forgotPassword : style.forgotPasswordDisabled}`}
+            className={`${selectedRole === "Administrator" ? style.forgotPassword : style.forgotPasswordDisabled}`}
           >
             <Link to="/reset-password">Forgot Password?</Link>
           </div>
         </div>
+      </div>
+      <div
+        className={`${visible ? style.notificationContainer : style.hidden} 
+          ${response?.type === "error" ? style.error : ""}`}
+      >
+        {response?.message}
       </div>
     </div>
   );

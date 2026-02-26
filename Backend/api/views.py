@@ -288,6 +288,8 @@ class LoginView(APIView):
 
         username = serializer.validated_data.get("username", None)
         password = serializer.validated_data.get("password", None)
+        role = serializer.validated_data.get("selectedRole", None)
+
         user = authenticate(request, username=username, password=password)
 
         logger.debug(f"User found: {user}")
@@ -297,6 +299,14 @@ class LoginView(APIView):
 
             return Response(
                 {"detail": "Invalid credentials."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+            
+        if user.role.lower() != role.lower():
+            logger.warning("Role chosen for user is inaccurate.")
+
+            return Response(
+                {"detail": "Inaccurate Role selected for user"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
