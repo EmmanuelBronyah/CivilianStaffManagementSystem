@@ -1,5 +1,7 @@
 export default function getResponseMessages(response) {
   const data = response.data;
+  console.log("Response Data -> ", data);
+
   const messages = [];
 
   if (data) {
@@ -22,5 +24,6 @@ export default function getResponseMessages(response) {
     }
   }
   const firstMessage = messages[0];
+  console.log("First Message -> ", firstMessage);
   return firstMessage;
 }

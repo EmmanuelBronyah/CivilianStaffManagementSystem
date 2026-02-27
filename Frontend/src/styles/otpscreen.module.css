@@ -1,0 +1,118 @@
+:root {
+  --button-text: clamp(0.6rem, 0.7rem + 1vw, 1rem);
+  --all-text: clamp(0.7rem, 1rem + 0.6vw, 1.6rem);
+}
+
+body {
+  min-height: 100dvh;
+  margin: 0;
+}
+
+.otpPage {
+  background-color: #f3f3f3;
+  min-height: 100dvh;
+  font-family: "Roboto", sans-serif;
+}
+
+.wrapper {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+}
+
+.logoText {
+  font-size: clamp(2.5rem, 3vw + 1rem, 5.5rem);
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  text-align: center;
+  color: #004700;
+}
+
+.logoTextAndOtpContainer {
+  display: grid;
+  gap: 2rem;
+  width: 100%;
+}
+
+.otpContainer {
+  display: grid;
+  background-color: #b2dbb2;
+  width: min(30rem, 90%);
+  height: 30vh;
+  margin-inline: auto;
+  border-radius: 0.5rem;
+  place-items: center;
+  gap: 3rem;
+  padding-inline: 1rem;
+}
+
+.inputBoxesAndButtons {
+  display: grid;
+  gap: 2rem;
+
+  input {
+    width: min(25rem, 90%);
+    height: 2.7rem;
+    border-radius: 2rem;
+    background-color: #d7fdd7;
+    border: none;
+    color: #004700;
+    font-weight: bold;
+    padding-left: 1rem;
+  }
+}
+
+.buttonsContainer {
+  display: flex;
+  gap: 2rem;
+  margin-inline: auto;
+
+  button {
+    padding: 0.5rem 2.5rem;
+    border-radius: 0.5rem;
+    background-color: #004700;
+    border: none;
+    color: #d7fdd7;
+    font-weight: 900;
+    font-size: var(--button-text);
+  }
+}
+
+.buttonsContainer button:hover {
+  outline: 3px solid #356b35;
+  cursor: pointer;
+}
+
+.buttonsContainer button:active {
+  background-color: #d7fdd7;
+  color: #004700;
+  outline: 1px solid #356b35;
+  cursor: pointer;
+}
+
+.notificationContainer {
+  position: fixed;
+  width: fit-content;
+  bottom: 4%;
+  right: 4%;
+  padding: 10px 16px;
+  background: #004700;
+  color: #d7fdd7;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.error {
+  background-color: rgb(147, 33, 33);
+  font-weight: bold;
+  color: white;
+}
