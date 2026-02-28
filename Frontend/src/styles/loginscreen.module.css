@@ -44,6 +44,9 @@ body {
   margin-block: auto;
 
   img {
+    vertical-align: middle;
+    font-style: italic;
+    height: auto;
     width: 100%;
   }
 }

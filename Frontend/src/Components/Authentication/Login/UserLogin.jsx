@@ -93,7 +93,7 @@ function LoginUser({ route }) {
       <div className={style.imageFormGrid}>
         {/* IMAGE SECTION */}
         <div className={style.imageContainer}>
-          <img src={image} alt="" />
+          <img src={image} loading="lazy" alt="" />
         </div>
         {/* LOGIN FORM SECTION */}
         <div className={style.loginForm}>

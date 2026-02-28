@@ -463,25 +463,25 @@ class PasswordResetConfirmRedirectView(RedirectView):
     permanent = False
 
     def get_redirect_url(self, *args, **kwargs):
-        try:
+        # try:
 
-            uidb64 = kwargs.get("uidb64")
-            token = kwargs.get("token")
+        uidb64 = kwargs.get("uidb64")
+        token = kwargs.get("token")
 
-            logger.debug("Password reset url will be dully sent to user's email.")
-            return (
-                f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
-            )
+        logger.debug("Password reset url will be dully sent to user's email.")
+        return (
+            f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
+        )
 
-        except network_exceptions.NETWORK_EXCEPTIONS as e:
-            logger.exception(f"A network error occurred. Exception({e})")
+        # except network_exceptions.NETWORK_EXCEPTIONS as e:
+        #     logger.exception(f"A network error occurred. Exception({e})")
 
-            return Response(
-                {
-                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
-                },
-                status=status.HTTP_503_SERVICE_UNAVAILABLE,
-            )
+        #     return Response(
+        #         {
+        #             "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
+        #         },
+        #         status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        #     )
 
 
 class LogoutView(APIView):

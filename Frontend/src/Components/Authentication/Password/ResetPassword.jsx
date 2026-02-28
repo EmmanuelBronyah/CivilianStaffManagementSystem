@@ -1,18 +1,35 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import api from "../../../api";
 import { checkInternetConnection } from "../../../utils";
+import style from "../../../styles/resetpasswordscreen.module.css";
+import getResponseMessages from "../Login/utils";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");
+  const [response, setResponse] = useState(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (response?.message) {
+      setVisible(true);
+    }
+
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [response]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
-      console.log(
-        "Network issue detected. Please ensure you are connected to the internet and try again."
-      );
+      const message =
+        "Network issue detected. Please ensure you are connected to the internet and try again.";
+
+      setResponse({ message: message, type: "error", id: Date.now() });
       return;
     }
 
@@ -20,34 +37,61 @@ function ResetPassword({ route }) {
       const res = await api.post(route, { email: email });
 
       if (res.status === 200) {
-        console.log("Response: ", res.data.detail);
+        const message = getResponseMessages(res);
+        setResponse({ message: message, id: Date.now() });
       }
     } catch (error) {
       if (error.response.status === 429) {
-        console.log(
-          "Too many requests were made. Please try again after sometime."
-        );
-      }
-      if (error.response) {
-        console.log("Error: ", error.response.data);
+        setResponse({
+          message:
+            "Too many requests were made. Please try again after sometime.",
+          type: "error",
+          id: Date.now(),
+        });
       } else {
-        console.log("Unexpected Error: ", error);
+        const errorObj = error.response;
+
+        if (errorObj) {
+          const message = getResponseMessages(errorObj);
+          setResponse({ message: message, type: "error", id: Date.now() });
+        }
       }
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <div>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
+    <div className={style.resetPasswordPage}>
+      {/* RESET PASSWORD FORM SECTION */}
+      <div className={style.wrapper}>
+        <div className={style.logoTextAndResetPasswordContainer}>
+          <div className={style.logoText}>CiviBase</div>
+          <div className={style.resetPasswordContainer}>
+            <div className={style.inputBoxAndButton}>
+              <div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email"
+                />
+              </div>
+              <div className={style.buttonContainer}>
+                <button type="submit" onClick={handleSubmit}>
+                  Submit
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <button type="submit">Submit</button>
-    </form>
+      <div
+        className={`${style.notificationContainer} ${
+          visible ? style.show : ""
+        } ${response?.type === "error" ? style.error : ""}`}
+      >
+        {response?.message}
+      </div>
+    </div>
   );
 }
 
