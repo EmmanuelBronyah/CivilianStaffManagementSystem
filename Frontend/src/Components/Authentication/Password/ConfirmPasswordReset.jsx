@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../../api";
-import { checkInternetConnection } from "../../../utils";
-import getResponseMessages from "../Login/utils";
+import { checkInternetConnection, getResponseMessages } from "../../../utils";
 import style from "../../../styles/confirmpasswordscreen.module.css";
 
 function ConfirmPasswordReset({ route }) {

@@ -174,7 +174,7 @@ input:hover {
   display: none;
 }
 
-.buttonDisabled {
+.disabled {
   pointer-events: none;
   cursor: not-allowed;
 }

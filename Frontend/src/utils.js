@@ -1,20 +1,3 @@
-function extractErrorMessages(data) {
-  const messages = [];
-
-  function recurse(obj) {
-    if (Array.isArray(obj)) {
-      obj.forEach((item) => recurse(item));
-    } else if (typeof obj === "object" && obj !== null) {
-      Object.values(obj).forEach((value) => recurse(value));
-    } else if (typeof obj === "string") {
-      messages.push(obj);
-    }
-  }
-
-  recurse(data);
-  return messages;
-}
-
 async function checkInternetConnection() {
   try {
     const timeoutId = 3000;
@@ -35,3 +18,33 @@ async function checkInternetConnection() {
 }
 
 export { extractErrorMessages, checkInternetConnection };
+
+export default function getResponseMessages(response) {
+  const data = response.data;
+  console.log("Response Data -> ", data);
+
+  const messages = [];
+
+  if (data) {
+    const keyValuePairs = Object.entries(data);
+    console.log("Key Value Pairs", keyValuePairs);
+
+    if (keyValuePairs) {
+      for (const [key, value] of Object.entries(data)) {
+        if (key === "detail") {
+          messages.push(`${value}`);
+        } else {
+          const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+          messages.push(`${capitalizedKey}: ${value}`);
+        }
+      }
+    } else {
+      for (const obj in data) {
+        messages.push(obj);
+      }
+    }
+  }
+  const firstMessage = messages[0];
+  console.log("First Message -> ", firstMessage);
+  return firstMessage;
+}

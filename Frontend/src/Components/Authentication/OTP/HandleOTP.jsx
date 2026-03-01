@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import api from "../../../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../../constants";
 import { useNavigate } from "react-router-dom";
-import { checkInternetConnection } from "../../../utils";
+import { checkInternetConnection, getResponseMessages } from "../../../utils";
 import style from "../../../styles/otpscreen.module.css";
-import getResponseMessages from "../Login/utils";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");

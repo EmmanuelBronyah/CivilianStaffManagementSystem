@@ -1,8 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../../../api";
-import { checkInternetConnection } from "../../../utils";
+import { checkInternetConnection, getResponseMessages } from "../../../utils";
 import style from "../../../styles/resetpasswordscreen.module.css";
-import getResponseMessages from "../Login/utils";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");

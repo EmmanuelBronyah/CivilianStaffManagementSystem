@@ -2,10 +2,9 @@ import { useEffect, useState } from "react";
 import api from "../../../api";
 import { TEMP_TOKEN } from "../../../constants";
 import { useNavigate, Link } from "react-router-dom";
-import { checkInternetConnection } from "../../../utils";
+import { checkInternetConnection, getResponseMessages } from "../../../utils";
 import style from "../../../styles/loginscreen.module.css";
 import image from "../../../images/image.svg";
-import getResponseMessages from "../Login/utils.js";
 import ClipLoader from "react-spinners/ClipLoader";
 
 function LoginUser({ route }) {
@@ -13,7 +12,7 @@ function LoginUser({ route }) {
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("Standard User");
   const [response, setResponse] = useState(null);
-  const [isLoading, setIsLoading] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
@@ -24,9 +23,9 @@ function LoginUser({ route }) {
   }, []);
 
   useEffect(() => {
-    if (response?.message) {
-      setVisible(true);
-    }
+    if (!response) return;
+
+    setVisible(true);
 
     const timer = setTimeout(() => {
       setVisible(false);
@@ -37,15 +36,17 @@ function LoginUser({ route }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
       setIsLoading(false);
-
-      const message =
-        "Network issue detected. Please ensure you are connected to the internet and try again.";
-
-      setResponse({ message: message, type: "error", id: Date.now() });
+      setResponse({
+        message: "Network issue detected. Please ensure you are connected.",
+        type: "error",
+        id: Date.now(),
+      });
       return;
     }
 
@@ -56,32 +57,29 @@ function LoginUser({ route }) {
         selectedRole,
       });
 
-      if (res.status === 200) {
-        const response = res;
-        const tempToken = res.data.temp_token;
+      const tempToken = res.data.temp_token;
 
-        if (!localStorage.getItem(TEMP_TOKEN)) {
-          localStorage.setItem(TEMP_TOKEN, tempToken);
-        }
-
-        setIsLoading(false);
-
-        const message = getResponseMessages(response);
-        setResponse({ message: message, id: Date.now() });
-
-        setTimeout(() => {
-          navigate("/auth/otp");
-        }, 3000);
+      if (!localStorage.getItem(TEMP_TOKEN)) {
+        localStorage.setItem(TEMP_TOKEN, tempToken);
       }
+
+      setResponse({
+        message: getResponseMessages(res),
+        type: "success",
+        id: Date.now(),
+      });
+
+      setTimeout(() => {
+        navigate("/auth/otp");
+      }, 3000);
     } catch (error) {
-      const errorObj = error.response;
-
-      if (errorObj) {
-        setIsLoading(false);
-
-        const message = getResponseMessages(errorObj);
-        setResponse({ message: message, type: "error", id: Date.now() });
-      }
+      setResponse({
+        message: getResponseMessages(error.response),
+        type: "error",
+        id: Date.now(),
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -118,6 +116,7 @@ function LoginUser({ route }) {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
+                className={`${isLoading ? style.disabled : ""}`}
               />
             </div>
             <div className={style.passwordTextbox}>
@@ -126,6 +125,7 @@ function LoginUser({ route }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
+                className={`${isLoading ? style.disabled : ""}`}
               />
             </div>
 
@@ -136,8 +136,7 @@ function LoginUser({ route }) {
 
             <button
               type="submit"
-              className={`${style.loginButton} ${isLoading ? style.buttonDisabled : ""}`}
-              onClick={() => setIsLoading(true)}
+              className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
             >
               {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
             </button>
