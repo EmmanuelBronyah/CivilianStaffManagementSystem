@@ -1,14 +1,17 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../../api";
-import { checkInternetConnection, getResponseMessages } from "../../../utils";
-import style from "../../../styles/confirmpasswordscreen.module.css";
+import api from "../api";
+import { checkInternetConnection, getResponseMessages } from "../utils";
+import style from "../styles/pages/confirmpasswordscreen.module.css";
+import Notification from "../Components/NotificationComponent";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [response, setResponse] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { uid, token } = useParams();
 
@@ -26,13 +29,26 @@ function ConfirmPasswordReset({ route }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
+      setLoading(false);
       const message =
         "Network issue detected. Please ensure you are connected to the internet and try again.";
 
       setResponse({ message: message, type: "error", id: Date.now() });
+      return;
+    }
+
+    if (!password || !confirmPassword) {
+      setLoading(false);
+      setResponse({
+        message: "Password fields cannot be blank.",
+        type: "error",
+        id: Date.now(),
+      });
       return;
     }
 
@@ -58,6 +74,8 @@ function ConfirmPasswordReset({ route }) {
         const message = getResponseMessages(errorObj);
         setResponse({ message: message, type: "error", id: Date.now() });
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,6 +91,7 @@ function ConfirmPasswordReset({ route }) {
                 <input
                   type="password"
                   value={password}
+                  disabled={loading}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="New Password"
                 />
@@ -81,26 +100,23 @@ function ConfirmPasswordReset({ route }) {
                 <input
                   type="password"
                   value={confirmPassword}
+                  disabled={loading}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
                 />
               </div>
               <div className={style.buttonContainer}>
                 <button type="submit" onClick={handleSubmit}>
-                  Submit
+                  {loading ? <ClipLoader size={13} color="#fff" /> : "Submit"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div
-        className={`${style.notificationContainer} ${
-          visible ? style.show : ""
-        } ${response?.type === "error" ? style.error : ""}`}
-      >
-        {response?.message}
-      </div>
+
+      {/* Notification Component */}
+      <Notification isVisible={visible} response={response} />
     </div>
   );
 }

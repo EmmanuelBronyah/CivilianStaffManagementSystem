@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import RegisterUser from "./Components/Authentication/Registration/UserRegistration";
-import LoginUser from "./Components/Authentication/Login/UserLogin";
-import LogoutUser from "./Components/Logout/UserLogout";
-import ResendAndVerifyOTP from "./Components/Authentication/OTP/HandleOTP";
-import ResetPassword from "./Components/Authentication/Password/ResetPassword";
-import ConfirmPasswordReset from "./Components/Authentication/Password/ConfirmPasswordReset";
-import ProtectedRoute from "./Components/Authentication/ProtectedRoute/ProtectedRoute";
-import SplashScreen from "./Components/SplashScreen";
-import Dashboard from "./Components/Dashboard";
+import RegisterUser from "./Pages/RegistrationPage";
+import LoginUser from "./Pages/LoginPage";
+import LogoutUser from "./Pages/LogoutPage";
+import ResendAndVerifyOTP from "./Pages/OTPPage";
+import ResetPassword from "./Pages/ResetPasswordPage";
+import ConfirmPasswordReset from "./Pages/ConfirmPasswordResetPage";
+import ProtectedRoute from "./Components/ProtectedRoute";
+import SplashScreen from "./Pages/SplashScreen";
+import Dashboard from "./Pages/Dashboard";
 
 function App() {
   return (

@@ -112,6 +112,7 @@ body {
   color: #004700;
   font-weight: bold;
   padding-left: 1rem;
+  font-size: medium;
 }
 
 .loginForm input::placeholder {
@@ -130,10 +131,10 @@ input:hover {
   padding-left: 1rem;
   margin-top: 1rem;
 
-  h4 {
+  h3 {
     margin: 0;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: medium;
   }
 }
 
@@ -156,6 +157,7 @@ input:hover {
   color: #d7fdd7;
   font-weight: 900;
   margin-top: 1.7rem;
+  font-size: medium;
 }
 
 .loginButton:hover {
@@ -203,33 +205,6 @@ input:hover {
     pointer-events: none;
     opacity: 0.6;
   }
-}
-
-.notificationContainer {
-  position: fixed;
-  width: fit-content;
-  bottom: 4%;
-  right: 4%;
-  padding: 10px 16px;
-  background: #004700;
-  color: #d7fdd7;
-  border-radius: 6px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-
-  transform: translateY(20px);
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.show {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.error {
-  background-color: rgb(147, 33, 33);
-  font-weight: bold;
-  color: white;
 }
 
 @media screen and (max-width: 900px) {

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import api from "../../../api";
-import { TEMP_TOKEN } from "../../../constants";
+import api from "../api";
+import { TEMP_TOKEN } from "../constants";
 import { useNavigate, Link } from "react-router-dom";
-import { checkInternetConnection, getResponseMessages } from "../../../utils";
-import style from "../../../styles/loginscreen.module.css";
-import image from "../../../images/image.svg";
+import { checkInternetConnection, getResponseMessages } from "../utils";
+import style from "../styles/pages/loginscreen.module.css";
+import image from "../images/image.svg";
 import ClipLoader from "react-spinners/ClipLoader";
+import Notification from "../Components/NotificationComponent";
 
 function LoginUser({ route }) {
   const [username, setUsername] = useState("");
@@ -50,6 +51,16 @@ function LoginUser({ route }) {
       return;
     }
 
+    if (!username || !password) {
+      setIsLoading(false);
+      setResponse({
+        message: "Username and password are required.",
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
+
     try {
       const res = await api.post(route, {
         username,
@@ -65,7 +76,6 @@ function LoginUser({ route }) {
 
       setResponse({
         message: getResponseMessages(res),
-        type: "success",
         id: Date.now(),
       });
 
@@ -91,7 +101,7 @@ function LoginUser({ route }) {
       <div className={style.imageFormGrid}>
         {/* IMAGE SECTION */}
         <div className={style.imageContainer}>
-          <img src={image} loading="lazy" alt="" />
+          <img src={image} loading="lazy" alt="Login Illustration" />
         </div>
         {/* LOGIN FORM SECTION */}
         <div className={style.loginForm}>
@@ -114,18 +124,18 @@ function LoginUser({ route }) {
               <input
                 type="text"
                 value={username}
+                disabled={isLoading}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Username"
-                className={`${isLoading ? style.disabled : ""}`}
               />
             </div>
             <div className={style.passwordTextbox}>
               <input
                 type="password"
                 value={password}
+                disabled={isLoading}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
-                className={`${isLoading ? style.disabled : ""}`}
               />
             </div>
 
@@ -136,6 +146,7 @@ function LoginUser({ route }) {
 
             <button
               type="submit"
+              disabled={isLoading}
               className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
             >
               {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
@@ -148,13 +159,9 @@ function LoginUser({ route }) {
           </div>
         </div>
       </div>
-      <div
-        className={`${style.notificationContainer} ${
-          visible ? style.show : ""
-        } ${response?.type === "error" ? style.error : ""}`}
-      >
-        {response?.message}
-      </div>
+
+      {/* Notification Component */}
+      <Notification isVisible={visible} response={response} />
     </div>
   );
 }

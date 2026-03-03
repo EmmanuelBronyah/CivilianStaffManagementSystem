@@ -1,4 +1,6 @@
 import { useNavigate } from "react-router-dom";
+import Header from "../Components/HeaderComponent";
+import SideBar from "../Components/SideBarComponent";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -9,8 +11,9 @@ function Dashboard() {
 
   return (
     <>
-      <h1>My Dashboard</h1>
-      <button onClick={navigateToLogoutPage}>Logout</button>
+      <Header />
+      <SideBar />
+      {/* <button onClick={navigateToLogoutPage}>Logout</button> */}
     </>
   );
 }

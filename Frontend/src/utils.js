@@ -12,14 +12,11 @@ async function checkInternetConnection() {
     clearTimeout(timeout);
     return res.ok;
   } catch (error) {
-    console.log("NO INTERNET");
     return false;
   }
 }
 
-export { extractErrorMessages, checkInternetConnection };
-
-export default function getResponseMessages(response) {
+function getResponseMessages(response) {
   const data = response.data;
   console.log("Response Data -> ", data);
 
@@ -48,3 +45,5 @@ export default function getResponseMessages(response) {
   console.log("First Message -> ", firstMessage);
   return firstMessage;
 }
+
+export { checkInternetConnection, getResponseMessages };

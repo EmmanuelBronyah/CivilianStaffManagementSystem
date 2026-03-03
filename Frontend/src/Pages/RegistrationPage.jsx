@@ -1,8 +1,7 @@
 import { useState } from "react";
-import api from "../../../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../../constants";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
-import { checkInternetConnection } from "../../../utils";
+import { checkInternetConnection } from "../utils";
 
 function RegisterUser({ route }) {
   const [fullname, setFullname] = useState("");
@@ -20,7 +19,7 @@ function RegisterUser({ route }) {
 
     if (!hasInternetConnection) {
       console.log(
-        "Network issue detected. Please ensure you are connected to the internet and try again."
+        "Network issue detected. Please ensure you are connected to the internet and try again.",
       );
       return;
     }

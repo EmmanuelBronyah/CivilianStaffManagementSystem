@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import api from "../../../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../../constants";
+import api from "../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../constants";
 import { useNavigate } from "react-router-dom";
-import { checkInternetConnection, getResponseMessages } from "../../../utils";
-import style from "../../../styles/otpscreen.module.css";
+import { checkInternetConnection, getResponseMessages } from "../utils";
+import style from "../styles/pages/otpscreen.module.css";
+import Notification from "../Components/NotificationComponent";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
   const [response, setResponse] = useState(null);
+  const [verifyLoading, setVerifyIsLoading] = useState(false);
+  const [resendLoading, setResendIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
 
@@ -25,15 +29,29 @@ function ResendAndVerifyOTP({ route }) {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
+    setVerifyIsLoading(true);
+
     const temp_token = localStorage.getItem(TEMP_TOKEN);
     const tokenData = { tokens: { temp_token: temp_token, otp_token: otp } };
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
-      const message =
-        "Network issue detected. Please ensure you are connected to the internet and try again.";
+      setVerifyIsLoading(false);
+      setResponse({
+        message: "Network issue detected. Please ensure you are connected.",
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
 
-      setResponse({ message: message, type: "error", id: Date.now() });
+    if (!otp) {
+      setVerifyIsLoading(false);
+      setResponse({
+        message: "Enter 6 digit code",
+        type: "error",
+        id: Date.now(),
+      });
       return;
     }
 
@@ -56,21 +74,27 @@ function ResendAndVerifyOTP({ route }) {
         const message = getResponseMessages(errorObj);
         setResponse({ message: message, type: "error", id: Date.now() });
       }
+    } finally {
+      setVerifyIsLoading(false);
     }
   };
 
   const handleResend = async (e) => {
     e.preventDefault();
+    setResendIsLoading(true);
+
     const otpResendRoute = "api/resend-otp/";
     const temp_token = localStorage.getItem(TEMP_TOKEN);
     const tempTokenData = { tokens: { temp_token: temp_token } };
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
-      const message =
-        "Network issue detected. Please ensure you are connected to the internet and try again.";
-
-      setResponse({ message: message, type: "error", id: Date.now() });
+      setResendIsLoading(false);
+      setResponse({
+        message: "Network issue detected. Please ensure you are connected.",
+        type: "error",
+        id: Date.now(),
+      });
       return;
     }
 
@@ -89,6 +113,8 @@ function ResendAndVerifyOTP({ route }) {
         const message = getResponseMessages(errorObj);
         setResponse({ message: message, type: "error", id: Date.now() });
       }
+    } finally {
+      setResendIsLoading(false);
     }
   };
 
@@ -99,34 +125,44 @@ function ResendAndVerifyOTP({ route }) {
         <div className={style.logoTextAndOtpContainer}>
           <div className={style.logoText}>CiviBase</div>
           <div className={style.otpContainer}>
-            <div className={style.inputBoxesAndButtons}>
-              <div>
-                <input
-                  type="text"
-                  value={otp}
-                  onChange={(e) => setOTP(e.target.value)}
-                  placeholder="Enter 6-digit code"
-                />
-              </div>
-              <div className={style.buttonsContainer}>
-                <button type="submit" onClick={handleSubmit}>
-                  Verify
-                </button>
-                <button type="submit" onClick={handleResend}>
-                  Resend
-                </button>
-              </div>
+            <div className={style.inputContainer}>
+              <input
+                type="text"
+                disabled={verifyLoading || resendLoading}
+                value={otp}
+                onChange={(e) => setOTP(e.target.value)}
+                placeholder="Enter 6-digit code"
+              />
+            </div>
+            <div className={style.buttonsContainer}>
+              <button
+                type="submit"
+                disabled={verifyLoading || resendLoading}
+                onClick={handleSubmit}
+              >
+                {verifyLoading ? (
+                  <ClipLoader size={13} color="#fff" />
+                ) : (
+                  "Verify"
+                )}
+              </button>
+              <button
+                type="submit"
+                disabled={verifyLoading || resendLoading}
+                onClick={handleResend}
+              >
+                {resendLoading ? (
+                  <ClipLoader size={13} color="#fff" />
+                ) : (
+                  "Resend"
+                )}
+              </button>
             </div>
           </div>
         </div>
       </div>
-      <div
-        className={`${style.notificationContainer} ${
-          visible ? style.show : ""
-        } ${response?.type === "error" ? style.error : ""}`}
-      >
-        {response?.message}
-      </div>
+      {/* Notification Component */}
+      <Notification isVisible={visible} response={response} />
     </div>
   );
 }

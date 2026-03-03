@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-import api from "../../../api";
-import { checkInternetConnection, getResponseMessages } from "../../../utils";
-import style from "../../../styles/resetpasswordscreen.module.css";
+import api from "../api";
+import { checkInternetConnection, getResponseMessages } from "../utils";
+import style from "../styles/pages/resetpasswordscreen.module.css";
+import Notification from "../Components/NotificationComponent";
+import ClipLoader from "react-spinners/ClipLoader";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");
   const [response, setResponse] = useState(null);
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (response?.message) {
@@ -22,13 +25,26 @@ function ResetPassword({ route }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
+      setLoading(false);
       const message =
         "Network issue detected. Please ensure you are connected to the internet and try again.";
 
       setResponse({ message: message, type: "error", id: Date.now() });
+      return;
+    }
+
+    if (!email) {
+      setLoading(false);
+      setResponse({
+        message: "Enter email address",
+        type: "error",
+        id: Date.now(),
+      });
       return;
     }
 
@@ -55,6 +71,8 @@ function ResetPassword({ route }) {
           setResponse({ message: message, type: "error", id: Date.now() });
         }
       }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -70,26 +88,22 @@ function ResetPassword({ route }) {
                 <input
                   type="email"
                   value={email}
+                  disabled={loading}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Email"
                 />
               </div>
               <div className={style.buttonContainer}>
                 <button type="submit" onClick={handleSubmit}>
-                  Submit
+                  {loading ? <ClipLoader size={13} color="#fff" /> : "Verify"}
                 </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div
-        className={`${style.notificationContainer} ${
-          visible ? style.show : ""
-        } ${response?.type === "error" ? style.error : ""}`}
-      >
-        {response?.message}
-      </div>
+      {/* Notification Component */}
+      <Notification isVisible={visible} response={response} />
     </div>
   );
 }
