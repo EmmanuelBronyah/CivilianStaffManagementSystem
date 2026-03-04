@@ -27,6 +27,7 @@ from .services import (
     delete_temp_token,
 )
 from django.db import transaction
+from celery.result import AsyncResult
 
 
 logger = logging.getLogger(__name__)
@@ -329,9 +330,7 @@ class LoginView(APIView):
             logger.info(f"OTP will be dully sent to user's({user}'s) email.")
 
             device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-            transaction.on_commit(
-                lambda: send_otp_email_task.delay(device.id)
-            )
+            task = send_otp_email_task.delay(device.id)
 
 
             cache.set(otp_cache_key, True, timeout=60)
@@ -348,7 +347,11 @@ class LoginView(APIView):
             )
 
         return Response(
-            {"detail": "OTP sent to your email.", "temp_token": temp_token},
+            {
+                "detail": "OTP is being sent.",
+                "temp_token": temp_token,
+                "task_id": task.id,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -522,3 +525,14 @@ class LogoutView(APIView):
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+
+class TaskStatusView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, task_id):
+        result = AsyncResult(task_id)
+
+        return Response({
+            "status": result.status
+        })

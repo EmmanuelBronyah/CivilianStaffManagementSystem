@@ -13,7 +13,7 @@ function Dashboard() {
     <>
       <Header />
       <SideBar />
-      {/* <button onClick={navigateToLogoutPage}>Logout</button> */}
+      <button onClick={navigateToLogoutPage}>Logout</button>
     </>
   );
 }

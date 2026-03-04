@@ -84,4 +84,6 @@ urlpatterns = [
         views.DeleteDivisionAPIView.as_view(),
         name="delete-division",
     ),
+    # Task status
+    path("task-status/<str:task_id>/", views.TaskStatusView.as_view())
 ]

@@ -6,6 +6,7 @@ import { checkInternetConnection, getResponseMessages } from "../utils";
 import style from "../styles/pages/otpscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
+import OTPTimer from "../Components/OTPTimerComponent";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
@@ -13,6 +14,8 @@ function ResendAndVerifyOTP({ route }) {
   const [verifyLoading, setVerifyIsLoading] = useState(false);
   const [resendLoading, setResendIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
+  const [expiryTimestamp, setExpiryTimestamp] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,6 +29,13 @@ function ResendAndVerifyOTP({ route }) {
 
     return () => clearTimeout(timer);
   }, [response]);
+
+  useEffect(() => {
+    const expiry = Date.now() + 5 * 60 * 1000;
+    setExpiryTimestamp(expiry);
+
+    localStorage.setItem("otp_expiry", expiry);
+  }, []);
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -137,7 +147,7 @@ function ResendAndVerifyOTP({ route }) {
             <div className={style.buttonsContainer}>
               <button
                 type="submit"
-                disabled={verifyLoading || resendLoading}
+                disabled={verifyLoading || resendLoading || isExpired}
                 onClick={handleSubmit}
               >
                 {verifyLoading ? (
@@ -159,6 +169,16 @@ function ResendAndVerifyOTP({ route }) {
               </button>
             </div>
           </div>
+        </div>
+        <div
+          className={`${style.timerContainer} ${isExpired && style.expired}`}
+        >
+          {expiryTimestamp && (
+            <OTPTimer
+              expiryTimestamp={expiryTimestamp}
+              onExpire={() => setIsExpired(true)}
+            />
+          )}
         </div>
       </div>
       {/* Notification Component */}

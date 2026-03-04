@@ -12,12 +12,12 @@ body {
   background-color: #f3f3f3;
   min-height: 100dvh;
   font-family: "Roboto", sans-serif;
+  display: grid;
 }
 
 .wrapper {
+  place-content: center;
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
 }
 
 .logoText {
@@ -38,7 +38,7 @@ body {
   display: grid;
   background-color: #b2dbb2;
   width: min(30rem, 90%);
-  height: 30vh;
+  height: calc(11rem + 6.5vh);
   margin-inline: auto;
   border-radius: 0.5rem;
   place-items: center;
@@ -97,4 +97,26 @@ body {
 .disabled {
   pointer-events: none;
   cursor: not-allowed;
+}
+
+.timerContainer {
+  margin-inline: auto;
+  margin-top: 1rem;
+  border-radius: 0.5rem;
+  padding: 0.6rem 1rem;
+  background-color: #356b35;
+  width: calc(13rem + 10vh);
+  text-align: center;
+  font-size: medium;
+  font-weight: bold;
+  color: white;
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.expired {
+  background-color: rgb(168, 62, 62);
 }
