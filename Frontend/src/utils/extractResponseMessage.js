@@ -1,22 +1,4 @@
-async function checkInternetConnection() {
-  try {
-    const timeoutId = 3000;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), timeoutId);
-
-    const res = await fetch("https://jsonplaceholder.typicode.com/posts/1", {
-      method: "GET",
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-    return res.ok;
-  } catch (error) {
-    return false;
-  }
-}
-
-function getResponseMessages(response) {
+export default function getResponseMessages(response) {
   const data = response.data;
   console.log("Response Data -> ", data);
 
@@ -45,5 +27,3 @@ function getResponseMessages(response) {
   console.log("First Message -> ", firstMessage);
   return firstMessage;
 }
-
-export { checkInternetConnection, getResponseMessages };

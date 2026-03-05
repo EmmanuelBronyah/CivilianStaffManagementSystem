@@ -16,8 +16,6 @@ function ProtectedRoute({ children }) {
   }, []);
 
   const refreshToken = async () => {
-    console.log("RUN REFRESH FUNCTION");
-
     const refreshToken = localStorage.getItem(REFRESH_TOKEN);
 
     try {

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-import { checkInternetConnection, getResponseMessages } from "../utils";
+import checkInternetConnection from "../utils/checkInternetConnection";
+import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/resetpasswordscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";

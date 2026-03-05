@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import api from "../api";
 import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../constants";
 import { useNavigate } from "react-router-dom";
-import { checkInternetConnection, getResponseMessages } from "../utils";
+import checkInternetConnection from "../utils/checkInternetConnection";
+import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/otpscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -31,10 +32,15 @@ function ResendAndVerifyOTP({ route }) {
   }, [response]);
 
   useEffect(() => {
-    const expiry = Date.now() + 5 * 60 * 1000;
-    setExpiryTimestamp(expiry);
+    const storedExpiry = localStorage.getItem("otp_expiry");
 
-    localStorage.setItem("otp_expiry", expiry);
+    if (storedExpiry) {
+      setExpiryTimestamp(Number(storedExpiry));
+    } else {
+      const expiry = Date.now() + 5 * 60 * 1000;
+      localStorage.setItem("otp_expiry", expiry);
+      setExpiryTimestamp(expiry);
+    }
   }, []);
 
   const handleSubmit = async (e) => {
@@ -70,13 +76,15 @@ function ResendAndVerifyOTP({ route }) {
       if (res.status === 200) {
         localStorage.setItem(ACCESS_TOKEN, res.data.access_token);
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token);
-        localStorage.removeItem(TEMP_TOKEN);
 
-        setResponse({ message: "Login successful", id: Date.now() });
+        setResponse({
+          message: "Login successful. Redirecting...",
+          id: Date.now(),
+        });
 
         setTimeout(() => {
           navigate("/dashboard");
-        }, 3000);
+        }, 4000);
       }
     } catch (error) {
       const errorObj = error.response;

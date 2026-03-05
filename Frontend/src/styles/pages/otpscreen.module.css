@@ -38,7 +38,7 @@ body {
   display: grid;
   background-color: #b2dbb2;
   width: min(30rem, 90%);
-  height: calc(11rem + 6.5vh);
+  height: calc(10rem + 5vh);
   margin-inline: auto;
   border-radius: 0.5rem;
   place-items: center;
@@ -105,7 +105,7 @@ body {
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
   background-color: #356b35;
-  width: calc(13rem + 10vh);
+  width: fit-content;
   text-align: center;
   font-size: medium;
   font-weight: bold;

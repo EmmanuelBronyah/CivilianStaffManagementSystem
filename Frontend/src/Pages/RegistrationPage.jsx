@@ -1,7 +1,7 @@
 import { useState } from "react";
 import api from "../api";
 import { useNavigate } from "react-router-dom";
-import { checkInternetConnection } from "../utils";
+import checkInternetConnection from "../utils/checkInternetConnection";
 
 function RegisterUser({ route }) {
   const [fullname, setFullname] = useState("");

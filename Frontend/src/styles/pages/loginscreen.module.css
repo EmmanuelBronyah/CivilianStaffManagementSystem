@@ -11,30 +11,38 @@ body {
 .loginPage {
   background-color: #f3f3f3;
   display: grid;
-  grid-template-rows: 10% 1fr;
-  gap: 1rem;
+  grid-template-rows: 12% 1fr;
   min-height: 100dvh;
+  gap: 0.4rem;
   font-family: "Roboto", sans-serif;
 }
 
 .logoText {
-  font-size: clamp(2.5rem, 3vw + 1rem, 5.5rem);
+  font-size: calc(4rem + 1vw);
   font-weight: 900;
   letter-spacing: 0.15em;
   text-align: center;
   color: #004700;
+  width: 100%;
+  height: 100%;
+  place-self: center;
+  margin-block: auto;
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 .imageFormGrid {
-  place-content: center;
+  place-self: center;
   background-color: #b2dbb2;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 10rem;
-  width: min(70rem, 90%);
-  height: 76vh;
+  width: min(70rem, 85%);
+  height: calc(27rem + 7vh);
   padding-inline: 1rem;
-  margin-inline: auto;
   border-radius: 0.5rem;
 }
 
@@ -52,7 +60,9 @@ body {
 }
 
 .loginForm {
-  margin-block: auto;
+  display: grid;
+  /* border: 2px solid red; */
+  /* margin-block: auto; */
 }
 
 .textRolesContainer {
@@ -66,7 +76,7 @@ body {
     padding: 0;
     margin: 0;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: clamp(1rem, 1rem + 0.35vw, 1.9rem);
   }
 
   .rolesContainer {
@@ -87,6 +97,11 @@ body {
   }
 }
 
+.formWrapper {
+  /* border: 2px solid blue; */
+  align-self: center;
+}
+
 .activeRole {
   background-color: #d7fdd7;
   padding-inline: 0.3rem;
@@ -95,24 +110,24 @@ body {
 
 .usernameTextbox {
   margin-top: 2.5rem;
-  width: min(30vw, 80%);
+  width: min(30vw, 100%);
 }
 
 .passwordTextbox {
-  margin-top: 1.5rem;
-  width: min(30vw, 80%);
+  margin-top: 2rem;
+  width: min(30vw, 100%);
 }
 
 .loginForm input {
   width: 100%;
-  height: 6vh;
+  height: calc(2.6rem + 0.7vh);
   border-radius: 2rem;
   background-color: #d7fdd7;
   border: none;
   color: #004700;
   font-weight: bold;
   padding-left: 1rem;
-  font-size: medium;
+  font-size: 1.125rem;
 }
 
 .loginForm input::placeholder {
@@ -129,12 +144,12 @@ input:hover {
   align-items: center;
   gap: 1rem;
   padding-left: 1rem;
-  margin-top: 1rem;
+  margin-top: 2rem;
 
-  h3 {
+  h4 {
     margin: 0;
     font-weight: bold;
-    font-size: medium;
+    font-size: 1.125rem;
   }
 }
 
@@ -145,19 +160,19 @@ input:hover {
   border-radius: 0.3rem;
   color: #d7fdd7;
   background-color: #004700;
+  font-size: 1.125rem;
 }
 
 .loginButton {
-  position: relative;
-  width: min(32vw, 80%);
-  height: 6vh;
+  width: min(32vw, 85%);
+  height: calc(3.3rem + 1vh);
   border-radius: 2rem;
   background-color: #004700;
   border: none;
   color: #d7fdd7;
   font-weight: 900;
-  margin-top: 1.7rem;
-  font-size: medium;
+  margin-top: 2.5rem;
+  font-size: 1.2rem;
 }
 
 .loginButton:hover {
@@ -182,26 +197,26 @@ input:hover {
 }
 
 .forgotPassword {
-  margin-top: 1rem;
+  margin-top: 2rem;
   padding-left: 1rem;
 
   a {
     text-decoration: none;
     color: black;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.2rem;
   }
 }
 
 .forgotPasswordDisabled {
-  margin-top: 1rem;
+  margin-top: 2rem;
   padding-left: 1rem;
 
   a {
     text-decoration: none;
     color: black;
     font-weight: bold;
-    font-size: 1rem;
+    font-size: 1.2rem;
     pointer-events: none;
     opacity: 0.6;
   }
@@ -219,14 +234,14 @@ input:hover {
   }
 
   .usernameTextbox {
-    width: 100%;
+    width: 90%;
   }
 
   .passwordTextbox {
-    width: 100%;
+    width: 90%;
   }
 
   .loginButton {
-    width: 105%;
+    width: 95%;
   }
 }

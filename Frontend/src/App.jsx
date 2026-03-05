@@ -8,6 +8,7 @@ import ConfirmPasswordReset from "./Pages/ConfirmPasswordResetPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import SplashScreen from "./Pages/SplashScreen";
 import Dashboard from "./Pages/Dashboard";
+import ProtectOtpRoute from "./Components/OtpProtectedRouteComponent";
 
 function App() {
   return (
@@ -21,7 +22,11 @@ function App() {
         <Route path="/auth/login" element={<LoginUser route="api/login/" />} />
         <Route
           path="/auth/otp"
-          element={<ResendAndVerifyOTP route="api/verify-otp-token/" />}
+          element={
+            <ProtectOtpRoute>
+              <ResendAndVerifyOTP route="api/verify-otp-token/" />
+            </ProtectOtpRoute>
+          }
         />
         <Route
           path="/reset-password"

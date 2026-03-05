@@ -314,7 +314,7 @@ class LoginView(APIView):
         otp_cache_key = f"otp_email_sent:{user.id}"
         if cache.get(otp_cache_key):
 
-            logger.debug(f"OTP already sent.")
+            logger.debug(f"OTP already sent to your email.")
 
             return Response({"detail": "OTP already sent."}, status=status.HTTP_200_OK)
 
@@ -529,9 +529,11 @@ class LogoutView(APIView):
 
 class TaskStatusView(APIView):
     permission_classes = [AllowAny]
+    throttle_classes = []
 
     def get(self, request, task_id):
         result = AsyncResult(task_id)
+        print("RESULT STATUS -> ", result.status)
 
         return Response({
             "status": result.status

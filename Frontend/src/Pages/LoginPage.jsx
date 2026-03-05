@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import api from "../api";
-import { TEMP_TOKEN } from "../constants";
 import { useNavigate, Link } from "react-router-dom";
-import { checkInternetConnection, getResponseMessages } from "../utils";
+import checkTaskStatus from "../utils/checkOtpStatus";
+import checkInternetConnection from "../utils/checkInternetConnection";
+import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/loginscreen.module.css";
 import image from "../images/image.svg";
 import ClipLoader from "react-spinners/ClipLoader";
@@ -68,28 +69,33 @@ function LoginUser({ route }) {
         selectedRole,
       });
 
-      const tempToken = res.data.temp_token;
+      if (res.status === 200) {
+        const message = getResponseMessages(res);
+        if (message && message === "OTP already sent.") {
+          setResponse({
+            message: "OTP already sent.",
+          });
+          return;
+        }
 
-      if (!localStorage.getItem(TEMP_TOKEN)) {
-        localStorage.setItem(TEMP_TOKEN, tempToken);
+        const otpTaskId = res.data.task_id;
+        const tempToken = res.data.temp_token;
+
+        checkTaskStatus(
+          otpTaskId,
+          setResponse,
+          setIsLoading,
+          tempToken,
+          navigate,
+        );
       }
-
-      setResponse({
-        message: getResponseMessages(res),
-        id: Date.now(),
-      });
-
-      setTimeout(() => {
-        navigate("/auth/otp");
-      }, 3000);
     } catch (error) {
+      setIsLoading(false);
       setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -105,57 +111,59 @@ function LoginUser({ route }) {
         </div>
         {/* LOGIN FORM SECTION */}
         <div className={style.loginForm}>
-          <form onSubmit={handleSubmit}>
-            <div className={style.textRolesContainer}>
-              <h3>Login as</h3>
-              <div className={style.rolesContainer}>
-                {roles.map((role) => (
-                  <div
-                    key={role}
-                    onClick={() => setSelectedRole(role)}
-                    className={selectedRole === role ? style.activeRole : ""}
-                  >
-                    {role}
-                  </div>
-                ))}
+          <div className={style.formWrapper}>
+            <form onSubmit={handleSubmit}>
+              <div className={style.textRolesContainer}>
+                <h3>Login as</h3>
+                <div className={style.rolesContainer}>
+                  {roles.map((role) => (
+                    <div
+                      key={role}
+                      onClick={() => setSelectedRole(role)}
+                      className={selectedRole === role ? style.activeRole : ""}
+                    >
+                      <h3>{role}</h3>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className={style.usernameTextbox}>
-              <input
-                type="text"
-                value={username}
-                disabled={isLoading}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Username"
-              />
-            </div>
-            <div className={style.passwordTextbox}>
-              <input
-                type="password"
-                value={password}
-                disabled={isLoading}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-              />
-            </div>
+              <div className={style.usernameTextbox}>
+                <input
+                  type="text"
+                  value={username}
+                  disabled={isLoading}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Username"
+                />
+              </div>
+              <div className={style.passwordTextbox}>
+                <input
+                  type="password"
+                  value={password}
+                  disabled={isLoading}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Password"
+                />
+              </div>
 
-            <div className={style.roleContainer}>
-              <h4>Role</h4>
-              <div className={style.roleDiv}>{selectedRole}</div>
-            </div>
+              <div className={style.roleContainer}>
+                <h4>Role</h4>
+                <div className={style.roleDiv}>{selectedRole}</div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={isLoading}
-              className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
+              >
+                {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
+              </button>
+            </form>
+            <div
+              className={`${selectedRole === "Administrator" ? style.forgotPassword : style.forgotPasswordDisabled}`}
             >
-              {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
-            </button>
-          </form>
-          <div
-            className={`${selectedRole === "Administrator" ? style.forgotPassword : style.forgotPasswordDisabled}`}
-          >
-            <Link to="/reset-password">Forgot Password?</Link>
+              <Link to="/reset-password">Forgot Password?</Link>
+            </div>
           </div>
         </div>
       </div>
