@@ -8,6 +8,7 @@ import style from "../styles/pages/otpscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import OTPTimer from "../Components/OTPTimerComponent";
+import handleRevokeAndResendOTP from "../utils/revokeAndResendOtp";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
@@ -101,9 +102,6 @@ function ResendAndVerifyOTP({ route }) {
     e.preventDefault();
     setResendIsLoading(true);
 
-    const otpResendRoute = "api/resend-otp/";
-    const temp_token = localStorage.getItem(TEMP_TOKEN);
-    const tempTokenData = { tokens: { temp_token: temp_token } };
     const hasInternetConnection = await checkInternetConnection();
 
     if (!hasInternetConnection) {
@@ -117,22 +115,16 @@ function ResendAndVerifyOTP({ route }) {
     }
 
     try {
-      const res = await api.post(otpResendRoute, tempTokenData);
-      if (res.status === 200) {
-        const tempToken = res.data.temp_token;
-        localStorage.setItem(TEMP_TOKEN, tempToken);
+      console.log("ABOUT TO RUN <handleRevokeAndResendOTP> in OTPPage.jsx");
 
-        const message = getResponseMessages(response);
-        setResponse({ message: message, id: Date.now() });
-      }
+      // Handle revoking previous OTP's and Re-sending a new OTP
+      await handleRevokeAndResendOTP(setResponse, setResendIsLoading);
     } catch (error) {
       const errorObj = error.response;
       if (errorObj) {
         const message = getResponseMessages(errorObj);
         setResponse({ message: message, type: "error", id: Date.now() });
       }
-    } finally {
-      setResendIsLoading(false);
     }
   };
 

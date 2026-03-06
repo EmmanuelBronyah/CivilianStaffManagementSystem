@@ -302,7 +302,7 @@ class LoginView(APIView):
                 {"detail": "Invalid credentials."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-            
+
         if user.role.lower() != role.lower():
             logger.warning("Role chosen for user is inaccurate.")
 
@@ -331,7 +331,6 @@ class LoginView(APIView):
 
             device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
             task = send_otp_email_task.delay(device.id)
-
 
             cache.set(otp_cache_key, True, timeout=60)
 
@@ -445,6 +444,13 @@ class ResendOTPView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        resend_otp_cache_key = f"otp_email_sent:{user_id}"
+        if cache.get(resend_otp_cache_key):
+
+            logger.debug(f"OTP already sent to your email.")
+
+            return Response({"detail": "OTP already sent."}, status=status.HTTP_200_OK)
+
         user = CustomUser.objects.get(id=user_id)
         device = EmailDevice.objects.filter(user=user, name="default").first()
 
@@ -453,11 +459,29 @@ class ResendOTPView(APIView):
 
         logger.info(f"OTP will be dully sent to user's({user}'s) email.")
 
-        device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
-        send_otp_email_task.delay(device.id)
+        try:
+            device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
+            task = send_otp_email_task.delay(device.id)
+
+            cache.set(resend_otp_cache_key, True, timeout=60)
+
+        except Exception as e:
+            logger.exception(f"Temporary server error: {e}")
+
+            if device:
+                device.delete()
+
+            return Response(
+                {"detail": "Temporary server issue. Please try again shortly."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
         return Response(
-            {"detail": "OTP sent to your email.", "temp_token": temp_token},
+            {
+                "detail": "OTP is being sent.",
+                "temp_token": temp_token,
+                "task_id": task.id,
+            },
             status=status.HTTP_200_OK,
         )
 
@@ -472,9 +496,7 @@ class PasswordResetConfirmRedirectView(RedirectView):
         token = kwargs.get("token")
 
         logger.debug("Password reset url will be dully sent to user's email.")
-        return (
-            f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
-        )
+        return f"{settings.PASSWORD_RESET_CONFIRM_REDIRECT_BASE_URL}{uidb64}/{token}/"
 
         # except network_exceptions.NETWORK_EXCEPTIONS as e:
         #     logger.exception(f"A network error occurred. Exception({e})")
@@ -535,6 +557,30 @@ class TaskStatusView(APIView):
         result = AsyncResult(task_id)
         print("RESULT STATUS -> ", result.status)
 
-        return Response({
-            "status": result.status
-        })
+        return Response({"status": result.status})
+
+
+class RevokeTaskView(APIView):
+    permission_classes = [AllowAny]
+    throttle_classes = []
+
+    def delete(self, request, task_id):
+        task = AsyncResult(task_id)
+
+        logger.debug(f"Revoking OTP task {task_id}")
+
+        if task.state in ["SUCCESS", "FAILURE"]:
+            logger.debug(f"Task already completed.")
+
+            return Response(
+                {"detail": "Task already completed."},
+                status=status.HTTP_200_OK,
+            )
+
+        task.revoke(terminate=True)
+        logger.debug(f"Task revoked successfully.")
+
+        return Response(
+            {"detail": "Task revoked successfully."},
+            status=status.HTTP_200_OK,
+        )

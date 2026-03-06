@@ -7,6 +7,7 @@ function OTPTimer({ expiryTimestamp, onExpire }) {
       renderer={({ minutes, seconds, completed }) => {
         if (completed) {
           onExpire && onExpire();
+          localStorage.clear();
           return (
             <span>OTP has expired. Please start the login process again.</span>
           );

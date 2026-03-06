@@ -85,5 +85,6 @@ urlpatterns = [
         name="delete-division",
     ),
     # Task status
-    path("task-status/<str:task_id>/", views.TaskStatusView.as_view())
+    path("task-status/<str:task_id>/", views.TaskStatusView.as_view()),
+    path("task-delete/<str:task_id>/", views.RevokeTaskView.as_view()),
 ]

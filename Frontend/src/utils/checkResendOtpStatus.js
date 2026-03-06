@@ -1,36 +1,28 @@
 import api from "../api";
 import getResponseMessages from "./extractResponseMessage";
-import { TEMP_TOKEN } from "../constants";
 
-export default function checkTaskStatus(
+export default function checkResendOtpTaskStatus(
   setResponse,
-  setIsLoading,
-  tempToken,
-  navigate,
+  setResendIsLoading,
+  taskId,
 ) {
-  const otpTaskId = localStorage.getItem("otpTaskId");
-
   const interval = setInterval(async () => {
     try {
-      const res = await api.get(`/api/task-status/${otpTaskId}/`);
+      const res = await api.get(`/api/task-status/${taskId}/`);
 
       if (res.data.status === "SUCCESS") {
+        console.log("OTP RESEND WAS A SUCCESS");
+
         clearInterval(interval);
 
-        if (!localStorage.getItem(TEMP_TOKEN)) {
-          localStorage.setItem(TEMP_TOKEN, tempToken);
-        }
-
-        setIsLoading(false);
+        setResendIsLoading(false);
         setResponse({
           message: "OTP sent to your email.",
         });
-
-        setTimeout(() => {
-          navigate("/auth/otp");
-        }, 4000);
       }
       if (res.data.status === "FAILURE") {
+        console.log("OTP RESEND WAS A FAILURE");
+
         clearInterval(interval);
 
         setResponse({
@@ -38,9 +30,10 @@ export default function checkTaskStatus(
           type: "error",
         });
 
-        setIsLoading(false);
+        setResendIsLoading(false);
       }
     } catch (error) {
+      console.log("THERE WAS AN ERROR IN OTP RESEND");
       clearInterval(interval);
 
       setResponse({
@@ -49,7 +42,7 @@ export default function checkTaskStatus(
         id: Date.now(),
       });
 
-      setIsLoading(false);
+      setResendIsLoading(false);
     }
   }, 2000);
 }

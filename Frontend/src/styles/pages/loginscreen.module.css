@@ -61,8 +61,6 @@ body {
 
 .loginForm {
   display: grid;
-  /* border: 2px solid red; */
-  /* margin-block: auto; */
 }
 
 .textRolesContainer {
@@ -98,7 +96,6 @@ body {
 }
 
 .formWrapper {
-  /* border: 2px solid blue; */
   align-self: center;
 }
 
@@ -222,7 +219,7 @@ input:hover {
   }
 }
 
-@media screen and (max-width: 900px) {
+@media screen and (max-width: 1000px) {
   .imageContainer {
     display: none;
   }
@@ -230,18 +227,42 @@ input:hover {
   .imageFormGrid {
     display: grid;
     grid-template-columns: 1fr;
-    place-items: center;
+    height: 97%;
+    /* place-items: center; */
+  }
+
+  .textRolesContainer {
+    justify-self: center;
   }
 
   .usernameTextbox {
+    margin-inline: auto;
     width: 90%;
   }
 
   .passwordTextbox {
+    margin-inline: auto;
     width: 90%;
   }
 
+  .roleContainer {
+    margin-left: 3.5vw;
+  }
+
+  .buttonContainer {
+    display: flex;
+    place-content: center;
+  }
+
   .loginButton {
-    width: 95%;
+    width: 92%;
+  }
+
+  .forgotPassword {
+    margin-left: 3.5vw;
+  }
+
+  .forgotPasswordDisabled {
+    margin-left: 3.5vw;
   }
 }

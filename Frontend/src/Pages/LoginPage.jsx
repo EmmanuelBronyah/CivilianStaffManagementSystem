@@ -79,15 +79,11 @@ function LoginUser({ route }) {
         }
 
         const otpTaskId = res.data.task_id;
+        localStorage.setItem("otpTaskId", otpTaskId);
+
         const tempToken = res.data.temp_token;
 
-        checkTaskStatus(
-          otpTaskId,
-          setResponse,
-          setIsLoading,
-          tempToken,
-          navigate,
-        );
+        checkTaskStatus(setResponse, setIsLoading, tempToken, navigate);
       }
     } catch (error) {
       setIsLoading(false);
@@ -151,13 +147,15 @@ function LoginUser({ route }) {
                 <div className={style.roleDiv}>{selectedRole}</div>
               </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
-              >
-                {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
-              </button>
+              <div className={style.buttonContainer}>
+                <button
+                  type="submit"
+                  disabled={isLoading}
+                  className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
+                >
+                  {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
+                </button>
+              </div>
             </form>
             <div
               className={`${selectedRole === "Administrator" ? style.forgotPassword : style.forgotPasswordDisabled}`}
