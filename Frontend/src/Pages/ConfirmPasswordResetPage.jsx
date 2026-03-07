@@ -37,7 +37,7 @@ function ConfirmPasswordReset({ route }) {
     if (!hasInternetConnection) {
       setLoading(false);
       const message =
-        "Network issue detected. Please ensure you are connected to the internet and try again.";
+        "Network issue detected - Please ensure you are connected to the internet and try again";
 
       setResponse({ message: message, type: "error", id: Date.now() });
       return;
@@ -46,7 +46,7 @@ function ConfirmPasswordReset({ route }) {
     if (!password || !confirmPassword) {
       setLoading(false);
       setResponse({
-        message: "Password fields cannot be blank.",
+        message: "Password fields cannot be blank",
         type: "error",
         id: Date.now(),
       });

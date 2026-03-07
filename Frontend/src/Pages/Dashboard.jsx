@@ -9,6 +9,8 @@ function Dashboard() {
 
   useEffect(() => {
     localStorage.removeItem(TEMP_TOKEN);
+    localStorage.removeItem("otpTaskId");
+    localStorage.removeItem("otp_expiry");
   }, []);
 
   const navigateToLogoutPage = () => {

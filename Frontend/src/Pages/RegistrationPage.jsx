@@ -19,7 +19,7 @@ function RegisterUser({ route }) {
 
     if (!hasInternetConnection) {
       console.log(
-        "Network issue detected. Please ensure you are connected to the internet and try again.",
+        "Network issue detected - Please ensure you are connected to the internet and try again",
       );
       return;
     }
@@ -35,7 +35,7 @@ function RegisterUser({ route }) {
         division,
       });
       if (res.status === 201) {
-        console.log("Response: ", "User created successfully.");
+        console.log("Response: ", "User created successfully");
 
         navigate("/auth/login");
       }

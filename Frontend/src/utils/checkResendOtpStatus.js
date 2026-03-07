@@ -4,6 +4,7 @@ import getResponseMessages from "./extractResponseMessage";
 export default function checkResendOtpTaskStatus(
   setResponse,
   setResendIsLoading,
+  setResetTimer,
   taskId,
 ) {
   const interval = setInterval(async () => {
@@ -11,38 +12,37 @@ export default function checkResendOtpTaskStatus(
       const res = await api.get(`/api/task-status/${taskId}/`);
 
       if (res.data.status === "SUCCESS") {
-        console.log("OTP RESEND WAS A SUCCESS");
-
         clearInterval(interval);
 
         setResendIsLoading(false);
+
+        // Re-start timer at the moment OTP is sent
+        setResetTimer(true);
+
         setResponse({
-          message: "OTP sent to your email.",
+          message: "OTP sent to your email",
         });
       }
       if (res.data.status === "FAILURE") {
-        console.log("OTP RESEND WAS A FAILURE");
-
         clearInterval(interval);
 
+        setResendIsLoading(false);
+
         setResponse({
-          message: "Failed to send OTP.",
+          message: "Failed to send OTP",
           type: "error",
         });
-
-        setResendIsLoading(false);
       }
     } catch (error) {
-      console.log("THERE WAS AN ERROR IN OTP RESEND");
       clearInterval(interval);
+
+      setResendIsLoading(false);
 
       setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
       });
-
-      setResendIsLoading(false);
     }
   }, 2000);
 }

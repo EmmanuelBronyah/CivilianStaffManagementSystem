@@ -299,7 +299,7 @@ class LoginView(APIView):
             logger.warning("User credentials provided is invalid.")
 
             return Response(
-                {"detail": "Invalid credentials."},
+                {"detail": "Invalid credentials"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -316,7 +316,7 @@ class LoginView(APIView):
 
             logger.debug(f"OTP already sent to your email.")
 
-            return Response({"detail": "OTP already sent."}, status=status.HTTP_200_OK)
+            return Response({"detail": "OTP already sent"}, status=status.HTTP_200_OK)
 
         temp_token = f"otp_token:{uuid.uuid4()}"
 
@@ -341,13 +341,13 @@ class LoginView(APIView):
                 device.delete()
 
             return Response(
-                {"detail": "Temporary server issue. Please try again shortly."},
+                {"detail": "Temporary server issue - Please try again shortly"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         return Response(
             {
-                "detail": "OTP is being sent.",
+                "detail": "OTP is being sent",
                 "temp_token": temp_token,
                 "task_id": task.id,
             },
@@ -374,7 +374,7 @@ class VerifyOTPView(APIView):
             logger.warning("Invalid OTP. Please start the login process again.")
 
             return Response(
-                {"detail": "Invalid OTP. Please start the login process again."},
+                {"detail": "Invalid OTP - Please start the login process again"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -386,7 +386,7 @@ class VerifyOTPView(APIView):
             )
             return Response(
                 {
-                    "detail": "Token expired or invalid. Please start the login process again.",
+                    "detail": "Token expired or invalid - Please start the login process again",
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -413,7 +413,7 @@ class VerifyOTPView(APIView):
         )
         return Response(
             {
-                "detail": "Token expired or invalid. Please start the login process again."
+                "detail": "Token expired or invalid - Please start the login process again"
             },
             status=status.HTTP_400_BAD_REQUEST,
         )
@@ -439,17 +439,17 @@ class ResendOTPView(APIView):
             )
             return Response(
                 {
-                    "detail": "Your session has expired. Please start the login process again."
+                    "detail": "Your session has expired - Please start the login process again"
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        resend_otp_cache_key = f"otp_email_sent:{user_id}"
-        if cache.get(resend_otp_cache_key):
+        otp_cache_key = f"otp_email_sent:{user_id}"
+        if cache.get(otp_cache_key):
 
             logger.debug(f"OTP already sent to your email.")
 
-            return Response({"detail": "OTP already sent."}, status=status.HTTP_200_OK)
+            return Response({"detail": "OTP already sent"}, status=status.HTTP_200_OK)
 
         user = CustomUser.objects.get(id=user_id)
         device = EmailDevice.objects.filter(user=user, name="default").first()
@@ -457,13 +457,15 @@ class ResendOTPView(APIView):
         if device:
             device.delete()
 
-        logger.info(f"OTP will be dully sent to user's({user}'s) email.")
-
         try:
+            cache_temp_token(temp_token, user_id)
+
+            logger.info(f"OTP will be dully sent to user's({user}'s) email.")
+
             device, _ = EmailDevice.objects.get_or_create(user=user, name="default")
             task = send_otp_email_task.delay(device.id)
 
-            cache.set(resend_otp_cache_key, True, timeout=60)
+            cache.set(otp_cache_key, True, timeout=60)
 
         except Exception as e:
             logger.exception(f"Temporary server error: {e}")
@@ -472,13 +474,13 @@ class ResendOTPView(APIView):
                 device.delete()
 
             return Response(
-                {"detail": "Temporary server issue. Please try again shortly."},
+                {"detail": "Temporary server issue - Please try again shortly"},
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
         return Response(
             {
-                "detail": "OTP is being sent.",
+                "detail": "OTP is being sent",
                 "temp_token": temp_token,
                 "task_id": task.id,
             },
@@ -526,7 +528,7 @@ class LogoutView(APIView):
 
             logger.info("You have been successfully logged out.")
             return Response(
-                {"detail": "You have been successfully logged out."},
+                {"detail": "You have been successfully logged out"},
                 status=status.HTTP_204_NO_CONTENT,
             )
 
@@ -534,7 +536,7 @@ class LogoutView(APIView):
             logger.warning("Invalid or expired token.")
 
             return Response(
-                {"detail": "Invalid or expired token."},
+                {"detail": "Invalid or expired token"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -543,7 +545,7 @@ class LogoutView(APIView):
 
             return Response(
                 {
-                    "detail": "Network issue detected. Please ensure you are connected to the internet and try again."
+                    "detail": "Network issue detected - Please ensure you are connected to the internet and try again"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
@@ -573,14 +575,14 @@ class RevokeTaskView(APIView):
             logger.debug(f"Task already completed.")
 
             return Response(
-                {"detail": "Task already completed."},
+                {"detail": "Task already completed"},
                 status=status.HTTP_200_OK,
             )
 
         task.revoke(terminate=True)
-        logger.debug(f"Task revoked successfully.")
+        logger.debug(f"Task revoked successfully")
 
         return Response(
-            {"detail": "Task revoked successfully."},
+            {"detail": "Task revoked successfully"},
             status=status.HTTP_200_OK,
         )

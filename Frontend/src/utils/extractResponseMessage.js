@@ -1,12 +1,10 @@
 export default function getResponseMessages(response) {
   const data = response.data;
-  console.log("Response Data -> ", data);
 
   const messages = [];
 
   if (data) {
     const keyValuePairs = Object.entries(data);
-    console.log("Key Value Pairs", keyValuePairs);
 
     if (keyValuePairs) {
       for (const [key, value] of Object.entries(data)) {
@@ -24,6 +22,5 @@ export default function getResponseMessages(response) {
     }
   }
   const firstMessage = messages[0];
-  console.log("First Message -> ", firstMessage);
   return firstMessage;
 }

@@ -45,7 +45,8 @@ function LoginUser({ route }) {
     if (!hasInternetConnection) {
       setIsLoading(false);
       setResponse({
-        message: "Network issue detected. Please ensure you are connected.",
+        message:
+          "Network issue detected - Please ensure you are connected to the internet and try again",
         type: "error",
         id: Date.now(),
       });
@@ -55,7 +56,7 @@ function LoginUser({ route }) {
     if (!username || !password) {
       setIsLoading(false);
       setResponse({
-        message: "Username and password are required.",
+        message: "Username and password are required",
         type: "error",
         id: Date.now(),
       });
@@ -71,9 +72,9 @@ function LoginUser({ route }) {
 
       if (res.status === 200) {
         const message = getResponseMessages(res);
-        if (message && message === "OTP already sent.") {
+        if (message && message === "OTP already sent") {
           setResponse({
-            message: "OTP already sent.",
+            message: "OTP already sent",
           });
           return;
         }
@@ -153,7 +154,7 @@ function LoginUser({ route }) {
                   disabled={isLoading}
                   className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
                 >
-                  {isLoading ? <ClipLoader size={18} color="#fff" /> : "Login"}
+                  {isLoading ? <ClipLoader size={25} color="#fff" /> : "Login"}
                 </button>
               </div>
             </form>

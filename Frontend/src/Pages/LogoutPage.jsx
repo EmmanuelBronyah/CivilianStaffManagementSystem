@@ -14,7 +14,7 @@ export default function LogoutUser({ route }) {
         localStorage.removeItem(ACCESS_TOKEN);
         localStorage.removeItem(REFRESH_TOKEN);
         localStorage.removeItem(TEMP_TOKEN);
-        console.log("Response: ", res.data.detail);
+
         setTimeout(() => {
           navigate("/auth/login/");
         }, 900);

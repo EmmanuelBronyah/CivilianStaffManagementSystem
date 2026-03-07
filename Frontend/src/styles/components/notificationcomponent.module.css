@@ -4,8 +4,9 @@
   bottom: 4%;
   right: 4%;
   padding: 10px 16px;
-  background: #004700;
-  color: #d7fdd7;
+  font-weight: bold;
+  background-color: #DFF2BF;
+  color: #4F8A10;
   border-radius: 6px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 
@@ -20,7 +21,7 @@
 }
 
 .error {
-  background-color: rgb(147, 33, 33);
+  background-color: #FFBABA;
   font-weight: bold;
-  color: white;
+  color: #D8000C;
 }

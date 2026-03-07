@@ -6,9 +6,9 @@ import checkResendOtpTaskStatus from "./checkResendOtpStatus";
 export default async function handleRevokeAndResendOTP(
   setResponse,
   setResendIsLoading,
+  setResetTimer,
 ) {
   const otpTaskId = localStorage.getItem("otpTaskId");
-  console.log("otpTaskId", otpTaskId);
 
   const otpResendRoute = "api/resend-otp/";
   const temp_token = localStorage.getItem(TEMP_TOKEN);
@@ -19,21 +19,16 @@ export default async function handleRevokeAndResendOTP(
       `/api/task-delete/${otpTaskId}/`,
     );
     if (deleteTaskResponse.status === 200) {
-      console.log("DELETE TASK RETURNED 200");
-
       const resendOtpResponse = await api.post(otpResendRoute, tempTokenData);
 
       if (resendOtpResponse.status === 200) {
-        console.log("RESEND OTP RETURNED 200");
-
         const message = getResponseMessages(resendOtpResponse);
-        console.log("MESSAGE", message);
 
-        if (message && message === "OTP already sent.") {
+        if (message && message === "OTP already sent") {
           setResendIsLoading(false);
 
           setResponse({
-            message: "OTP already sent.",
+            message: "OTP already sent",
             id: Date.now(),
           });
           return;
@@ -45,15 +40,15 @@ export default async function handleRevokeAndResendOTP(
         const taskId = resendOtpResponse.data.task_id;
         localStorage.setItem("otpTaskId", taskId);
 
-        console.log(
-          "ABOUT TO RUN <checkResendOtpTaskStatus> in revokeAndResendOtp.jsx",
+        checkResendOtpTaskStatus(
+          setResponse,
+          setResendIsLoading,
+          setResetTimer,
+          taskId,
         );
-        checkResendOtpTaskStatus(setResponse, setResendIsLoading, taskId);
       }
     }
   } catch (error) {
-    console.log("THERE WAS AN ERROR IN <revokeAndResendOtp.jsx>");
-
     setResendIsLoading(false);
 
     setResponse({

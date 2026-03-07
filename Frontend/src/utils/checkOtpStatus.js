@@ -23,7 +23,7 @@ export default function checkTaskStatus(
 
         setIsLoading(false);
         setResponse({
-          message: "OTP sent to your email.",
+          message: "OTP sent to your email",
         });
 
         setTimeout(() => {
@@ -34,7 +34,7 @@ export default function checkTaskStatus(
         clearInterval(interval);
 
         setResponse({
-          message: "Failed to send OTP.",
+          message: "Failed to send OTP",
           type: "error",
         });
 

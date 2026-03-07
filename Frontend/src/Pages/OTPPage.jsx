@@ -18,6 +18,8 @@ function ResendAndVerifyOTP({ route }) {
   const [visible, setVisible] = useState(false);
   const [isExpired, setIsExpired] = useState(false);
   const [expiryTimestamp, setExpiryTimestamp] = useState(null);
+  const [resetTimer, setResetTimer] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,6 +46,16 @@ function ResendAndVerifyOTP({ route }) {
     }
   }, []);
 
+  useEffect(() => {
+    if (resetTimer) {
+      const expiry = Date.now() + 5 * 60 * 1000;
+      localStorage.setItem("otp_expiry", expiry);
+      setExpiryTimestamp(expiry);
+
+      setResetTimer(false);
+    }
+  }, [resetTimer]);
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     setVerifyIsLoading(true);
@@ -55,7 +67,8 @@ function ResendAndVerifyOTP({ route }) {
     if (!hasInternetConnection) {
       setVerifyIsLoading(false);
       setResponse({
-        message: "Network issue detected. Please ensure you are connected.",
+        message:
+          "Network issue detected - Please ensure you are connected to the internet and try again",
         type: "error",
         id: Date.now(),
       });
@@ -79,7 +92,7 @@ function ResendAndVerifyOTP({ route }) {
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token);
 
         setResponse({
-          message: "Login successful. Redirecting...",
+          message: "Login successful",
           id: Date.now(),
         });
 
@@ -100,6 +113,7 @@ function ResendAndVerifyOTP({ route }) {
 
   const handleResend = async (e) => {
     e.preventDefault();
+
     setResendIsLoading(true);
 
     const hasInternetConnection = await checkInternetConnection();
@@ -107,25 +121,20 @@ function ResendAndVerifyOTP({ route }) {
     if (!hasInternetConnection) {
       setResendIsLoading(false);
       setResponse({
-        message: "Network issue detected. Please ensure you are connected.",
+        message:
+          "Network issue detected - Please ensure you are connected to the internet and try again",
         type: "error",
         id: Date.now(),
       });
       return;
     }
 
-    try {
-      console.log("ABOUT TO RUN <handleRevokeAndResendOTP> in OTPPage.jsx");
-
-      // Handle revoking previous OTP's and Re-sending a new OTP
-      await handleRevokeAndResendOTP(setResponse, setResendIsLoading);
-    } catch (error) {
-      const errorObj = error.response;
-      if (errorObj) {
-        const message = getResponseMessages(errorObj);
-        setResponse({ message: message, type: "error", id: Date.now() });
-      }
-    }
+    // Handle revoking previous OTP and Re-sending a new OTP
+    await handleRevokeAndResendOTP(
+      setResponse,
+      setResendIsLoading,
+      setResetTimer,
+    );
   };
 
   return (
@@ -158,7 +167,7 @@ function ResendAndVerifyOTP({ route }) {
               </button>
               <button
                 type="submit"
-                disabled={verifyLoading || resendLoading}
+                disabled={verifyLoading || resendLoading || isExpired}
                 onClick={handleResend}
               >
                 {resendLoading ? (

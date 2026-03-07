@@ -33,7 +33,7 @@ function ResetPassword({ route }) {
     if (!hasInternetConnection) {
       setLoading(false);
       const message =
-        "Network issue detected. Please ensure you are connected to the internet and try again.";
+        "Network issue detected - Please ensure you are connected to the internet and try again";
 
       setResponse({ message: message, type: "error", id: Date.now() });
       return;
@@ -60,7 +60,7 @@ function ResetPassword({ route }) {
       if (error.response.status === 429) {
         setResponse({
           message:
-            "Too many requests were made. Please try again after sometime.",
+            "Too many requests were made - Please try again after sometime",
           type: "error",
           id: Date.now(),
         });
