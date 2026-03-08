@@ -111,8 +111,16 @@ body {
 }
 
 .passwordTextbox {
+  position: relative;
   margin-top: 2rem;
   width: min(30vw, 100%);
+}
+
+.passwordVisible,
+.passwordInvisible {
+  position: absolute;
+  inset: 27% 0 auto auto;
+  cursor: pointer;
 }
 
 .loginForm input {
@@ -228,7 +236,6 @@ input:hover {
     display: grid;
     grid-template-columns: 1fr;
     height: 97%;
-    /* place-items: center; */
   }
 
   .textRolesContainer {
@@ -241,8 +248,16 @@ input:hover {
   }
 
   .passwordTextbox {
+    position: relative;
     margin-inline: auto;
     width: 90%;
+  }
+
+  .passwordVisible,
+  .passwordInvisible {
+    position: absolute;
+    inset: 27% 0 auto auto;
+    cursor: pointer;
   }
 
   .roleContainer {

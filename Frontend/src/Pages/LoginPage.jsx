@@ -5,7 +5,9 @@ import checkTaskStatus from "../utils/checkOtpStatus";
 import checkInternetConnection from "../utils/checkInternetConnection";
 import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/loginscreen.module.css";
-import image from "../images/image.svg";
+import image from "../assets/images/image.svg";
+import visibility from "../assets/icons/visibility.svg";
+import visibilityOff from "../assets/icons/visibility_off.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import Notification from "../Components/NotificationComponent";
 
@@ -16,6 +18,8 @@ function LoginUser({ route }) {
   const [response, setResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
 
   const roles = ["Administrator", "Standard User", "Viewer"];
@@ -135,11 +139,25 @@ function LoginUser({ route }) {
               </div>
               <div className={style.passwordTextbox}>
                 <input
-                  type="password"
+                  type={`${showPassword ? "text" : "password"}`}
                   value={password}
                   disabled={isLoading}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
+                />
+                <img
+                  className={`${style.passwordVisible} ${showPassword ? "" : style.hidden}`}
+                  src={visibility}
+                  loading="lazy"
+                  alt="Password Visible Icon"
+                  onClick={() => setShowPassword((prevState) => !prevState)}
+                />
+                <img
+                  className={`${style.passwordInvisible} ${showPassword ? style.hidden : ""}`}
+                  src={visibilityOff}
+                  loading="lazy"
+                  alt="Password Invisible Icon"
+                  onClick={() => setShowPassword((prevState) => !prevState)}
                 />
               </div>
 

@@ -1,0 +1,25 @@
+body {
+  min-height: 100dvh;
+  margin: 0;
+}
+
+.loadingScreenPage {
+  display: grid;
+  place-items: center;
+  background-color: #d7fdd7;
+  min-height: 100dvh;
+}
+
+.loaderContainer {
+  display: flex;
+  gap: 2rem;
+  flex-direction: column;
+  place-items: center;
+
+  p {
+    color: #004700;
+    font-family: "Roboto", system-ui;
+    font-size: 1.2rem;
+    font-weight: bold;
+  }
+}
