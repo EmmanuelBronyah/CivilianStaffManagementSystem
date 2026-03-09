@@ -6,6 +6,8 @@ import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/confirmpasswordscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
+import visibility from "../assets/icons/visibility.svg";
+import visibilityOff from "../assets/icons/visibility_off.svg";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");
@@ -13,6 +15,9 @@ function ConfirmPasswordReset({ route }) {
   const [response, setResponse] = useState(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+
   const navigate = useNavigate();
   const { uid, token } = useParams();
 
@@ -88,22 +93,50 @@ function ConfirmPasswordReset({ route }) {
           <div className={style.logoText}>CiviBase</div>
           <div className={style.confirmPasswordContainer}>
             <div className={style.inputBoxAndButton}>
-              <div>
+              <div className={style.oldPasswordTextbox}>
                 <input
-                  type="password"
+                  type={`${showOldPassword ? "text" : "password"}`}
                   value={password}
                   disabled={loading}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="New Password"
                 />
+                <img
+                  className={`${style.oldPasswordVisible} ${showOldPassword ? "" : style.hidden}`}
+                  src={visibility}
+                  loading="lazy"
+                  alt="Password Visible Icon"
+                  onClick={() => setShowOldPassword((prevState) => !prevState)}
+                />
+                <img
+                  className={`${style.oldPasswordInvisible} ${showOldPassword ? style.hidden : ""}`}
+                  src={visibilityOff}
+                  loading="lazy"
+                  alt="Password Invisible Icon"
+                  onClick={() => setShowOldPassword((prevState) => !prevState)}
+                />
               </div>
-              <div>
+              <div className={style.newPasswordTextbox}>
                 <input
-                  type="password"
+                  type={`${showNewPassword ? "text" : "password"}`}
                   value={confirmPassword}
                   disabled={loading}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
+                />
+                <img
+                  className={`${style.newPasswordVisible} ${showNewPassword ? "" : style.hidden}`}
+                  src={visibility}
+                  loading="lazy"
+                  alt="Password Visible Icon"
+                  onClick={() => setShowNewPassword((prevState) => !prevState)}
+                />
+                <img
+                  className={`${style.newPasswordInvisible} ${showNewPassword ? style.hidden : ""}`}
+                  src={visibilityOff}
+                  loading="lazy"
+                  alt="Password Invisible Icon"
+                  onClick={() => setShowNewPassword((prevState) => !prevState)}
                 />
               </div>
               <div className={style.buttonContainer}>
