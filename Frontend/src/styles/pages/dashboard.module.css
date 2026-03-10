@@ -2,6 +2,7 @@ body {
   min-height: 100dvh;
   margin: 0;
   font-family: "Roboto", system-ui;
+  /* background-color: red; */
 }
 
 .dashboard {
@@ -10,9 +11,215 @@ body {
   display: grid;
   grid-template-columns: 15rem 1fr;
   gap: 1rem;
+  padding-right: 1rem;
 }
 
 .headerMainContainer {
   display: grid;
   grid-template-rows: 4rem 1fr;
+  gap: 1rem;
+}
+
+main {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+section {
+  display: grid;
+  grid-auto-flow: row;
+}
+
+.users {
+  display: grid;
+  grid-auto-flow: row;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #d3ead3;
+
+  .topUserSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    > div p {
+      font-size: 1.125rem;
+      font-weight: bold;
+      color: #002600;
+      margin: 0;
+      padding: 0;
+    }
+
+    button {
+      padding: 0.5rem 1.8rem;
+      font-size: 1rem;
+      border-radius: 0.4rem;
+      background-color: rgb(21, 100, 21);
+      font-weight: bold;
+      color: 002600;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    button:active {
+      background-color: #004700;
+      color: white;
+    }
+  }
+
+  .bottomUserSection {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    justify-content: space-between;
+
+    .userInfoContainer {
+      display: flex;
+      flex-direction: column;
+      background-color: #0360038c;
+      padding: 0.5rem;
+      justify-content: space-between;
+      border-radius: 0.4rem;
+      cursor: pointer;
+
+      .totalUsersContainer p {
+        font-weight: 900;
+        font-size: 1.25rem;
+        color: #002600;
+      }
+
+      .userRoleContainer p {
+        color: #002600;
+        font-weight: bold;
+      }
+
+      .icon {
+        color: white;
+      }
+
+      p {
+        padding: 0;
+        margin: 0;
+      }
+    }
+
+    .userInfoContainer:hover {
+      opacity: 0.9;
+    }
+
+    .userInfoContainer:active {
+      background-color: #036003c4;
+    }
+  }
+}
+
+.icon {
+  font-size: 2rem;
+  color: #004700;
+}
+
+.employees {
+  display: grid;
+  grid-auto-flow: row;
+
+  border-radius: 0.5rem;
+  padding: 1rem;
+  background-color: #d3ead3;
+
+  .employeeTextAndButtonsSection {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    p {
+      font-size: 1.125rem;
+      font-weight: bold;
+      color: #002600;
+      margin: 0;
+      padding: 0;
+    }
+
+    .buttonContainer {
+      display: flex;
+      gap: 1rem;
+
+      button {
+        padding: 0.5rem 1rem;
+        font-size: 1rem;
+        border-radius: 0.4rem;
+        background-color: rgb(21, 100, 21);
+        font-weight: bold;
+        color: 002600;
+        border: none;
+        cursor: pointer;
+        color: white;
+      }
+
+      button:hover {
+        opacity: 0.9;
+      }
+
+      button:active {
+        background-color: #004700;
+        color: white;
+      }
+    }
+  }
+
+  .employeeUnitSection {
+    display: grid;
+    grid-auto-flow: column;
+    gap: 1rem;
+
+    .totalEmployeesContainer {
+      display: grid;
+      grid-auto-flow: row;
+      padding: 0.5rem;
+      border-radius: 0.4rem;
+      background-color: #0360038c;
+
+      .icon {
+        color: white;
+      }
+
+      .total p {
+        padding: 0;
+        margin: 0;
+        font-weight: 900;
+        font-size: 1.25rem;
+        color: #002600;
+      }
+
+      .totalEmployees p {
+        color: #002600;
+        font-weight: bold;
+      }
+    }
+
+    .employeesPerUnit {
+      display: grid;
+      grid-auto-flow: row;
+
+      p {
+        padding: 0;
+        margin: 0;
+      }
+
+      .numberUnitContainer {
+        display: grid;
+        grid-auto-flow: column;
+
+        p {
+          margin: 0;
+          padding: 0;
+        }
+      }
+    }
+  }
 }

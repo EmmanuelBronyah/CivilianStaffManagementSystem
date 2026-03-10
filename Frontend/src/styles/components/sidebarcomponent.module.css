@@ -15,6 +15,11 @@ aside {
     justify-self: right;
   }
 
+  .logo {
+    font-size: 2rem;
+    color: #004700;
+  }
+
   p {
     justify-self: start;
     margin: 0;
@@ -64,19 +69,23 @@ nav ul {
   }
 }
 
+.icon {
+  font-size: 1.4rem;
+  color: #004700;
+}
+
 nav button:hover {
-  background-color: #d7fdd7;
   cursor: pointer;
 }
 
-nav button:active {
+.active {
   background-color: #004700;
 
   p {
     color: white;
   }
 
-  span img {
-    color: white !important;
+  .icon {
+    color: white;
   }
 }
