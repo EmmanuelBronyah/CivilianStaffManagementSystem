@@ -2,7 +2,6 @@ body {
   min-height: 100dvh;
   margin: 0;
   font-family: "Roboto", system-ui;
-  /* background-color: red; */
 }
 
 .dashboard {
@@ -22,21 +21,22 @@ body {
 
 main {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-areas:
+    "users users employees employees"
+    "gender gender feeds feeds"
+    "pension pension feeds feeds";
   gap: 1rem;
 }
 
-section {
-  display: grid;
-  grid-auto-flow: row;
-}
-
 .users {
+  grid-area: users;
   display: grid;
-  grid-auto-flow: row;
+  grid-template-rows: repeat(2, 1fr);
   border-radius: 0.5rem;
   padding: 1rem;
+  gap: 0.8rem;
   background-color: #d3ead3;
+  box-shadow: 0.25rem 0.25rem 0.5rem #00470026;
 
   .topUserSection {
     display: flex;
@@ -55,7 +55,7 @@ section {
       padding: 0.5rem 1.8rem;
       font-size: 1rem;
       border-radius: 0.4rem;
-      background-color: rgb(21, 100, 21);
+      background-color: #156415;
       font-weight: bold;
       color: 002600;
       border: none;
@@ -125,17 +125,21 @@ section {
 }
 
 .employees {
-  display: grid;
-  grid-auto-flow: row;
+  grid-area: employees;
 
+  display: grid;
+  grid-template-rows: repeat(2, 1fr);
+  gap: 0.8rem;
   border-radius: 0.5rem;
   padding: 1rem;
   background-color: #d3ead3;
+  box-shadow: 0.25rem 0.25rem 0.5rem #00470026;
 
   .employeeTextAndButtonsSection {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 0.5rem;
 
     p {
       font-size: 1.125rem;
@@ -153,9 +157,8 @@ section {
         padding: 0.5rem 1rem;
         font-size: 1rem;
         border-radius: 0.4rem;
-        background-color: rgb(21, 100, 21);
+        background-color: #156415;
         font-weight: bold;
-        color: 002600;
         border: none;
         cursor: pointer;
         color: white;
@@ -178,48 +181,126 @@ section {
     gap: 1rem;
 
     .totalEmployeesContainer {
-      display: grid;
-      grid-auto-flow: row;
-      padding: 0.5rem;
-      border-radius: 0.4rem;
+      display: flex;
+      flex-direction: column;
       background-color: #0360038c;
+      padding: 0.5rem;
+      justify-content: space-between;
+      border-radius: 0.4rem;
+      cursor: pointer;
 
       .icon {
         color: white;
       }
 
       .total p {
-        padding: 0;
-        margin: 0;
         font-weight: 900;
         font-size: 1.25rem;
         color: #002600;
+        margin: 0;
+        padding: 0;
       }
 
       .totalEmployees p {
         color: #002600;
         font-weight: bold;
+        margin: 0;
+        padding: 0;
       }
     }
 
     .employeesPerUnit {
       display: grid;
       grid-auto-flow: row;
+      padding: 0.5rem;
+      border-radius: 0.4rem;
+      background-color: #0360038c;
 
-      p {
-        padding: 0;
-        margin: 0;
+      .employeePerUnitTitle {
+        align-self: center;
+        margin-bottom: 0.4rem;
+
+        p {
+          padding: 0;
+          margin: 0;
+          color: #002600;
+          font-weight: bold;
+        }
       }
 
       .numberUnitContainer {
         display: grid;
-        grid-auto-flow: column;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
 
         p {
           margin: 0;
           padding: 0;
         }
+
+        .individualNumberUnit {
+          display: flex;
+          flex-direction: column;
+          gap: 0.3rem;
+          place-items: center;
+          background-color: #d3ead3;
+          border-radius: 0.4rem;
+          padding-top: 0.2rem;
+
+          .numberOfEmployeesInUnit p {
+            padding: 0;
+            margin: 0;
+            font-weight: 900;
+            font-size: 1.25rem;
+            color: #002600;
+          }
+
+          .unitName p {
+            padding: 0;
+            margin: 0;
+            color: #002600;
+            font-weight: bold;
+          }
+        }
+      }
+
+      .viewMoreContainer {
+        align-self: last baseline;
+        justify-self: right;
+
+        button {
+          margin-top: 1rem;
+          padding: 0.3rem 0.5rem;
+          border-radius: 0.4rem;
+          color: white;
+          font-weight: bold;
+          border: none;
+          background-color: #156415;
+          cursor: pointer;
+          font-size: 0.7rem;
+        }
+
+        button:hover {
+          opacity: 0.9;
+        }
+
+        button:active {
+          background-color: #004700;
+          color: white;
+        }
       }
     }
   }
+}
+
+.genderDistribution {
+  grid-area: gender;
+}
+
+.feedsContainer {
+  grid-area: feeds;
+}
+
+.pension {
+  grid-area: pension;
 }

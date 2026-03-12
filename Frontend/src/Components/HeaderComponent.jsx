@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import style from "../styles/components/headercomponent.module.css";
-import { MdSearch, MdFilterAlt } from "react-icons/md";
+import { MdSearch, MdFilterAlt, MdLightMode, MdDarkMode } from "react-icons/md";
 import Switch from "react-switch";
 import image from "../assets/images/default.png";
 
@@ -32,10 +32,11 @@ export default function Header({ activePage, className }) {
       </div>
       <div className={style.lightDarkModeContainer}>
         <Switch
-          onColor="#004700"
-          offColor="#ccc"
-          uncheckedIcon={<div style={{ paddingLeft: 4 }}>☀️</div>}
-          checkedIcon={<div style={{ paddingLeft: 4 }}>🌙</div>}
+          className={style.switch}
+          onColor="#fff"
+          offColor="#6a6a6a"
+          uncheckedIcon={<MdDarkMode className={style.darkMode} />}
+          checkedIcon={<MdLightMode className={style.lightMode} />}
         />
       </div>
       <div className={style.profileContainer}>

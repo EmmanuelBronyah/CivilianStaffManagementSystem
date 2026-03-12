@@ -1,5 +1,4 @@
 header {
-  /* background-color: #eeeeee; */
   padding-inline: 1rem 2rem;
   display: flex;
   align-items: center;
@@ -94,5 +93,23 @@ header {
       font-size: 0.77rem;
       color: rgb(36, 36, 36);
     }
+  }
+}
+
+.lightDarkModeContainer {
+  .switch {
+    border: 1px solid #004700;
+  }
+
+  .lightMode {
+    font-size: 1.45rem;
+    padding: 0.12rem 0 0 0.2rem;
+    color: #004700;
+  }
+
+  .darkMode {
+    font-size: 1.45rem;
+    padding: 0.12rem 0.2rem 0 0.2rem;
+    color: #002300;
   }
 }
