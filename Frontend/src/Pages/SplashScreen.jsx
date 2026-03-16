@@ -1,8 +1,11 @@
 import style from "../styles/pages/splashscreen.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTheme } from "../context/ThemeContext";
 
 function SplashScreen() {
+  const { theme, setTheme } = useTheme();
+
   const navigate = useNavigate();
   const text = "CiviBase";
 
@@ -24,7 +27,9 @@ function SplashScreen() {
   }, [navigate]);
 
   return (
-    <div className={`${style.splashScreen} ${fadeOut ? style.fadeOut : ""}`}>
+    <div
+      className={`${style.splashScreen} ${fadeOut ? style.fadeOut : ""} ${!theme && style.dark}`}
+    >
       <h1 className={style.logoText}>
         {text.split("").map((letter, index) => (
           <span

@@ -10,10 +10,10 @@ import visibility from "../assets/icons/visibility.svg";
 import visibilityOff from "../assets/icons/visibility_off.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import Notification from "../Components/NotificationComponent";
-import Switch from "react-switch";
-import { MdLightMode, MdDarkMode } from "react-icons/md";
+import ThemeToggle from "../Components/ThemeToggleComponent";
+import { useTheme } from "../context/ThemeContext";
 
-function LoginUser({ route }) {
+function LoginUser(props) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [selectedRole, setSelectedRole] = useState("Standard User");
@@ -21,6 +21,7 @@ function LoginUser({ route }) {
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -70,7 +71,7 @@ function LoginUser({ route }) {
     }
 
     try {
-      const res = await api.post(route, {
+      const res = await api.post(props.route, {
         username,
         password,
         selectedRole,
@@ -103,21 +104,12 @@ function LoginUser({ route }) {
   };
 
   return (
-    <div className={style.loginPage}>
+    <div className={`${style.loginPage} ${!theme && style.dark}`}>
       {/* LOGO SECTION */}
       <div className={style.logoAndSwitchContainer}>
         <div className={style.emptyDiv}></div>
         <p>CiviBase</p>
-        <Switch
-          className={style.switch}
-          boxShadow="0px 0px 2px 3px #000"
-          activeBoxShadow="0px 0px 2px 3px #004700"
-          onColor="#fff"
-          offColor="#6a6a6a"
-          onHandleColor="#004700"
-          uncheckedIcon={<MdDarkMode className={style.darkMode} />}
-          checkedIcon={<MdLightMode className={style.lightMode} />}
-        />
+        <ThemeToggle className={style.switch} />
       </div>
       {/* IMAGE AND LOGIN FORM GRID */}
       <div className={style.imageFormGrid}>

@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import style from "../styles/components/headercomponent.module.css";
-import { MdSearch, MdFilterAlt, MdLightMode, MdDarkMode } from "react-icons/md";
-import Switch from "react-switch";
+import { MdSearch, MdFilterAlt } from "react-icons/md";
 import image from "../assets/images/default.png";
+import ThemeToggle from "./ThemeToggleComponent";
 
-export default function Header({ activePage, className }) {
+export default function Header(props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [hideSearchIcon, setHideSearchIcon] = useState(false);
 
@@ -17,9 +17,9 @@ export default function Header({ activePage, className }) {
   }, [searchQuery]);
 
   return (
-    <header className={className}>
+    <header>
       <div className={style.activePageContainer}>
-        <p>{activePage}</p>
+        <p>{props.activePage}</p>
       </div>
       <div className={style.searchBoxContainer}>
         <div className={style.searchBox}>
@@ -30,15 +30,7 @@ export default function Header({ activePage, className }) {
           <MdFilterAlt className={style.filterIcon} />
         </div>
       </div>
-      <div className={style.lightDarkModeContainer}>
-        <Switch
-          className={style.switch}
-          onColor="#fff"
-          offColor="#6a6a6a"
-          uncheckedIcon={<MdDarkMode className={style.darkMode} />}
-          checkedIcon={<MdLightMode className={style.lightMode} />}
-        />
-      </div>
+      <ThemeToggle className={style.switch} />
       <div className={style.profileContainer}>
         <div className={style.defaultUserImage}>
           <img

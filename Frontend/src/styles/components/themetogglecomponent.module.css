@@ -1,0 +1,11 @@
+.lightMode {
+  font-size: 1.45rem;
+  padding: 0.12rem 0 0 0.2rem;
+  color: #004700;
+}
+
+.darkMode {
+  font-size: 1.45rem;
+  padding: 0.12rem 0.2rem 0 0.2rem;
+  color: rgb(30, 29, 29);
+}

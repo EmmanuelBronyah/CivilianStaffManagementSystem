@@ -97,7 +97,7 @@ function ResendAndVerifyOTP({ route }) {
         });
 
         setTimeout(() => {
-          navigate("/dashboard");
+          navigate("/homepage");
         }, 4000);
       }
     } catch (error) {

@@ -9,9 +9,9 @@ import {
 } from "react-icons/md";
 import SidebarButtons from "./SideBarButtonsComponent";
 
-export default function SideBar({ className, activePage, setActivePage }) {
+export default function SideBar(props) {
   return (
-    <aside className={className}>
+    <aside>
       <div className={style.logoContainer}>
         <span>
           <MdBadge className={style.logo} />
@@ -21,8 +21,8 @@ export default function SideBar({ className, activePage, setActivePage }) {
       <nav>
         <ul>
           <SidebarButtons
-            activePage={activePage}
-            setActivePage={setActivePage}
+            activePage={props.activePage}
+            setActivePage={props.setActivePage}
           />
         </ul>
       </nav>

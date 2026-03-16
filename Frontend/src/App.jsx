@@ -7,7 +7,7 @@ import ResetPassword from "./Pages/ResetPasswordPage";
 import ConfirmPasswordReset from "./Pages/ConfirmPasswordResetPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import SplashScreen from "./Pages/SplashScreen";
-import Dashboard from "./Pages/Dashboard";
+import HomePage from "./Pages/HomePage";
 import ProtectOtpRoute from "./Components/OtpProtectedRouteComponent";
 
 function App() {
@@ -39,10 +39,10 @@ function App() {
           }
         />
         <Route
-          path="/dashboard"
+          path="/homepage"
           element={
             <ProtectedRoute>
-              <Dashboard />
+              <HomePage />
             </ProtectedRoute>
           }
         />

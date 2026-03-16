@@ -5,12 +5,15 @@ import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/resetpasswordscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
+import { useTheme } from "../context/ThemeContext";
+import ThemeToggle from "../Components/ThemeToggleComponent";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");
   const [response, setResponse] = useState(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (response?.message) {
@@ -78,7 +81,8 @@ function ResetPassword({ route }) {
   };
 
   return (
-    <div className={style.resetPasswordPage}>
+    <div className={`${style.resetPasswordPage} ${!theme && style.dark}`}>
+      <ThemeToggle className={style.switch} />
       {/* RESET PASSWORD FORM SECTION */}
       <div className={style.wrapper}>
         <div className={style.logoTextAndResetPasswordContainer}>
