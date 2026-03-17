@@ -1,17 +1,12 @@
 import style from "../styles/components/sidebarcomponent.module.css";
-import {
-  MdDashboard,
-  MdAccountBox,
-  MdBadge,
-  MdDynamicFeed,
-  MdFlag,
-  MdSettings,
-} from "react-icons/md";
+import { MdBadge } from "react-icons/md";
 import SidebarButtons from "./SideBarButtonsComponent";
+import { useTheme } from "../context/ThemeContext";
 
 export default function SideBar(props) {
+  const { theme, setTheme } = useTheme();
   return (
-    <aside>
+    <aside className={!theme && style.dark}>
       <div className={style.logoContainer}>
         <span>
           <MdBadge className={style.logo} />

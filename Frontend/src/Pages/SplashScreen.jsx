@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 
 function SplashScreen() {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   const navigate = useNavigate();
   const text = "CiviBase";

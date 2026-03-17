@@ -6,9 +6,11 @@ import SideBar from "../Components/SideBarComponent";
 import Dashboard from "../Components/DashboardComponent";
 import style from "../styles/pages/homepage.module.css";
 import { useState } from "react";
+import { useTheme } from "../context/ThemeContext";
 
 function HomePage() {
   const [activePage, setActivePage] = useState("Dashboard");
+  const { theme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -23,7 +25,7 @@ function HomePage() {
   };
 
   return (
-    <div className={style.homePage}>
+    <div className={`${style.homePage} ${!theme && style.dark}`}>
       <SideBar activePage={activePage} setActivePage={setActivePage} />
       <div className={style.headerMainContainer}>
         <Header activePage={activePage} />

@@ -100,7 +100,14 @@ function ResetPassword({ route }) {
               </div>
               <div className={style.buttonContainer}>
                 <button type="submit" onClick={handleSubmit}>
-                  {loading ? <ClipLoader size={13} color="#fff" /> : "Verify"}
+                  {loading ? (
+                    <ClipLoader
+                      size={13}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Verify"
+                  )}
                 </button>
               </div>
             </div>

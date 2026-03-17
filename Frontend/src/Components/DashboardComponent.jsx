@@ -1,9 +1,11 @@
 import style from "../styles/components/dashboardcomponent.module.css";
 import { MdBadge, MdShield, MdPreview, MdPerson } from "react-icons/md";
+import { useTheme } from "../context/ThemeContext";
 
-export default function Dashboard(props) {
+export default function Dashboard() {
+  const { theme } = useTheme();
   return (
-    <main>
+    <main className={!theme && style.dark}>
       <div className={style.users}>
         <div className={style.topUserSection}>
           <div>

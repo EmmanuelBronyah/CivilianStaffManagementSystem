@@ -1,7 +1,17 @@
+:root {
+  --loadingScreen-background-color: #d7fdd7;
+  --loadingScreen-text-color: #004700;
+}
+
+.dark {
+  --loadingScreen-background-color: rgb(30, 29, 29);
+  --loadingScreen-text-color: grey;
+}
+
 .loadingScreenPage {
   display: grid;
   place-items: center;
-  background-color: #d7fdd7;
+  background-color: var(--loadingScreen-background-color);
   min-height: 100dvh;
 }
 
@@ -12,7 +22,7 @@
   place-items: center;
 
   p {
-    color: #004700;
+    color: var(--loadingScreen-text-color);
     font-family: "Roboto", system-ui;
     font-size: 1.2rem;
     font-weight: bold;

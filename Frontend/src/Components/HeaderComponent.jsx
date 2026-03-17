@@ -3,10 +3,12 @@ import style from "../styles/components/headercomponent.module.css";
 import { MdSearch, MdFilterAlt } from "react-icons/md";
 import image from "../assets/images/default.png";
 import ThemeToggle from "./ThemeToggleComponent";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Header(props) {
   const [searchQuery, setSearchQuery] = useState("");
   const [hideSearchIcon, setHideSearchIcon] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     if (searchQuery) {
@@ -17,7 +19,7 @@ export default function Header(props) {
   }, [searchQuery]);
 
   return (
-    <header>
+    <header className={!theme && style.dark}>
       <div className={style.activePageContainer}>
         <p>{props.activePage}</p>
       </div>

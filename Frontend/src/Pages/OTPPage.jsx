@@ -9,6 +9,8 @@ import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import OTPTimer from "../Components/OTPTimerComponent";
 import handleRevokeAndResendOTP from "../utils/revokeAndResendOtp";
+import { useTheme } from "../context/ThemeContext";
+import ThemeToggle from "../Components/ThemeToggleComponent";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
@@ -19,6 +21,7 @@ function ResendAndVerifyOTP({ route }) {
   const [isExpired, setIsExpired] = useState(false);
   const [expiryTimestamp, setExpiryTimestamp] = useState(null);
   const [resetTimer, setResetTimer] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -138,7 +141,8 @@ function ResendAndVerifyOTP({ route }) {
   };
 
   return (
-    <div className={style.otpPage}>
+    <div className={`${style.otpPage} ${!theme && style.dark}`}>
+      <ThemeToggle className={style.switch} />
       {/* OTP FORM SECTION */}
       <div className={style.wrapper}>
         <div className={style.logoTextAndOtpContainer}>
@@ -160,7 +164,10 @@ function ResendAndVerifyOTP({ route }) {
                 onClick={handleSubmit}
               >
                 {verifyLoading ? (
-                  <ClipLoader size={13} color="#fff" />
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
                 ) : (
                   "Verify"
                 )}
@@ -171,7 +178,10 @@ function ResendAndVerifyOTP({ route }) {
                 onClick={handleResend}
               >
                 {resendLoading ? (
-                  <ClipLoader size={13} color="#fff" />
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
                 ) : (
                   "Resend"
                 )}

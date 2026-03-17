@@ -2,15 +2,19 @@
   --button-text: clamp(0.6rem, 0.7rem + 1vw, 1rem);
   --all-text: clamp(0.7rem, 1rem + 0.6vw, 1.6rem);
 
-  --page-background-color: #f3f3f3;
+  --loginPage-background-color: #f3f3f3;
   --imageForm-background-color: #b2dbb2;
   --active-role-background-color: #d7fdd7;
-  --input-background-color: #d7fdd7;
+  --login-input-background-color: #d7fdd7;
 
-  --text-color: #004700;
-  --text-color-hover: #356b35;
+  --login-text-color: #004700;
+  --login-text-color-hover: #356b35;
   --forgot-password-text-color: black;
-  --button-hover: #356b35;
+
+  --login-button-hover: #356b35;
+  --login-button-active-background-color: #d7fdd7;
+  --login-button-active-text-color: #004700;
+  --login-button-color: #d7fdd7;
 
   --imageForm-box-shadow: #004700;
 
@@ -18,15 +22,19 @@
 }
 
 .dark {
-  --page-background-color: rgb(30, 29, 29);
+  --loginPage-background-color: rgb(30, 29, 29);
   --imageForm-background-color: rgb(42, 42, 42);
   --active-role-background-color: rgb(30, 30, 30);
-  --input-background-color: rgb(30, 30, 30);
+  --login-input-background-color: rgb(30, 30, 30);
 
-  --text-color: grey;
-  --text-color-hover: rgb(218, 218, 218);
+  --login-text-color: grey;
+  --login-button-active-text-color: grey;
+  --login-text-color-hover: rgb(218, 218, 218);
   --forgot-password-text-color: grey;
-  --button-hover: grey;
+
+  --login-button-color: rgb(30, 30, 30);
+  --login-button-active-background-color: rgb(30, 30, 30);
+  --login-button-hover: grey;
 
   --imageForm-box-shadow: grey;
 
@@ -38,7 +46,7 @@
   grid-template-rows: 6rem 1fr;
   min-height: 100dvh;
   gap: 0.4rem;
-  background-color: var(--page-background-color);
+  background-color: var(--loginPage-background-color);
 }
 
 .logoAndSwitchContainer {
@@ -51,7 +59,7 @@
     font-size: calc(4rem + 1vw);
     font-weight: 900;
     letter-spacing: 0.15em;
-    color: var(--text-color);
+    color: var(--login-text-color);
     margin: 0;
     padding: 0;
   }
@@ -111,13 +119,13 @@
 
     div {
       font-size: var(--button-text);
-      color: var(--text-color);
+      color: var(--login-text-color);
       font-weight: 900;
       text-wrap: nowrap;
     }
 
     div:hover {
-      color: var(--text-color-hover);
+      color: var(--login-text-color-hover);
       cursor: pointer;
     }
   }
@@ -147,9 +155,9 @@
 .usernameTextbox {
   input {
     border-radius: 2rem;
-    background-color: var(--input-background-color);
+    background-color: var(--login-input-background-color);
     border: none;
-    color: var(--text-color);
+    color: var(--login-text-color);
     font-weight: bold;
     padding-left: 1rem;
     font-size: 1.125rem;
@@ -158,12 +166,12 @@
   }
 
   input::placeholder {
-    color: var(--text-color);
+    color: var(--login-text-color);
     font-weight: bold;
   }
 
   input:hover {
-    outline: 1px solid var(--text-color);
+    outline: 1px solid var(--login-text-color);
   }
 }
 
@@ -172,9 +180,9 @@
 
   input {
     border-radius: 2rem;
-    background-color: var(--input-background-color);
+    background-color: var(--login-input-background-color);
     border: none;
-    color: var(--text-color);
+    color: var(--login-text-color);
     font-weight: bold;
     padding-left: 1rem;
     font-size: 1.125rem;
@@ -183,12 +191,12 @@
   }
 
   input::placeholder {
-    color: var(--text-color);
+    color: var(--login-text-color);
     font-weight: bold;
   }
 
   input:hover {
-    outline: 1px solid var(--text-color);
+    outline: 1px solid var(--login-text-color);
   }
 }
 
@@ -196,6 +204,8 @@
 .passwordInvisible {
   position: absolute;
   inset: 27% 1rem auto auto;
+  color: var(--login-text-color);
+  font-size: 1.4rem;
   cursor: pointer;
 }
 
@@ -217,8 +227,8 @@
   text-align: center;
   padding: 0.5rem;
   border-radius: 0.3rem;
-  color: var(--input-background-color);
-  background-color: var(--text-color);
+  color: var(--login-input-background-color);
+  background-color: var(--login-text-color);
   font-size: 1.125rem;
   font-weight: var(--font-weight);
 }
@@ -226,9 +236,9 @@
 .buttonContainer {
   .loginButton {
     border-radius: 2rem;
-    background-color: var(--active-role-background-color);
+    background-color: var(--login-text-color);
     border: none;
-    color: var(--text-color);
+    color: var(--login-button-color);
     font-weight: 900;
     font-size: 1.2rem;
     height: 100%;
@@ -236,14 +246,14 @@
   }
 
   .loginButton:hover {
-    outline: 1px solid var(--button-hover);
+    outline: 1px solid var(--login-button-hover);
     cursor: pointer;
   }
 
   .loginButton:active {
-    background-color: var(--text-color);
-    color: var(--input-background-color);
-    outline: 1px solid var(--input-background-color);
+    background-color: var(--login-button-active-background-color);
+    color: var(--login-button-active-text-color);
+    outline: 1px solid var(--login-text-color);
     cursor: pointer;
   }
 }

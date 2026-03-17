@@ -6,12 +6,12 @@ import checkInternetConnection from "../utils/checkInternetConnection";
 import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/loginscreen.module.css";
 import image from "../assets/images/image.svg";
-import visibility from "../assets/icons/visibility.svg";
-import visibilityOff from "../assets/icons/visibility_off.svg";
+import darkImage from "../assets/images/darkImage.svg";
 import ClipLoader from "react-spinners/ClipLoader";
 import Notification from "../Components/NotificationComponent";
 import ThemeToggle from "../Components/ThemeToggleComponent";
 import { useTheme } from "../context/ThemeContext";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 function LoginUser(props) {
   const [username, setUsername] = useState("");
@@ -21,7 +21,7 @@ function LoginUser(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [visible, setVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -115,7 +115,11 @@ function LoginUser(props) {
       <div className={style.imageFormGrid}>
         {/* IMAGE SECTION */}
         <div className={style.imageContainer}>
-          <img src={image} loading="lazy" alt="Login Illustration" />
+          <img
+            src={`${!theme ? darkImage : image}`}
+            loading="lazy"
+            alt="Login Illustration"
+          />
         </div>
         {/* LOGIN FORM SECTION */}
         <div className={style.loginForm}>
@@ -152,18 +156,12 @@ function LoginUser(props) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Password"
                 />
-                <img
+                <MdVisibility
                   className={`${style.passwordVisible} ${showPassword ? "" : style.hidden}`}
-                  src={visibility}
-                  loading="lazy"
-                  alt="Password Visible Icon"
                   onClick={() => setShowPassword((prevState) => !prevState)}
                 />
-                <img
+                <MdVisibilityOff
                   className={`${style.passwordInvisible} ${showPassword ? style.hidden : ""}`}
-                  src={visibilityOff}
-                  loading="lazy"
-                  alt="Password Invisible Icon"
                   onClick={() => setShowPassword((prevState) => !prevState)}
                 />
               </div>
@@ -179,7 +177,14 @@ function LoginUser(props) {
                   disabled={isLoading}
                   className={`${style.loginButton} ${isLoading ? style.disabled : ""}`}
                 >
-                  {isLoading ? <ClipLoader size={25} color="#fff" /> : "Login"}
+                  {isLoading ? (
+                    <ClipLoader
+                      size={25}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Login"
+                  )}
                 </button>
               </div>
             </form>

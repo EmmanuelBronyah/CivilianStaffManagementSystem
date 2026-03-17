@@ -6,8 +6,9 @@ import getResponseMessages from "../utils/extractResponseMessage";
 import style from "../styles/pages/confirmpasswordscreen.module.css";
 import Notification from "../Components/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
-import visibility from "../assets/icons/visibility.svg";
-import visibilityOff from "../assets/icons/visibility_off.svg";
+import { MdVisibility, MdVisibilityOff } from "react-icons/md";
+import { useTheme } from "../context/ThemeContext";
+import ThemeToggle from "../Components/ThemeToggleComponent";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");
@@ -17,6 +18,7 @@ function ConfirmPasswordReset({ route }) {
   const [loading, setLoading] = useState(false);
   const [showOldPassword, setShowOldPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const { theme } = useTheme();
 
   const navigate = useNavigate();
   const { uid, token } = useParams();
@@ -86,7 +88,8 @@ function ConfirmPasswordReset({ route }) {
   };
 
   return (
-    <div className={style.confirmPasswordPage}>
+    <div className={`${style.confirmPasswordPage} ${!theme && style.dark}`}>
+      <ThemeToggle className={style.switch} />
       {/* CONFIRM PASSWORD FORM SECTION */}
       <div className={style.wrapper}>
         <div className={style.logoTextAndConfirmPasswordContainer}>
@@ -101,18 +104,12 @@ function ConfirmPasswordReset({ route }) {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="New Password"
                 />
-                <img
+                <MdVisibility
                   className={`${style.oldPasswordVisible} ${showOldPassword ? "" : style.hidden}`}
-                  src={visibility}
-                  loading="lazy"
-                  alt="Password Visible Icon"
                   onClick={() => setShowOldPassword((prevState) => !prevState)}
                 />
-                <img
+                <MdVisibilityOff
                   className={`${style.oldPasswordInvisible} ${showOldPassword ? style.hidden : ""}`}
-                  src={visibilityOff}
-                  loading="lazy"
-                  alt="Password Invisible Icon"
                   onClick={() => setShowOldPassword((prevState) => !prevState)}
                 />
               </div>
@@ -124,24 +121,25 @@ function ConfirmPasswordReset({ route }) {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Confirm Password"
                 />
-                <img
+                <MdVisibility
                   className={`${style.newPasswordVisible} ${showNewPassword ? "" : style.hidden}`}
-                  src={visibility}
-                  loading="lazy"
-                  alt="Password Visible Icon"
                   onClick={() => setShowNewPassword((prevState) => !prevState)}
                 />
-                <img
+                <MdVisibilityOff
                   className={`${style.newPasswordInvisible} ${showNewPassword ? style.hidden : ""}`}
-                  src={visibilityOff}
-                  loading="lazy"
-                  alt="Password Invisible Icon"
                   onClick={() => setShowNewPassword((prevState) => !prevState)}
                 />
               </div>
               <div className={style.buttonContainer}>
                 <button type="submit" onClick={handleSubmit}>
-                  {loading ? <ClipLoader size={13} color="#fff" /> : "Submit"}
+                  {loading ? (
+                    <ClipLoader
+                      size={13}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Submit"
+                  )}
                 </button>
               </div>
             </div>

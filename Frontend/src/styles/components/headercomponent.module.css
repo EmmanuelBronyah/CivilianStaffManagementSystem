@@ -1,8 +1,29 @@
+:root {
+  --text-color: rgb(36, 36, 36);
+  --background-color: white;
+  --input-background-color: white;
+  --headerIcon-color: #004700;
+  --icon-hover-color: #056705;
+  --input-text-color: #004700;
+}
+
+.dark {
+  --text-color: grey;
+  --background-color: rgb(42, 42, 42);
+  --input-background-color: rgb(30, 30, 30);
+  --headerIcon-color: grey;
+  --icon-hover-color: rgb(162, 162, 162);
+  --input-text-color: grey;
+}
+
 header {
   padding-inline: 1rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  background-color: var(--background-color);
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 
   p {
     margin: 0;
@@ -16,7 +37,7 @@ header {
   p {
     font-weight: 900;
     font-size: 1.5rem;
-    color: rgb(36, 36, 36);
+    color: var(--text-color);
     letter-spacing: 0.1rem;
   }
 }
@@ -34,27 +55,29 @@ header {
       border-radius: 1.5rem;
       padding-inline: 1rem 2rem;
       font-size: 1rem;
-      border: 1px solid #004700;
-      color: rgb(36, 36, 36);
+      font-weight: bold;
+      border: 1px solid var(--headerIcon-color);
+      color: var(--input-text-color);
+      background-color: var(--input-background-color);
     }
 
     .searchIcon {
       position: absolute;
       inset: 19% auto auto 0.4rem;
       font-size: 1.4rem;
-      color: #004700;
+      color: var(--headerIcon-color);
     }
 
     .filterIcon {
       position: absolute;
       inset: 19% -2.5rem auto auto;
       font-size: 1.4rem;
-      color: #004700;
+      color: var(--headerIcon-color);
     }
 
     .filterIcon:hover {
       cursor: pointer;
-      color: #056705;
+      color: var(--icon-hover-color);
     }
   }
 }
@@ -84,14 +107,14 @@ header {
       margin: 0;
       padding: 0;
       font-weight: bold;
-      color: rgb(36, 36, 36);
+      color: var(--text-color);
     }
 
     .role p {
       margin: 0;
       padding: 0;
       font-size: 0.77rem;
-      color: rgb(36, 36, 36);
+      color: var(--text-color);
     }
   }
 }

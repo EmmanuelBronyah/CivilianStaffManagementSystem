@@ -1,6 +1,22 @@
+:root {
+  --sideBar-background-color: #eeeeee;
+  --logo-color: #004700;
+  --text-color: rgb(36, 36, 36);
+  --active-color: white;
+}
+
+.dark {
+  --sideBar-background-color: rgb(30, 29, 29);
+  --logo-color: grey;
+  --text-color: grey;
+  --active-color: rgb(30, 29, 29);
+}
+
 aside {
-  background-color: #eeeeee;
+  background-color: var(--sideBar-background-color);
   padding: 1rem 1rem 0 0.3rem;
+  border-top-right-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
 }
 
 .logoContainer {
@@ -17,7 +33,7 @@ aside {
 
   .logo {
     font-size: 2rem;
-    color: #004700;
+    color: var(--logo-color);
   }
 
   p {
@@ -27,7 +43,7 @@ aside {
     letter-spacing: 0.1rem;
     font-weight: bolder;
     font-size: 1.3rem;
-    color: rgb(36, 36, 36);
+    color: var(--text-color);
   }
 }
 
@@ -51,7 +67,7 @@ nav ul {
       border-radius: 0.65rem;
       padding-block: 0.7rem;
       border: none;
-      background-color: #eeeeee;
+      background-color: var(--sideBar-background-color);
 
       span {
         justify-self: right;
@@ -63,7 +79,7 @@ nav ul {
         justify-self: start;
         font-weight: bold;
         font-size: 0.9rem;
-        color: rgb(36, 36, 36);
+        color: var(--text-color);
       }
     }
   }
@@ -71,7 +87,7 @@ nav ul {
 
 .icon {
   font-size: 1.4rem;
-  color: #004700;
+  color: var(--logo-color);
 }
 
 nav button:hover {
@@ -79,13 +95,13 @@ nav button:hover {
 }
 
 .active {
-  background-color: #004700;
+  background-color: var(--logo-color);
 
   p {
-    color: white;
+    color: var(--active-color);
   }
 
   .icon {
-    color: white;
+    color: var(--active-color);
   }
 }

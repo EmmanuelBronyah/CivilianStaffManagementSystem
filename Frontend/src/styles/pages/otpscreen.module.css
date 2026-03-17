@@ -1,12 +1,37 @@
 :root {
   --button-text: clamp(0.6rem, 0.7rem + 1vw, 1rem);
   --all-text: clamp(0.7rem, 1rem + 0.6vw, 1.6rem);
+
+  --otpPage-background-color: #f3f3f3;
+  --otpForm-background-color: #b2dbb2;
+  --otpPage-text-color: #004700;
+  --otpPage-input-background-color: #d7fdd7;
+  --otpPage-button-background-color: #004700;
+  --otpPage-button-hover: #356b35;
+  --otpPage-box-shadow: #004700;
+}
+
+.dark {
+  --otpPage-background-color: rgb(30, 29, 29);
+  --otpForm-background-color: rgb(42, 42, 42);
+  --otpPage-text-color: grey;
+  --otpPage-input-background-color: rgb(30, 30, 30);
+  --otpPage-button-background-color: grey;
+  --otpPage-button-hover: rgb(30, 30, 30);
+  --otpPage-box-shadow: grey;
 }
 
 .otpPage {
-  background-color: #f3f3f3;
+  background-color: var(--otpPage-background-color);
   min-height: 100dvh;
   display: grid;
+  grid-template-rows: 2rem 1fr;
+}
+
+.switch {
+  margin-top: 1.5rem;
+  margin-right: 1rem;
+  justify-self: right;
 }
 
 .wrapper {
@@ -19,7 +44,7 @@
   font-weight: 900;
   letter-spacing: 0.15em;
   text-align: center;
-  color: #004700;
+  color: var(--otpPage-text-color);
 }
 
 .logoTextAndOtpContainer {
@@ -30,7 +55,8 @@
 
 .otpContainer {
   display: grid;
-  background-color: #b2dbb2;
+  background-color: var(--otpForm-background-color);
+  box-shadow: 0px 0px 10px 0px var(--otpPage-box-shadow);
   width: min(30rem, 90%);
   height: calc(10rem + 5vh);
   margin-inline: auto;
@@ -47,12 +73,20 @@
     width: min(25rem, 90%);
     height: 2.7rem;
     border-radius: 2rem;
-    background-color: #d7fdd7;
+    background-color: var(--otpPage-input-background-color);
     border: none;
-    color: #004700;
+    color: var(--otpPage-text-color);
     font-weight: bold;
     padding-left: 1rem;
     font-size: medium;
+  }
+
+  input::placeholder {
+    color: var(--otpPage-text-color);
+  }
+
+  input:hover {
+    outline: 1px solid var(--otpPage-text-color);
   }
 }
 
@@ -64,23 +98,23 @@
   button {
     padding: 0.5rem min(7vw, 4rem);
     border-radius: 0.5rem;
-    background-color: #004700;
+    background-color: var(--otpPage-button-background-color);
     border: none;
-    color: #d7fdd7;
+    color: var(--otpPage-input-background-color);
     font-weight: 900;
     font-size: var(--button-text);
   }
 }
 
 .buttonsContainer button:hover {
-  outline: 3px solid #356b35;
+  outline: 1px solid var(--otpPage-button-hover);
   cursor: pointer;
 }
 
 .buttonsContainer button:active {
-  background-color: #d7fdd7;
-  color: #004700;
-  outline: 1px solid #356b35;
+  background-color: var(--otpPage-input-background-color);
+  color: var(--otpPage-button-background-color);
+  outline: 1px solid var(--otpPage-text-color);
   cursor: pointer;
 }
 
@@ -98,12 +132,13 @@
   margin-top: 1rem;
   border-radius: 0.5rem;
   padding: 0.6rem 1rem;
-  background-color: #356b35;
+  background-color: var(--otpPage-button-background-color);
+  /* box-shadow: 0px 0px 4px 0px var(--otpPage-box-shadow); */
   width: fit-content;
   text-align: center;
   font-size: medium;
   font-weight: bold;
-  color: white;
+  color: var(--otpPage-input-background-color);
 
   p {
     margin: 0;
