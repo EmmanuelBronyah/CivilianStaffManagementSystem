@@ -171,10 +171,13 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 
 
 class TotalNumberOfEmployeesAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
         total = models.Employee.objects.count()
-        return Response({"results": total})
+        return Response({"results": total}, status=status.HTTP_200_OK)
 
 
 class ForecastedRetireesAPIView(APIView):
@@ -473,6 +476,9 @@ class ListUnitsAPIView(generics.ListAPIView):
 
 
 class TotalEmployeesPerUnitAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         units = models.Units.objects.annotate(total_employees=Count("employee"))

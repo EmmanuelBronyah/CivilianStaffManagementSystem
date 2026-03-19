@@ -28,6 +28,7 @@ from .services import (
 )
 from django.db import transaction
 from celery.result import AsyncResult
+from django.db.models import Count, Q
 
 
 logger = logging.getLogger(__name__)
@@ -83,6 +84,20 @@ class RetrieveAllUsersView(generics.ListAPIView):
     )
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
+
+
+class RetrieveTotalNumberOfUsersPerRole(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        result = CustomUser.objects.aggregate(
+            administrators=Count("role", filter=Q(role="ADMINISTRATOR")),
+            standard_users=Count("role", filter=Q(role="STANDARD USER")),
+            viewers=Count("role", filter=Q(role="VIEWER")),
+        )
+        return Response(result, status=status.HTTP_200_OK)
 
 
 class UpdateUserView(generics.UpdateAPIView):

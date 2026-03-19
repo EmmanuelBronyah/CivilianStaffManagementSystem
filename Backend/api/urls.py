@@ -58,6 +58,11 @@ urlpatterns = [
         views.DeleteUserView.as_view(),
         name="delete-user",
     ),
+    path(
+        "users/role/",
+        views.RetrieveTotalNumberOfUsersPerRole.as_view(),
+        name="users-per-role",
+    ),
     # Division
     path(
         "divisions/create/",

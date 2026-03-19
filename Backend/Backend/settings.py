@@ -38,6 +38,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
+    "daphne",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -74,6 +75,8 @@ INSTALLED_APPS = [
     "allauth.account",
     "django_seed",
 ]
+
+ASGI_APPLICATION = "Backend.asgi.application"
 
 SITE_ID = 1
 
@@ -160,6 +163,15 @@ CACHES = {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         },
     }
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379, 3)],
+        },
+    },
 }
 
 CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
