@@ -47,7 +47,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.postgres",
     # ----- INSTALLED APPS -----
-    "api",
+    "api.apps.ApiConfig",
     "employees.apps.EmployeesConfig",
     "abscences",
     "children",
@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "termination_of_appointment",
     "flags.apps.FlagsConfig",
     "search_and_export",
+    "realtime",
     # ----- THIRD PARTY APPS -----
     "rest_framework",
     "rest_framework.authtoken",

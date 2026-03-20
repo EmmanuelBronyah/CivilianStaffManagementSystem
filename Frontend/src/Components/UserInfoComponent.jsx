@@ -1,7 +1,8 @@
 import { MdShield, MdPreview, MdPerson } from "react-icons/md";
 import style from "../styles/components/dashboardcomponent.module.css";
+import BaseSkeleton from "./SkeletonComponent";
 
-export default function UserInfo({ role, total }) {
+export default function UserInfo({ role, total, loading }) {
   let variables;
 
   if (role === "administrators") {
@@ -16,11 +17,15 @@ export default function UserInfo({ role, total }) {
 
   return (
     <div className={style.userInfoContainer}>
-      <div className={style.userIcon}>{icon}</div>
-      <div className={style.totalUsersContainer}>
-        <p>{total}</p>
+      <div className={style.userIcon}>
+        {loading ? <BaseSkeleton width={32} height={32} /> : icon}
       </div>
-      <div className={style.userRoleContainer}>{title}</div>
+      <div className={style.totalUsersContainer}>
+        <p>{loading ? <BaseSkeleton width={32} height={32} /> : total}</p>
+      </div>
+      <div className={style.userRoleContainer}>
+        {loading ? <BaseSkeleton width={"70%"} height={29} /> : title}
+      </div>
     </div>
   );
 }

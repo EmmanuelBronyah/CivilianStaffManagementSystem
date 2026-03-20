@@ -1,16 +1,19 @@
 import style from "../styles/components/dashboardcomponent.module.css";
-import { MdBadge, MdShield, MdPreview, MdPerson } from "react-icons/md";
+
 import { useTheme } from "../context/ThemeContext";
 import { useEffect, useState } from "react";
 import api from "../api";
 import UserInfo from "./UserInfoComponent";
 import EmployeesPerUnit from "./EmployeesPerUnitComponent";
+import EmployeeInfo from "./EmployeeInfoComponent";
 
 export default function Dashboard() {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);
   const [totalEmployees, setTotalEmployees] = useState(null);
   const [employeesPerUnit, setEmployeesPerUnit] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingEmployees, setLoadingEmployees] = useState(true);
+  const [loadingEmployeesPerUnit, setLoadingEmployeesPerUnit] = useState(true);
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -19,44 +22,52 @@ export default function Dashboard() {
     getEmployeesPerUnit();
   }, []);
 
-  const getTotalUsersPerRole = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:8000/ws/dashboard/");
 
+    socket.onmessage = (event) => {
+      const dataReceived = JSON.parse(event.data);
+      const type = dataReceived.type;
+      const data = dataReceived.data;
+
+      if (type === "user_update") {
+        setTotalUsersPerRole(data);
+      }
+    };
+
+    socket.onclose = () => {
+      console.log("Websocket disconnected");
+    };
+
+    return () => socket.close();
+  }, []);
+
+  const getTotalUsersPerRole = async () => {
     try {
       const res = await api.get("/api/users/role/");
-      setLoading(false);
 
       setTotalUsersPerRole(res.data);
     } catch (error) {
-      setLoading(false);
       console.log(error);
     }
   };
 
   const getTotalEmployees = async () => {
-    setLoading(true);
-
     try {
       const res = await api.get("/api/employees/staff/total/");
-      setLoading(false);
 
       setTotalEmployees(res.data.results);
     } catch (error) {
-      setLoading(false);
       console.log(error);
     }
   };
 
   const getEmployeesPerUnit = async () => {
-    setLoading(true);
-
     try {
       const res = await api.get("/api/employees/units/employees/");
-      setLoading(false);
 
       setEmployeesPerUnit(res.data.results);
     } catch (error) {
-      setLoading(false);
       console.log(error);
     }
   };
@@ -75,7 +86,14 @@ export default function Dashboard() {
         <div className={style.bottomUserSection}>
           {totalUsersPerRole &&
             Object.entries(totalUsersPerRole).map(([key, value]) => {
-              return <UserInfo key={key} role={key} total={value} />;
+              return (
+                <UserInfo
+                  key={key}
+                  role={key}
+                  total={value}
+                  loading={loadingUsers}
+                />
+              );
             })}
         </div>
       </div>
@@ -96,17 +114,10 @@ export default function Dashboard() {
           </div>
         </div>
         <div className={style.employeeUnitSection}>
-          <div className={style.totalEmployeesContainer}>
-            <div>
-              <MdBadge className={style.icon} />
-            </div>
-            <div className={style.total}>
-              <p>{totalEmployees}</p>
-            </div>
-            <div className={style.totalEmployees}>
-              <p>Total Employees</p>
-            </div>
-          </div>
+          <EmployeeInfo
+            totalEmployees={totalEmployees}
+            loadingEmployees={loadingEmployees}
+          />
           <div className={style.employeesPerUnit}>
             <div className={style.employeePerUnitTitle}>
               <p>Employees Per Unit</p>
