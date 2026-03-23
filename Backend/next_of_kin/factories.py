@@ -7,6 +7,7 @@ from next_of_kin.models import EmergencyOrNextOfKin
 
 
 fake = faker.Faker()
+EMPLOYEES = list(Employee.objects.all())
 
 
 class EmergencyOrNextOfKinFactory(factory.django.DjangoModelFactory):
@@ -14,12 +15,12 @@ class EmergencyOrNextOfKinFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = EmergencyOrNextOfKin
 
-    employee = factory.Iterator(Employee.objects.all())
+    employee = factory.Iterator(EMPLOYEES)
     name = factory.LazyFunction(fake.name)
     relation = factory.LazyFunction(
         lambda: random.choice(["Sister", "Brother", "Niece", "Nephew"])
     )
-    email = factory.LazyFunction(fake.email)
+    next_of_kin_email = factory.LazyFunction(fake.email)
     address = factory.LazyFunction(fake.address)
     phone_number = factory.LazyFunction(fake.phone_number)
     emergency_contact = factory.LazyFunction(fake.phone_number)

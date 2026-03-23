@@ -2,12 +2,12 @@ import factory
 import faker
 import factory.django
 import random
-from courses.models import Courses, InvalidCourseRecords
+from courses.models import Courses, IncompleteCourseRecords
 from employees.models import Employee
 
 
 fake = faker.Faker()
-unique_employees = iter(random.sample(list(Employee.objects.all()), 1500))
+unique_employees = iter(random.sample(list(Employee.objects.all()), 8000))
 
 
 class CoursesFactory(factory.django.DjangoModelFactory):
@@ -31,10 +31,10 @@ class CoursesFactory(factory.django.DjangoModelFactory):
     )
 
 
-class InvalidCourseFactory(factory.django.DjangoModelFactory):
+class IncompleteCourseFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = InvalidCourseRecords
+        model = IncompleteCourseRecords
 
     employee = factory.LazyFunction(lambda: next(unique_employees))
     course_type = factory.LazyFunction(lambda: f"BSc. Course {random.randint(1,100)}")

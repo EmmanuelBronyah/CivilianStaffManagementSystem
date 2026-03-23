@@ -6,7 +6,7 @@ import random
 from service_with_forces.models import (
     ServiceWithForces,
     MilitaryRanks,
-    InvalidServiceWithForcesRecords,
+    IncompleteServiceWithForcesRecords,
 )
 
 
@@ -22,19 +22,19 @@ class ServiceWithForcesFactory(factory.django.DjangoModelFactory):
     employee = factory.LazyFunction(lambda: next(unique_employees))
     service_date = factory.LazyFunction(fake.date)
     last_unit = factory.LazyFunction(lambda: random.choice(Units.objects.all()))
-    service_number = factory.LazyAttribute(lambda obj: obj.employee.service_id)
+    service_id = factory.LazyAttribute(lambda obj: obj.employee.service_id)
     military_rank = factory.LazyFunction(
         lambda: random.choice(MilitaryRanks.objects.all())
     )
 
 
-class InvalidServiceWithForcesFactory(factory.django.DjangoModelFactory):
+class IncompleteServiceWithForcesFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = InvalidServiceWithForcesRecords
+        model = IncompleteServiceWithForcesRecords
 
     employee = factory.LazyFunction(lambda: next(unique_employees))
     service_date = factory.LazyFunction(lambda: None)
     last_unit = factory.LazyFunction(lambda: None)
-    service_number = factory.LazyAttribute(lambda obj: obj.employee.service_id)
+    service_id = factory.LazyAttribute(lambda obj: obj.employee.service_id)
     military_rank = factory.LazyFunction(lambda: None)

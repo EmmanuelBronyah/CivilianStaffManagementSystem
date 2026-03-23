@@ -19,7 +19,7 @@ export default function Header(props) {
   }, [searchQuery]);
 
   return (
-    <header className={!theme && style.dark}>
+    <header className={!theme ? style.dark : ""}>
       <div className={style.activePageContainer}>
         <p>{props.activePage}</p>
       </div>

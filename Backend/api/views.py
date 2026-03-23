@@ -88,7 +88,7 @@ class RetrieveAllUsersView(generics.ListAPIView):
 
 class RetrieveTotalNumberOfUsersPerRole(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):

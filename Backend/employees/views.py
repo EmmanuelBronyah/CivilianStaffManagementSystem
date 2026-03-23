@@ -172,7 +172,7 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 
 class TotalNumberOfEmployeesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -181,6 +181,9 @@ class TotalNumberOfEmployeesAPIView(APIView):
 
 
 class ForecastedRetireesAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         current_year = datetime.now().year
@@ -477,7 +480,7 @@ class ListUnitsAPIView(generics.ListAPIView):
 
 class TotalEmployeesPerUnitAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -615,7 +618,9 @@ class TotalMaleAndFemaleAPIView(APIView):
 
     def get(self, request, *args, **kwargs):
         genders = models.Gender.objects.annotate(total_employees=Count("employee"))
-        results = [{gender.sex: gender.total_employees} for gender in genders]
+        results = [
+            {"name": gender.sex, "value": gender.total_employees} for gender in genders
+        ]
 
         return Response({"results": results}, status=status.HTTP_200_OK)
 

@@ -4,9 +4,9 @@ import SidebarButtons from "./SideBarButtonsComponent";
 import { useTheme } from "../context/ThemeContext";
 
 export default function SideBar(props) {
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
   return (
-    <aside className={!theme && style.dark}>
+    <aside className={!theme ? style.dark : ""}>
       <div className={style.logoContainer}>
         <span>
           <MdBadge className={style.logo} />

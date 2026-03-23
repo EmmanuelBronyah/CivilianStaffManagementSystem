@@ -7,7 +7,7 @@ import random
 
 fake = faker.Faker()
 unique_ids = iter(random.sample(range(10000, 30001), 20000))
-unique_employees = iter(random.sample(list(models.Employee.objects.all()), 500))
+# unique_employees = iter(random.sample(list(models.Employee.objects.all()), 500))
 
 
 class EmployeeFactory(factory.django.DjangoModelFactory):
@@ -19,7 +19,7 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     gender = factory.LazyFunction(
         lambda: random.choice(list(models.Gender.objects.all()))
     )
-    lastname = factory.LazyAttribute(
+    last_name = factory.LazyAttribute(
         lambda obj: (
             fake.last_name_male()
             if obj.gender.sex.lower() == "male"
@@ -43,7 +43,7 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
         lambda: random.choice(["GHANAIAN", "NIGERIAN", "IVORIAN"])
     )
     address = factory.LazyFunction(fake.address)
-    email = factory.LazyFunction(fake.email)
+    email = factory.LazyFunction(fake.unique.email)
     marital_status = factory.Iterator(models.MaritalStatus.objects.all())
     unit = factory.Iterator(models.Units.objects.all())
     grade = factory.Iterator(models.Grades.objects.all())
@@ -54,7 +54,7 @@ class EmployeeFactory(factory.django.DjangoModelFactory):
     social_security = factory.LazyFunction(
         lambda: "".join(fake.random_letters(length=13))
     )
-    category = factory.LazyFunction(lambda: random.choice(["Senior", "Junior"]))
+    category = factory.Iterator(models.Category.objects.all())
     appointment_date = factory.LazyFunction(fake.date)
     confirmation_date = factory.LazyFunction(fake.date)
     probation = factory.LazyFunction(lambda: str(random.randint(1, 3)))

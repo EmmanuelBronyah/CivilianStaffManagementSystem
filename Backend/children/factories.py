@@ -1,7 +1,7 @@
 import factory
 import faker
 import factory.django
-from children.models import Children, InvalidChildRecords
+from children.models import Children, InCompleteChildRecords
 from employees import models
 import random
 
@@ -9,14 +9,17 @@ import random
 fake = faker.Faker()
 unique_employees = iter(random.sample(list(models.Employee.objects.all()), 500))
 
+EMPLOYEES = list(models.Employee.objects.all())
+GENDER = list(models.Gender.objects.all())
+
 
 class ChildrenFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Children
 
-    employee = factory.Iterator(models.Employee.objects.all())
-    gender = factory.Iterator(models.Gender.objects.all())
+    employee = factory.Iterator(EMPLOYEES)
+    gender = factory.Iterator(GENDER)
     child_name = factory.LazyAttribute(
         lambda obj: (
             fake.name_male() if obj.gender.sex.lower() == "male" else fake.name_female()
@@ -35,10 +38,10 @@ class ChildrenFactory(factory.django.DjangoModelFactory):
     )
 
 
-class InvalidChildFactory(factory.django.DjangoModelFactory):
+class IncompleteChildFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = InvalidChildRecords
+        model = InCompleteChildRecords
 
     employee = factory.LazyFunction(lambda: next(unique_employees))
     gender = factory.Iterator(models.Gender.objects.all())

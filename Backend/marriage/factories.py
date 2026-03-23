@@ -7,7 +7,7 @@ from marriage.models import Spouse
 
 
 fake = faker.Faker()
-unique_employees = iter(random.sample(list(models.Employee.objects.all()), 500))
+unique_employees = iter(random.sample(list(models.Employee.objects.all()), 4000))
 
 
 class MarriageFactory(factory.django.DjangoModelFactory):

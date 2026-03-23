@@ -5,7 +5,7 @@ from employees import models
 import random
 from previous_government_service.models import (
     PreviousGovernmentService,
-    InvalidPreviousGovernmentServiceRecords,
+    IncompletePreviousGovernmentServiceRecords,
 )
 
 fake = faker.Faker()
@@ -23,10 +23,10 @@ class PreviousGovernmentServiceFactory(factory.django.DjangoModelFactory):
     position = factory.LazyFunction(fake.job)
 
 
-class InvalidPreviousGovernmentServiceFactory(factory.django.DjangoModelFactory):
+class IncompletePreviousGovernmentServiceFactory(factory.django.DjangoModelFactory):
 
     class Meta:
-        model = InvalidPreviousGovernmentServiceRecords
+        model = IncompletePreviousGovernmentServiceRecords
 
     employee = factory.LazyFunction(lambda: next(unique_employees))
     institution = factory.LazyFunction(lambda: None)

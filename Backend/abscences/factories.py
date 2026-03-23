@@ -8,13 +8,15 @@ import random
 
 fake = faker.Faker()
 
+EMPLOYEES = list(Employee.objects.all())
+
 
 class AbsencesFactory(factory.django.DjangoModelFactory):
 
     class Meta:
         model = Absences
 
-    employee = factory.Iterator(Employee.objects.all())
+    employee = factory.Iterator(EMPLOYEES)
     absence = factory.LazyFunction(lambda: "42 DAYS ANNUAL LEAVE")
     start_date = factory.LazyFunction(fake.date)
     end_date = factory.LazyFunction(fake.date)
