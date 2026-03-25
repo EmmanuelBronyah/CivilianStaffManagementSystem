@@ -1,12 +1,12 @@
 :root {
-  --sideBar-background-color: #eeeeee;
+  --sideBar-background-color: #f3f3f3;
   --logo-color: #004700;
   --text-color: rgb(36, 36, 36);
   --active-color: white;
 }
 
 .dark {
-  --sideBar-background-color: rgb(30, 29, 29);
+  --sideBar-background-color: rgb(31, 30, 30);
   --logo-color: grey;
   --text-color: grey;
   --active-color: rgb(30, 29, 29);
@@ -17,6 +17,7 @@ aside {
   padding: 1rem 1rem 0 0.3rem;
   border-top-right-radius: 0.5rem;
   border-bottom-right-radius: 0.5rem;
+  margin-left: -1rem;
 }
 
 .logoContainer {
@@ -50,7 +51,7 @@ aside {
 nav ul {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: max(0.75rem, 2vh);
   padding: 0;
 
   li {

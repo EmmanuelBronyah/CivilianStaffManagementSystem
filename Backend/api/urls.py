@@ -59,9 +59,9 @@ urlpatterns = [
         name="delete-user",
     ),
     path(
-        "users/role/",
-        views.RetrieveTotalNumberOfUsersPerRole.as_view(),
-        name="users-per-role",
+        "users/dashboard/",
+        views.DashboardAPiView.as_view(),
+        name="users-dashboard",
     ),
     # Division
     path(

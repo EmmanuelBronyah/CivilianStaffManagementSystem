@@ -114,7 +114,7 @@ class CustomUser(AbstractUser):
         verbose_name_plural = "users"
 
     def __str__(self):
-        return f"{self.fullname}"
+        return f"{self.username}"
 
 
 class Divisions(models.Model):

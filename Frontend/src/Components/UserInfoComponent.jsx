@@ -16,16 +16,18 @@ export default function UserInfo({ role, total, loading }) {
   const [icon, title] = variables;
 
   return (
-    <div className={style.userInfoContainer}>
-      <div className={style.userIcon}>
-        {loading ? <BaseSkeleton width={32} height={32} /> : icon}
-      </div>
-      <div className={style.totalUsersContainer}>
-        <p>{loading ? <BaseSkeleton width={32} height={32} /> : total}</p>
-      </div>
-      <div className={style.userRoleContainer}>
-        {loading ? <BaseSkeleton width={"70%"} height={29} /> : title}
-      </div>
-    </div>
+    <>
+      {loading ? (
+        <BaseSkeleton />
+      ) : (
+        <div className={style.userInfoContainer}>
+          <div className={style.userIcon}>{icon}</div>
+          <div className={style.totalUsersContainer}>
+            <p>{total}</p>
+          </div>
+          <div className={style.userRoleContainer}>{title}</div>
+        </div>
+      )}
+    </>
   );
 }

@@ -86,20 +86,6 @@ class RetrieveAllUsersView(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
 
 
-class RetrieveTotalNumberOfUsersPerRole(APIView):
-    http_method_names = ["get"]
-    throttle_classes = []
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        result = CustomUser.objects.aggregate(
-            administrators=Count("role", filter=Q(role="ADMINISTRATOR")),
-            standard_users=Count("role", filter=Q(role="STANDARD USER")),
-            viewers=Count("role", filter=Q(role="VIEWER")),
-        )
-        return Response(result, status=status.HTTP_200_OK)
-
-
 class UpdateUserView(generics.UpdateAPIView):
     serializer_class = serializers.RetrieveUpdateDestroyUserSerializer
     queryset = CustomUser.objects.all()
@@ -419,6 +405,7 @@ class VerifyOTPView(APIView):
                 {
                     "refresh_token": str(refresh),
                     "access_token": str(refresh.access_token),
+                    "user_id": user.id,
                 },
                 status=status.HTTP_200_OK,
             )
@@ -564,6 +551,111 @@ class LogoutView(APIView):
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
+
+
+class DashboardAPiView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        # <----- GET USERS PER ROLE ----->
+        users_per_role = CustomUser.objects.aggregate(
+            administrators=Count("role", filter=Q(role="ADMINISTRATOR")),
+            standard_users=Count("role", filter=Q(role="STANDARD USER")),
+            viewers=Count("role", filter=Q(role="VIEWER")),
+        )
+
+        # <----- GET TOTAL NUMBER OF EMPLOYEES ----->
+        from employees.models import Employee, Units, Gender
+
+        total_number_of_employees = {"results": Employee.objects.count()}
+
+        # <----- GET TWO(2) EMPLOYEES PER UNIT ----->
+        import random
+
+        units = Units.objects.annotate(total_employees=Count("employee"))
+        count = units.count()
+        number_of_objects_to_choose = 1 if count <= 1 else 2
+
+        if count != 0:
+            sampled_units = random.sample(list(units), number_of_objects_to_choose)
+            employees_per_unit_results = [
+                {unit.unit_name: unit.total_employees} for unit in sampled_units
+            ]
+
+            employees_per_unit = {"results": employees_per_unit_results}
+        else:
+            employees_per_unit = {"results": []}
+
+        # <----- GET TOTAL GENDER ----->
+        genders = Gender.objects.annotate(total_employees=Count("employee"))
+        gender_total_results = [
+            {"name": gender.sex, "value": gender.total_employees} for gender in genders
+        ]
+        total_gender = {"results": gender_total_results}
+
+        # <----- GET FORECASTED RETIREES ----->
+        from datetime import datetime
+        from django.db.models.functions import ExtractYear
+        from django.db.models import F
+
+        current_year = datetime.now().year
+        number_of_years = 11
+        end_year = current_year + number_of_years - 1
+
+        # Annotate retirement year
+        employees = (
+            Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
+            .filter(retirement_year__range=(current_year, end_year))
+            .values("service_id", "retirement_year")
+        )
+
+        # Group employees by year
+        grouped = {}
+
+        for emp in employees:
+            year = emp["retirement_year"]
+            grouped.setdefault(year, []).append(emp["service_id"])
+
+        # Build results
+        forecasted_retirees_results = []
+
+        for offset in range(number_of_years):
+            year = current_year + offset
+            employee_ids = grouped.get(year, [])
+
+            forecasted_retirees_results.append(
+                {"year": year, "count": len(employee_ids), "employees": employee_ids}
+            )
+
+        forecasted_retirees = {"results": forecasted_retirees_results}
+
+        # <----- GET SAMPLE ACTIVITY FEEDS ----->
+        from activity_feeds.models import ActivityFeeds
+
+        feeds = ActivityFeeds.objects.all().order_by("-created_at")[:10]
+        feeds_results = [
+            {
+                "creator": feed.creator.username,
+                "activity": feed.activity,
+                "created_at": feed.created_at.strftime("%d-%b-%Y %H:%M %p"),
+            }
+            for feed in feeds
+        ]
+        feeds_results = {"results": feeds_results}
+
+        return Response(
+            {
+                "users_per_role": users_per_role,
+                "total_number_of_employees": total_number_of_employees,
+                "employees_per_unit": employees_per_unit,
+                "total_gender": total_gender,
+                "forecasted_retirees": forecasted_retirees,
+                "feeds_results": feeds_results,
+            },
+            status=status.HTTP_200_OK,
+        )
 
 
 class TaskStatusView(APIView):

@@ -26,14 +26,18 @@ function HomePage() {
 
   return (
     <div className={`${style.homePage} ${!theme && style.dark}`}>
-      <SideBar activePage={activePage} setActivePage={setActivePage} />
-      <div className={style.headerMainContainer}>
-        <Header activePage={activePage} />
-        {activePage === "Dashboard" && <Dashboard />}
+      <div className={style.wrapper}>
+        <SideBar activePage={activePage} setActivePage={setActivePage} />
+        <div className={style.headerMainContainer}>
+          <Header activePage={activePage} />
+          {activePage === "Dashboard" && <Dashboard />}
+        </div>
       </div>
-      {/* <button onClick={navigateToLogoutPage}>Logout</button>; */}
     </div>
   );
 }
 
+{
+  /* <button onClick={navigateToLogoutPage}>Logout</button>; */
+}
 export default HomePage;

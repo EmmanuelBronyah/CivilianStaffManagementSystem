@@ -99,6 +99,11 @@ urlpatterns = [
         views.TotalEmployeesPerUnitAPIView.as_view(),
         name="list-employees-per-unit",
     ),
+    path(
+        "random/units/employees/",
+        views.RandomEmployeesPerUnitAPIView.as_view(),
+        name="list-random-employees-per-unit",
+    ),
     # ----- GENDER -----
     path("genders/", views.ListGendersAPIView.as_view(), name="list-all-genders"),
     path("genders/create/", views.CreateGenderAPIView.as_view(), name="create-gender"),

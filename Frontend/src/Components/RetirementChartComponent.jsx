@@ -11,23 +11,15 @@ import {
 export default function RetirementChart({ retirementStat }) {
   if (!retirementStat) return;
 
-  console.log(retirementStat);
-
   const chartData = retirementStat.map((item) => ({
     year: item.year,
     count: item.count,
   }));
 
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100%", height: "250px" }}>
       <ResponsiveContainer>
-        <LineChart
-          style={{
-            width: "100%",
-            height: 300,
-          }}
-          data={chartData}
-        >
+        <LineChart style={{ fontWeight: "bolder" }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
 
           <XAxis dataKey="year" />
@@ -38,7 +30,7 @@ export default function RetirementChart({ retirementStat }) {
           <Line
             type="monotone"
             dataKey="count"
-            stroke="#16a34a"
+            stroke="#004700"
             strokeWidth={3}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}

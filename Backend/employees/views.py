@@ -18,6 +18,7 @@ from flags.services import create_flag, delete_flag
 from django.db import transaction
 from .models import Employee
 from django.contrib.postgres.search import SearchQuery, SearchRank
+import random
 
 
 logger = logging.getLogger(__name__)
@@ -172,7 +173,7 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 
 class TotalNumberOfEmployeesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = []
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -182,7 +183,7 @@ class TotalNumberOfEmployeesAPIView(APIView):
 
 class ForecastedRetireesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = []
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -480,7 +481,7 @@ class ListUnitsAPIView(generics.ListAPIView):
 
 class TotalEmployeesPerUnitAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = []
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -488,6 +489,25 @@ class TotalEmployeesPerUnitAPIView(APIView):
         results = [{unit.unit_name: unit.total_employees} for unit in units]
 
         return Response({"results": results}, status=status.HTTP_200_OK)
+
+
+class RandomEmployeesPerUnitAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        units = models.Units.objects.annotate(total_employees=Count("employee"))
+        count = units.count()
+        number_of_objects_to_choose = 1 if count <= 1 else 2
+
+        if count != 0:
+            sampled_units = random.sample(list(units), number_of_objects_to_choose)
+            results = [{unit.unit_name: unit.total_employees} for unit in sampled_units]
+
+            return Response({"results": results}, status=status.HTTP_200_OK)
+
+        return Response({"results": []}, status=status.HTTP_200_OK)
 
 
 class EditUnitAPIView(generics.UpdateAPIView):
@@ -615,6 +635,9 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
 
 
 class TotalMaleAndFemaleAPIView(APIView):
+    http_method_names = ["get"]
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
     def get(self, request, *args, **kwargs):
         genders = models.Gender.objects.annotate(total_employees=Count("employee"))

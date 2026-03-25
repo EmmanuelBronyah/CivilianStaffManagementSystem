@@ -8,24 +8,21 @@ export default function GenderChart({ genderStat }) {
     fill: index === 0 ? "#22c55e" : "#004700",
   }));
 
-  const renderLabel = ({ percent }) => `${(percent * 100).toFixed(0)}%`;
-
   return (
-    <div style={{ width: "100%", height: "100%" }}>
+    <div style={{ width: "100%", height: "250px" }}>
       <ResponsiveContainer>
-        <PieChart>
+        <PieChart style={{ fontWeight: "bolder" }}>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
             cx="50%"
             cy="50%"
-            outerRadius={90}
-            label={renderLabel}
+            outerRadius={100}
             labelLine={false}
           />
           <Tooltip />
-          <Legend verticalAlign="bottom" height={36} />
+          <Legend verticalAlign="bottom" />
         </PieChart>
       </ResponsiveContainer>
     </div>

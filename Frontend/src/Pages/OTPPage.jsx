@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../constants";
+import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN, USER_ID } from "../constants";
 import { useNavigate } from "react-router-dom";
 import checkInternetConnection from "../utils/checkInternetConnection";
 import getResponseMessages from "../utils/extractResponseMessage";
@@ -21,7 +21,7 @@ function ResendAndVerifyOTP({ route }) {
   const [isExpired, setIsExpired] = useState(false);
   const [expiryTimestamp, setExpiryTimestamp] = useState(null);
   const [resetTimer, setResetTimer] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   const navigate = useNavigate();
 
@@ -93,6 +93,7 @@ function ResendAndVerifyOTP({ route }) {
       if (res.status === 200) {
         localStorage.setItem(ACCESS_TOKEN, res.data.access_token);
         localStorage.setItem(REFRESH_TOKEN, res.data.refresh_token);
+        localStorage.setItem(USER_ID, res.data.user_id);
 
         setResponse({
           message: "Login successful",

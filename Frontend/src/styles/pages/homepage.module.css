@@ -8,17 +8,26 @@
 
 .homePage {
   background-color: var(--homePage-background-color);
+  /* background-color: red; */
   min-height: 100dvh;
+}
+
+.wrapper {
+  height: 100dvh;
+  /* background-color: blue; */
+  background-color: var(--homePage-background-color);
+  max-width: 100rem;
+  padding-inline: 1rem;
+  margin-inline: auto;
   display: grid;
   grid-template-columns: 15rem 1fr;
   gap: 1rem;
   padding-right: 1rem;
-  /* width: min(75rem, 100%);
-  margin-inline: auto; */
 }
 
 .headerMainContainer {
   display: grid;
   grid-template-rows: 4rem 1fr;
-  gap: 1rem;
+  overflow-y: auto;
+  width: 100%;
 }
