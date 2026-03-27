@@ -12,10 +12,11 @@ import ActivityFeeds from "./ActivityFeedsComponent";
 
 export default function Dashboard() {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);
-  const [totalEmployees, setTotalEmployees] = useState(null);
+  const [relatedEmployeeData, setRelatedEmployeeData] = useState(null);
   const [genderStat, setGenderStat] = useState(null);
   const [employeesPerUnit, setEmployeesPerUnit] = useState(null);
   const [retirementStat, setRetirementStat] = useState(null);
+  const [retirementLabel, setRetirementLabel] = useState(null);
   const [feeds, setFeeds] = useState(null);
   const [loadingDashboardStat, setLoadingDashboardStat] = useState(true);
 
@@ -25,21 +26,15 @@ export default function Dashboard() {
     const getDashboardStat = async () => {
       try {
         const res = await api.get("/api/users/dashboard/");
-        const {
-          users_per_role,
-          total_number_of_employees,
-          employees_per_unit,
-          total_gender,
-          forecasted_retirees,
-          feeds_results,
-        } = res.data;
+        const { users_data, employees_data, retirement_data, feeds } = res.data;
 
-        setTotalUsersPerRole(users_per_role);
-        setTotalEmployees(total_number_of_employees.results);
-        setGenderStat(total_gender.results);
-        setEmployeesPerUnit(employees_per_unit.results);
-        setRetirementStat(forecasted_retirees.results);
-        setFeeds(feeds_results.results);
+        setTotalUsersPerRole(users_data.users_per_role);
+        setRelatedEmployeeData(employees_data.related_data);
+        setGenderStat(employees_data.total_gender);
+        setEmployeesPerUnit(employees_data.employees_per_unit);
+        setRetirementLabel(retirement_data.retirement_label);
+        setRetirementStat(retirement_data.forecasted_retirees);
+        setFeeds(feeds);
 
         setLoadingDashboardStat(false);
       } catch (error) {
@@ -49,25 +44,36 @@ export default function Dashboard() {
     getDashboardStat();
   }, []);
 
-  // useEffect(() => {
-  //   const socket = new WebSocket("ws://localhost:8000/ws/dashboard/");
+  let socket;
 
-  //   socket.onmessage = (event) => {
-  //     const dataReceived = JSON.parse(event.data);
-  //     const type = dataReceived.type;
-  //     const data = dataReceived.data;
+  const connect = () => {
+    const WS_URL = import.meta.env.VITE_WS_URL;
+    socket = new WebSocket(`${WS_URL}/ws/dashboard/`);
 
-  //     if (type === "user_update") {
-  //       setTotalUsersPerRole(data);
-  //     }
-  //   };
+    socket.onmessage = (event) => {
+      const dataReceived = JSON.parse(event.data);
+      const { type, data } = dataReceived;
 
-  //   socket.onclose = () => {
-  //     console.log("Websocket disconnected");
-  //   };
+      if (type === "user_update") {
+        setTotalUsersPerRole(data);
+      }
+    };
 
-  //   return () => socket.close();
-  // }, []);
+    socket.onclose = () => {
+      console.log("WebSocket disconnected. Reconnecting...");
+      setTimeout(connect, 3000);
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      socket.close();
+    };
+  };
+
+  useEffect(() => {
+    connect();
+    return () => socket && socket.close();
+  }, []);
 
   return (
     <main className={!theme ? style.dark : ""}>
@@ -131,7 +137,7 @@ export default function Dashboard() {
               <BaseSkeleton height={115} width={150} />
             ) : (
               <EmployeeInfo
-                totalEmployees={totalEmployees}
+                relatedEmployeeData={relatedEmployeeData}
                 loadingDashboardStat={loadingDashboardStat}
               />
             )}
@@ -175,9 +181,9 @@ export default function Dashboard() {
         </div>
         <div className={style.pension}>
           {loadingDashboardStat ? (
-            <BaseSkeleton width={370} height={40} />
+            <BaseSkeleton width={300} height={40} />
           ) : (
-            <p>Projected retirements over the next 11 years</p>
+            <p>{retirementLabel}</p>
           )}
 
           {loadingDashboardStat ? (
@@ -192,18 +198,23 @@ export default function Dashboard() {
           ) : (
             <p className={style.feedsTitle}>Recent Activity Feeds</p>
           )}
-          <div className={style.feedWrapper}>
-            {feeds &&
-              feeds.map(({ creator, activity, created_at }) => {
-                return (
-                  <ActivityFeeds
-                    creator={creator}
-                    activity={activity}
-                    created_at={created_at}
-                  />
-                );
-              })}
-          </div>
+          {loadingDashboardStat ? (
+            <BaseSkeleton height={"85%"} />
+          ) : (
+            <div className={style.feedWrapper}>
+              {feeds &&
+                feeds.map(({ id, creator, activity, created_at }) => {
+                  return (
+                    <ActivityFeeds
+                      key={id}
+                      creator={creator}
+                      activity={activity}
+                      created_at={created_at}
+                    />
+                  );
+                })}
+            </div>
+          )}
         </div>
       </div>
     </main>

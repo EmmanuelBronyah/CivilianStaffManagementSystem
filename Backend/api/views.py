@@ -29,7 +29,12 @@ from .services import (
 from django.db import transaction
 from celery.result import AsyncResult
 from django.db.models import Count, Q
-
+from employees.models import Employee, Units, Gender
+from datetime import datetime
+from django.db.models.functions import ExtractYear
+from django.db.models import F
+from activity_feeds.models import ActivityFeeds
+from termination_of_appointment.models import TerminationOfAppointment
 
 logger = logging.getLogger(__name__)
 
@@ -567,42 +572,29 @@ class DashboardAPiView(APIView):
         )
 
         # <----- GET TOTAL NUMBER OF EMPLOYEES ----->
-        from employees.models import Employee, Units, Gender
-
-        total_number_of_employees = {"results": Employee.objects.count()}
+        total_number_of_employees = Employee.objects.count()
 
         # <----- GET TWO(2) EMPLOYEES PER UNIT ----->
-        import random
-
-        units = Units.objects.annotate(total_employees=Count("employee"))
-        count = units.count()
-        number_of_objects_to_choose = 1 if count <= 1 else 2
-
-        if count != 0:
-            sampled_units = random.sample(list(units), number_of_objects_to_choose)
-            employees_per_unit_results = [
-                {unit.unit_name: unit.total_employees} for unit in sampled_units
-            ]
-
-            employees_per_unit = {"results": employees_per_unit_results}
-        else:
-            employees_per_unit = {"results": []}
+        units = Units.objects.annotate(total_employees=Count("employee")).order_by(
+            "-total_employees"
+        )[:2]
+        employees_per_unit_results = [
+            {unit.unit_name: unit.total_employees} for unit in units
+        ]
+        employees_per_unit = employees_per_unit_results
 
         # <----- GET TOTAL GENDER ----->
         genders = Gender.objects.annotate(total_employees=Count("employee"))
         gender_total_results = [
             {"name": gender.sex, "value": gender.total_employees} for gender in genders
         ]
-        total_gender = {"results": gender_total_results}
+        total_gender = gender_total_results
 
         # <----- GET FORECASTED RETIREES ----->
-        from datetime import datetime
-        from django.db.models.functions import ExtractYear
-        from django.db.models import F
-
         current_year = datetime.now().year
         number_of_years = 11
         end_year = current_year + number_of_years - 1
+        retirement_label = f"Projected Retirements ({current_year}-{end_year})"
 
         # Annotate retirement year
         employees = (
@@ -629,30 +621,42 @@ class DashboardAPiView(APIView):
                 {"year": year, "count": len(employee_ids), "employees": employee_ids}
             )
 
-        forecasted_retirees = {"results": forecasted_retirees_results}
+        forecasted_retirees = forecasted_retirees_results
+
+        # <----- INACTIVE EMPLOYEES ----->
+        inactive_employees = TerminationOfAppointment.objects.count()
 
         # <----- GET SAMPLE ACTIVITY FEEDS ----->
-        from activity_feeds.models import ActivityFeeds
-
-        feeds = ActivityFeeds.objects.all().order_by("-created_at")[:10]
+        feeds = ActivityFeeds.objects.select_related("creator").order_by("-created_at")[
+            :10
+        ]
         feeds_results = [
             {
+                "id": feed.id,
                 "creator": feed.creator.username,
                 "activity": feed.activity,
-                "created_at": feed.created_at.strftime("%d-%b-%Y %H:%M %p"),
+                "created_at": feed.created_at.strftime("%d-%b-%Y %I:%M %p"),
             }
             for feed in feeds
         ]
-        feeds_results = {"results": feeds_results}
+        most_recent_feeds = feeds_results
 
         return Response(
             {
-                "users_per_role": users_per_role,
-                "total_number_of_employees": total_number_of_employees,
-                "employees_per_unit": employees_per_unit,
-                "total_gender": total_gender,
-                "forecasted_retirees": forecasted_retirees,
-                "feeds_results": feeds_results,
+                "users_data": {"users_per_role": users_per_role},
+                "employees_data": {
+                    "related_data": {
+                        "total_number_of_employees": total_number_of_employees,
+                        "inactive_employees": inactive_employees,
+                    },
+                    "employees_per_unit": employees_per_unit,
+                    "total_gender": total_gender,
+                },
+                "retirement_data": {
+                    "retirement_label": retirement_label,
+                    "forecasted_retirees": forecasted_retirees,
+                },
+                "feeds": most_recent_feeds,
             },
             status=status.HTTP_200_OK,
         )

@@ -14,6 +14,8 @@
   --scroll-track: #f1f5f9;
   --scroll-thumb: #156415;
   --scroll-thumb-hover: #16a34a;
+  --chart-background-color: #d3ead3;
+  --feed-active-background-color: hsl(120, 35%, 82%);
 }
 
 .dark {
@@ -30,6 +32,8 @@
   --scroll-track: #0f172a;
   --scroll-thumb: #16a34a;
   --scroll-thumb-hover: #22c55e;
+  --chart-background-color: rgb(30, 30, 30);
+  --feed-active-background-color: hsl(0, 0%, 15%);
 }
 
 ::-webkit-scrollbar {
@@ -214,19 +218,19 @@ main {
   }
 
   .employeeUnitSection {
-    display: flex;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: 1fr;
+    /* grid-template-columns: repeat(3, 1fr); */
     gap: 1rem;
-    justify-content: flex-end;
 
     .totalEmployeesContainer {
-      flex-basis: 150px;
       display: flex;
       flex-direction: column;
       background-color: var(--info-container-background-color);
       padding: 0.5rem;
       justify-content: space-between;
       border-radius: 0.4rem;
-      cursor: pointer;
 
       .iconContainer {
         place-self: flex-end;
@@ -254,7 +258,6 @@ main {
     }
 
     .employeesPerUnit {
-      flex-basis: 210px;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -287,7 +290,7 @@ main {
           gap: 0.3rem;
           background-color: var(--card-background-color);
           border-radius: 0.4rem;
-          padding: 0.25rem 1rem;
+          padding: 0.25rem 0.5rem;
           width: 50px;
 
           .numberOfEmployeesInUnit p {
@@ -352,7 +355,7 @@ main {
 }
 
 .genderDistribution {
-  background-color: var(--card-background-color);
+  background-color: var(--chart-background-color);
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
   border-radius: 0.5rem;
   padding: 1rem;
@@ -367,7 +370,7 @@ main {
 }
 
 .feedsContainer {
-  background-color: var(--card-background-color);
+  background-color: var(--chart-background-color);
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
   border-radius: 0.5rem;
   padding: 1rem;
@@ -382,7 +385,7 @@ main {
   }
 
   .feedWrapper {
-    background-color: var(--card-background-color);
+    background-color: var(--chart-background-color);
     border-radius: 0.5rem;
     height: 85%;
     padding: 0.5rem;
@@ -398,6 +401,7 @@ main {
       background-color: var(--card-background-color);
       box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
       margin-bottom: 0.5rem;
+      cursor: pointer;
 
       span {
         font-weight: bold;
@@ -411,11 +415,19 @@ main {
         color: var(--text-color);
       }
     }
+
+    .feed:hover {
+      opacity: 0.8;
+    }
+
+    .feed:active {
+      background-color: var(--feed-active-background-color);
+    }
   }
 }
 
 .pension {
-  background-color: var(--card-background-color);
+  background-color: var(--chart-background-color);
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
   border-radius: 0.5rem;
   padding: 1rem;
@@ -427,5 +439,11 @@ main {
     color: var(--text-color);
     margin: 0;
     padding-bottom: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 1420px) {
+  .hideInactiveEmployees {
+    display: none !important;
   }
 }

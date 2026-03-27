@@ -95,6 +95,7 @@ header {
   grid-template-columns: 40px 1fr;
   gap: 0.5rem;
   padding: 0.5rem;
+  cursor: pointer;
 
   .defaultUserImage {
     place-self: center;
