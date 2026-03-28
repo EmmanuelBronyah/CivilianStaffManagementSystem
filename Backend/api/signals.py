@@ -3,7 +3,7 @@ from django.db.models.signals import post_delete, post_save
 from .models import CustomUser
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from django.db.models import Count, Q
+from employees import services
 
 
 def send_update(data):
@@ -20,11 +20,7 @@ def send_update(data):
 
 
 def send_users_dashboard_update():
-    data = CustomUser.objects.aggregate(
-        administrators=Count("role", filter=Q(role="ADMINISTRATOR")),
-        standard_users=Count("role", filter=Q(role="STANDARD USER")),
-        viewers=Count("role", filter=Q(role="VIEWER")),
-    )
+    data = services.get_users_per_role()
     send_update(data)
 
 

@@ -58,11 +58,6 @@ urlpatterns = [
         views.DeleteUserView.as_view(),
         name="delete-user",
     ),
-    path(
-        "users/dashboard/",
-        views.DashboardAPiView.as_view(),
-        name="users-dashboard",
-    ),
     # Division
     path(
         "divisions/create/",

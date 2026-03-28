@@ -28,13 +28,8 @@ from .services import (
 )
 from django.db import transaction
 from celery.result import AsyncResult
-from django.db.models import Count, Q
-from employees.models import Employee, Units, Gender
-from datetime import datetime
-from django.db.models.functions import ExtractYear
-from django.db.models import F
-from activity_feeds.models import ActivityFeeds
-from termination_of_appointment.models import TerminationOfAppointment
+from . import services
+
 
 logger = logging.getLogger(__name__)
 
@@ -556,110 +551,6 @@ class LogoutView(APIView):
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
-
-
-class DashboardAPiView(APIView):
-    http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
-
-    def get(self, request, *args, **kwargs):
-        # <----- GET USERS PER ROLE ----->
-        users_per_role = CustomUser.objects.aggregate(
-            administrators=Count("role", filter=Q(role="ADMINISTRATOR")),
-            standard_users=Count("role", filter=Q(role="STANDARD USER")),
-            viewers=Count("role", filter=Q(role="VIEWER")),
-        )
-
-        # <----- GET TOTAL NUMBER OF EMPLOYEES ----->
-        total_number_of_employees = Employee.objects.count()
-
-        # <----- GET TWO(2) EMPLOYEES PER UNIT ----->
-        units = Units.objects.annotate(total_employees=Count("employee")).order_by(
-            "-total_employees"
-        )[:2]
-        employees_per_unit_results = [
-            {unit.unit_name: unit.total_employees} for unit in units
-        ]
-        employees_per_unit = employees_per_unit_results
-
-        # <----- GET TOTAL GENDER ----->
-        genders = Gender.objects.annotate(total_employees=Count("employee"))
-        gender_total_results = [
-            {"name": gender.sex, "value": gender.total_employees} for gender in genders
-        ]
-        total_gender = gender_total_results
-
-        # <----- GET FORECASTED RETIREES ----->
-        current_year = datetime.now().year
-        number_of_years = 11
-        end_year = current_year + number_of_years - 1
-        retirement_label = f"Projected Retirements ({current_year}-{end_year})"
-
-        # Annotate retirement year
-        employees = (
-            Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
-            .filter(retirement_year__range=(current_year, end_year))
-            .values("service_id", "retirement_year")
-        )
-
-        # Group employees by year
-        grouped = {}
-
-        for emp in employees:
-            year = emp["retirement_year"]
-            grouped.setdefault(year, []).append(emp["service_id"])
-
-        # Build results
-        forecasted_retirees_results = []
-
-        for offset in range(number_of_years):
-            year = current_year + offset
-            employee_ids = grouped.get(year, [])
-
-            forecasted_retirees_results.append(
-                {"year": year, "count": len(employee_ids), "employees": employee_ids}
-            )
-
-        forecasted_retirees = forecasted_retirees_results
-
-        # <----- INACTIVE EMPLOYEES ----->
-        inactive_employees = TerminationOfAppointment.objects.count()
-
-        # <----- GET SAMPLE ACTIVITY FEEDS ----->
-        feeds = ActivityFeeds.objects.select_related("creator").order_by("-created_at")[
-            :10
-        ]
-        feeds_results = [
-            {
-                "id": feed.id,
-                "creator": feed.creator.username,
-                "activity": feed.activity,
-                "created_at": feed.created_at.strftime("%d-%b-%Y %I:%M %p"),
-            }
-            for feed in feeds
-        ]
-        most_recent_feeds = feeds_results
-
-        return Response(
-            {
-                "users_data": {"users_per_role": users_per_role},
-                "employees_data": {
-                    "related_data": {
-                        "total_number_of_employees": total_number_of_employees,
-                        "inactive_employees": inactive_employees,
-                    },
-                    "employees_per_unit": employees_per_unit,
-                    "total_gender": total_gender,
-                },
-                "retirement_data": {
-                    "retirement_label": retirement_label,
-                    "forecasted_retirees": forecasted_retirees,
-                },
-                "feeds": most_recent_feeds,
-            },
-            status=status.HTTP_200_OK,
-        )
 
 
 class TaskStatusView(APIView):

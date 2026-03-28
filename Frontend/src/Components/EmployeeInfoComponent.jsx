@@ -17,7 +17,7 @@ export default function EmployeeInfo({
     return (
       <>
         {loadingEmployees ? (
-          <BaseSkeleton height={115} width={150} />
+          <BaseSkeleton height={115} />
         ) : (
           <div className={`${style.totalEmployeesContainer} ${customStyle}`}>
             <div className={style.iconContainer}>

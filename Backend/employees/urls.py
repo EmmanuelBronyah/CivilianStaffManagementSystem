@@ -309,4 +309,10 @@ urlpatterns = [
         views.DeleteUnregisteredEmployeeAPIView.as_view(),
         name="delete-unregistered-employee",
     ),
+    # Dashboard
+    path(
+        "dashboard/",
+        views.DashboardAPiView.as_view(),
+        name="dashboard",
+    ),
 ]

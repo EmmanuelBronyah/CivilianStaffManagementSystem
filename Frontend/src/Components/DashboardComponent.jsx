@@ -1,6 +1,6 @@
 import style from "../styles/components/dashboardcomponent.module.css";
 import { useTheme } from "../context/ThemeContext";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../api";
 import UserInfo from "./UserInfoComponent";
 import EmployeesPerUnit from "./EmployeesPerUnitComponent";
@@ -19,13 +19,17 @@ export default function Dashboard() {
   const [retirementLabel, setRetirementLabel] = useState(null);
   const [feeds, setFeeds] = useState(null);
   const [loadingDashboardStat, setLoadingDashboardStat] = useState(true);
+  const socketInstance = useRef(null);
+  const reconnectRef = useRef(true);
+  const socketTimerRef = useRef(null);
+  const retriesRef = useRef(0);
 
   const { theme } = useTheme();
 
   useEffect(() => {
     const getDashboardStat = async () => {
       try {
-        const res = await api.get("/api/users/dashboard/");
+        const res = await api.get("/api/employees/dashboard/");
         const { users_data, employees_data, retirement_data, feeds } = res.data;
 
         setTotalUsersPerRole(users_data.users_per_role);
@@ -44,35 +48,91 @@ export default function Dashboard() {
     getDashboardStat();
   }, []);
 
-  let socket;
+  useEffect(() => {
+    const webSocketConnection = () => {
+      const MAX_RETRIES = 5;
+      const WS_URL = import.meta.env.VITE_WS_URL;
 
-  const connect = () => {
-    const WS_URL = import.meta.env.VITE_WS_URL;
-    socket = new WebSocket(`${WS_URL}/ws/dashboard/`);
+      const socket = new WebSocket(`${WS_URL}/ws/dashboard/`);
+      socketInstance.current = socket;
 
-    socket.onmessage = (event) => {
-      const dataReceived = JSON.parse(event.data);
-      const { type, data } = dataReceived;
+      socket.onopen = () => {
+        console.log("Websocket connected...");
+        retriesRef.current = 0;
+      };
 
-      if (type === "user_update") {
-        setTotalUsersPerRole(data);
+      socket.onmessage = (event) => {
+        let dataReceived;
+
+        try {
+          dataReceived = JSON.parse(event.data);
+        } catch (err) {
+          console.error("Invalid JSON:", err);
+          return;
+        }
+
+        const { type, data } = dataReceived;
+
+        switch (type) {
+          case "user_update":
+            setTotalUsersPerRole(data);
+            break;
+          case "employee_update":
+            setRelatedEmployeeData(data.employees_data.related_data);
+            setGenderStat(data.employees_data.total_gender);
+            setEmployeesPerUnit(data.employees_data.employees_per_unit);
+            setRetirementStat(data.retirement_data.forecasted_retirees);
+            break;
+          case "feeds_update":
+            setFeeds(data);
+            break;
+        }
+      };
+
+      socket.onclose = () => {
+        console.log("Websocket closed...");
+
+        if (!reconnectRef.current) return;
+
+        if (retriesRef.current >= MAX_RETRIES) {
+          console.log("Max retries reached. Stopping reconnect.");
+          reconnectRef.current = false;
+          return;
+        }
+
+        const delay = Math.min(3000 * 2 ** retriesRef.current, 10000);
+        retriesRef.current += 1;
+
+        console.log(`Reconnect attempt ${retriesRef.current} in ${delay}ms`);
+
+        if (socketTimerRef.current) {
+          clearTimeout(socketTimerRef.current);
+        }
+
+        socketTimerRef.current = setTimeout(() => {
+          webSocketConnection();
+        }, delay);
+      };
+
+      socket.onerror = (error) => {
+        console.log("Websocket error", error);
+      };
+    };
+
+    reconnectRef.current = true;
+    webSocketConnection();
+
+    return () => {
+      reconnectRef.current = false;
+
+      if (socketInstance.current) {
+        socketInstance.current.close();
+      }
+
+      if (socketTimerRef.current) {
+        clearTimeout(socketTimerRef.current);
       }
     };
-
-    socket.onclose = () => {
-      console.log("WebSocket disconnected. Reconnecting...");
-      setTimeout(connect, 3000);
-    };
-
-    socket.onerror = (error) => {
-      console.error("WebSocket error:", error);
-      socket.close();
-    };
-  };
-
-  useEffect(() => {
-    connect();
-    return () => socket && socket.close();
   }, []);
 
   return (
@@ -96,17 +156,10 @@ export default function Dashboard() {
             </div>
           </div>
           <div className={style.bottomUserSection}>
-            {totalUsersPerRole &&
-              Object.entries(totalUsersPerRole).map(([key, value]) => {
-                return (
-                  <UserInfo
-                    key={key}
-                    role={key}
-                    total={value}
-                    loading={loadingDashboardStat}
-                  />
-                );
-              })}
+            <UserInfo
+              totalUsersPerRole={totalUsersPerRole}
+              loading={loadingDashboardStat}
+            />
           </div>
         </div>
         <div className={style.employees}>
@@ -134,7 +187,7 @@ export default function Dashboard() {
           </div>
           <div className={style.employeeUnitSection}>
             {loadingDashboardStat ? (
-              <BaseSkeleton height={115} width={150} />
+              <BaseSkeleton height={115} />
             ) : (
               <EmployeeInfo
                 relatedEmployeeData={relatedEmployeeData}
@@ -142,7 +195,7 @@ export default function Dashboard() {
               />
             )}
             {loadingDashboardStat ? (
-              <BaseSkeleton height={115} width={210} />
+              <BaseSkeleton height={115} />
             ) : (
               <div className={style.employeesPerUnit}>
                 <div className={style.employeePerUnitTitle}>

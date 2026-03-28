@@ -43,6 +43,6 @@ def send_otp_email_task(self, device_id):
     except EmailDevice.DoesNotExist:
         logger.error(f"EmailDevice {device_id} does not exist.")
         return
-    
+
     except Exception as e:
         raise self.retry(exc=e)

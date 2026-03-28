@@ -19,6 +19,7 @@ from django.db import transaction
 from .models import Employee
 from django.contrib.postgres.search import SearchQuery, SearchRank
 import random
+from . import services
 
 
 logger = logging.getLogger(__name__)
@@ -177,7 +178,7 @@ class TotalNumberOfEmployeesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        total = models.Employee.objects.count()
+        total = services.get_total_number_of_employees()
         return Response({"results": total}, status=status.HTTP_200_OK)
 
 
@@ -187,35 +188,7 @@ class ForecastedRetireesAPIView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        current_year = datetime.now().year
-        number_of_years = 11
-        end_year = current_year + number_of_years - 1
-
-        # Annotate retirement year
-        employees = (
-            models.Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
-            .filter(retirement_year__range=(current_year, end_year))
-            .values("service_id", "retirement_year")
-        )
-
-        # Group employees by year
-        grouped = {}
-
-        for emp in employees:
-            year = emp["retirement_year"]
-            grouped.setdefault(year, []).append(emp["service_id"])
-
-        # Build results
-        results = []
-
-        for offset in range(number_of_years):
-            year = current_year + offset
-            employee_ids = grouped.get(year, [])
-
-            results.append(
-                {"year": year, "count": len(employee_ids), "employees": employee_ids}
-            )
-
+        results = services.get_forecasted_retirees()
         return Response({"results": results}, status=status.HTTP_200_OK)
 
 
@@ -1241,3 +1214,47 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
 
             # Delete associated flags
             delete_flag(instance, employee_id, self.request.user)
+
+
+# * DASHBOARD
+class DashboardAPiView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        users_per_role = services.get_users_per_role()
+
+        total_number_of_employees = services.get_total_number_of_employees()
+
+        employees_per_unit = services.get_two_employee_per_unit_instances()
+
+        total_gender = services.individual_gender_total()
+
+        retirement_label = services.get_retirement_label()
+
+        forecasted_retirees = services.get_forecasted_retirees()
+
+        inactive_employees = services.get_inactive_employees()
+
+        feeds = services.get_sample_activity_feeds()
+
+        return Response(
+            {
+                "users_data": {"users_per_role": users_per_role},
+                "employees_data": {
+                    "related_data": {
+                        "total_number_of_employees": total_number_of_employees,
+                        "inactive_employees": inactive_employees,
+                    },
+                    "employees_per_unit": employees_per_unit,
+                    "total_gender": total_gender,
+                },
+                "retirement_data": {
+                    "retirement_label": retirement_label,
+                    "forecasted_retirees": forecasted_retirees,
+                },
+                "feeds": feeds,
+            },
+            status=status.HTTP_200_OK,
+        )
