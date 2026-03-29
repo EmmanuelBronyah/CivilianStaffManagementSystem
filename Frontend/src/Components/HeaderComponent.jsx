@@ -11,21 +11,29 @@ import { USER_ID } from "../constants";
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [hideSearchIcon, setHideSearchIcon] = useState(false);
+  const [displayFilterBox, setDisplayFilterBox] = useState(false);
+  const [placeholderText, setPlaceholderText] = useState(
+    "Search by Service Number...",
+  );
   const { theme } = useTheme();
-
-  useEffect(() => {
-    if (searchQuery) {
-      setHideSearchIcon(true);
-    } else {
-      setHideSearchIcon(false);
-    }
-  }, [searchQuery]);
 
   useEffect(() => {
     getUserInfo();
   }, []);
+
+  const setPlaceholder = (e) => {
+    const text = e.target.textContent;
+    switch (text) {
+      case "Service Number":
+        setPlaceholderText("Search by Service Number...");
+        setDisplayFilterBox(false);
+        break;
+      case "Name":
+        setPlaceholderText("Search by Name...");
+        setDisplayFilterBox(false);
+        break;
+    }
+  };
 
   const getUserInfo = async () => {
     try {
@@ -46,11 +54,27 @@ export default function Header(props) {
       </div>
       <div className={style.searchBoxContainer}>
         <div className={style.searchBox}>
-          <input type="text" onChange={(e) => setSearchQuery(e.target.value)} />
-          <MdSearch
-            className={`${style.searchIcon} ${hideSearchIcon && style.hide}`}
+          <input type="text" placeholder={placeholderText} />
+          <MdSearch className={style.searchIcon} />
+          <MdFilterAlt
+            className={style.filterIcon}
+            onClick={() => setDisplayFilterBox((prevState) => !prevState)}
           />
-          <MdFilterAlt className={style.filterIcon} />
+          <div
+            className={`${style.filterContainer} ${!displayFilterBox && style.displayNone}`}
+          >
+            <div className={style.text}>
+              <p>Search By: </p>
+            </div>
+            <div className={style.filterContainerButtons}>
+              <div className={style.serviceNumberButtonContainer}>
+                <button onClick={setPlaceholder}>Service Number</button>
+              </div>
+              <div className={style.nameButtonContainer}>
+                <button onClick={setPlaceholder}>Name</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <ThemeToggle className={style.switch} />

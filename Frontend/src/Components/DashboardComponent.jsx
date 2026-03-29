@@ -164,7 +164,7 @@ export default function Dashboard() {
         </div>
         <div className={style.employees}>
           <div className={style.employeeTextAndButtonsSection}>
-            <div>
+            <div className={style.employeeTextContainer}>
               {loadingDashboardStat ? (
                 <BaseSkeleton height={35} width={90} />
               ) : (

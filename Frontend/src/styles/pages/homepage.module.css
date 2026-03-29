@@ -8,13 +8,11 @@
 
 .homePage {
   background-color: var(--homePage-background-color);
-  /* background-color: red; */
   min-height: 100dvh;
 }
 
 .wrapper {
   height: 100dvh;
-  /* background-color: blue; */
   background-color: var(--homePage-background-color);
   max-width: 100rem;
   padding-inline: 1rem;
@@ -30,4 +28,10 @@
   grid-template-rows: 4rem 1fr;
   overflow-y: auto;
   width: 100%;
+}
+
+@media screen and (max-width: 1215px) {
+  .wrapper {
+    grid-template-columns: 12.5rem 1fr;
+  }
 }

@@ -447,3 +447,21 @@ main {
     display: none !important;
   }
 }
+
+@media screen and (max-width: 1220px) {
+  .employeeTextAndButtonsSection {
+    flex-wrap: wrap;
+
+    .employeeTextContainer {
+      /* flex: 1; */
+      width: 100%;
+      justify-items: center;
+    }
+
+    .buttonContainer {
+      justify-self: center;
+      justify-content: center;
+      flex: 1;
+    }
+  }
+}
