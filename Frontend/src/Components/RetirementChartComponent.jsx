@@ -17,7 +17,7 @@ export default function RetirementChart({ retirementStat }) {
   }));
 
   return (
-    <div style={{ width: "100%", height: "250px" }}>
+    <div style={{ width: "100%", height: "90%" }}>
       <ResponsiveContainer>
         <LineChart style={{ fontWeight: "bolder" }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />

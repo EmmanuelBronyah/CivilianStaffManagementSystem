@@ -218,7 +218,7 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-      <div className={style.genderPensionFeedsContainer}>
+      <div className={style.chartsContainer}>
         <div className={style.genderDistribution}>
           {loadingDashboardStat ? (
             <BaseSkeleton width={170} height={40} />
@@ -245,31 +245,34 @@ export default function Dashboard() {
             <RetirementChart retirementStat={retirementStat} />
           )}
         </div>
-        <div className={style.feedsContainer}>
-          {loadingDashboardStat ? (
-            <BaseSkeleton width={170} height={40} />
-          ) : (
-            <p className={style.feedsTitle}>Recent Activity Feeds</p>
-          )}
-          {loadingDashboardStat ? (
-            <BaseSkeleton height={"85%"} />
-          ) : (
-            <div className={style.feedWrapper}>
-              {feeds &&
-                feeds.map(({ id, creator, activity, created_at }) => {
-                  return (
-                    <ActivityFeeds
-                      key={id}
-                      creator={creator}
-                      activity={activity}
-                      created_at={created_at}
-                    />
-                  );
-                })}
-            </div>
-          )}
-        </div>
       </div>
+      <div className={style.feedsContainer}>
+        {loadingDashboardStat ? (
+          <BaseSkeleton width={170} height={35} />
+        ) : (
+          <p className={style.feedsTitle}>Recent Activity Feeds</p>
+        )}
+        {loadingDashboardStat ? (
+          <BaseSkeleton height={"90%"} />
+        ) : (
+          <div className={style.feedWrapper}>
+            {feeds &&
+              feeds.map(({ id, creator, activity, created_at }) => {
+                return (
+                  <ActivityFeeds
+                    key={id}
+                    creator={creator}
+                    activity={activity}
+                    created_at={created_at}
+                  />
+                );
+              })}
+          </div>
+        )}
+      </div>
+      {/* <div className={style.genderPensionFeedsContainer}>
+        
+      </div> */}
     </main>
   );
 }

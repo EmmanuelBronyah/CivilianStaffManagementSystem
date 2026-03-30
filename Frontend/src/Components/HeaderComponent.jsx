@@ -91,18 +91,20 @@ export default function Header(props) {
             />
           )}
         </div>
-        {loadingUserInfo ? (
-          <BaseSkeleton width={80} height={40} />
-        ) : (
-          <div className={style.userNameRoleContainer}>
-            <div className={style.username}>
-              <p>{userInfo && userInfo.username}</p>
-            </div>
-            <div className={style.role}>
-              <p>{userInfo && userInfo.role}</p>
-            </div>
-          </div>
-        )}
+        <div className={style.userNameRoleContainer}>
+          {loadingUserInfo ? (
+            <BaseSkeleton width={80} height={40} />
+          ) : (
+            <>
+              <div className={style.username}>
+                <p>{userInfo?.username}</p>
+              </div>
+              <div className={style.role}>
+                <p>{userInfo?.role}</p>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -106,3 +106,37 @@ nav button:hover {
     color: var(--active-color);
   }
 }
+
+@media screen and (max-width: 1050px) {
+  aside {
+    padding: 1rem 0 0 0.3rem;
+  }
+
+  .logoContainer {
+    display: block;
+    grid-template-columns: none;
+    text-align: center;
+
+    p {
+      display: none;
+    }
+  }
+
+  nav ul li p {
+    grid-template-columns: 9.5rem 1fr;
+    display: none;
+  }
+
+  nav ul li button {
+    display: block;
+    grid-template-columns: none;
+    border-radius: 0.25rem;
+    padding-block: 0.2rem;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  aside {
+    display: none;
+  }
+}

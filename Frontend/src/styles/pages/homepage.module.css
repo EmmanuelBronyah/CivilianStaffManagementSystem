@@ -35,3 +35,15 @@
     grid-template-columns: 12.5rem 1fr;
   }
 }
+
+@media screen and (max-width: 1050px) {
+  .wrapper {
+    grid-template-columns: 1.5rem 1fr;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .wrapper {
+    grid-template-columns: 1fr;
+  }
+}

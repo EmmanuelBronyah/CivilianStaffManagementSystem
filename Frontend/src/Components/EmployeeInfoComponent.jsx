@@ -9,29 +9,33 @@ export default function EmployeeInfo({
   const { total_number_of_employees, inactive_employees } = relatedEmployeeData;
 
   const variables = [
-    [total_number_of_employees, "Total Employees", ""],
-    [inactive_employees, "Inactive Employees", style.hideInactiveEmployees],
+    [
+      total_number_of_employees,
+      "Total Employees",
+      style.totalEmployeesContainer,
+    ],
+    [
+      inactive_employees,
+      "Inactive Employees",
+      style.totalInactiveEmployeesContainer,
+    ],
   ];
 
-  const employeeData = variables.map(([total, text, customStyle]) => {
-    return (
-      <>
-        {loadingEmployees ? (
-          <BaseSkeleton height={115} />
-        ) : (
-          <div className={`${style.totalEmployeesContainer} ${customStyle}`}>
-            <div className={style.iconContainer}>
-              <MdBadge className={style.icon} />
-            </div>
-            <div className={style.total}>
-              <p>{total}</p>
-            </div>
-            <div className={style.totalEmployees}>
-              <p>{text}</p>
-            </div>
-          </div>
-        )}
-      </>
+  const employeeData = variables.map(([total, text, className]) => {
+    return loadingEmployees ? (
+      <BaseSkeleton height={115} />
+    ) : (
+      <div key={text} className={className}>
+        <div className={style.iconContainer}>
+          <MdBadge className={style.icon} />
+        </div>
+        <div className={style.total}>
+          <p>{total}</p>
+        </div>
+        <div className={style.totalEmployees}>
+          <p>{text}</p>
+        </div>
+      </div>
     );
   });
 

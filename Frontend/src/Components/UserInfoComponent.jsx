@@ -29,7 +29,7 @@ export default function UserInfo({ totalUsersPerRole, loading }) {
     return loading ? (
       <BaseSkeleton />
     ) : (
-      <div className={style.userInfoContainer}>
+      <div key={role} className={style.userInfoContainer}>
         <div className={style.userIcon}>{icon}</div>
         <div className={style.totalUsersContainer}>
           <p>{total}</p>
