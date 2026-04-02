@@ -3,6 +3,10 @@
   --logo-color: #004700;
   --text-color: rgb(36, 36, 36);
   --active-color: white;
+  --closeIcon-color: #004700;
+  --closeIcon-hover: #056705;
+  --closeIcon-active: hsl(120, 100%, 10%);
+  --closeIcon-size: 2rem;
 }
 
 .dark {
@@ -10,6 +14,9 @@
   --logo-color: grey;
   --text-color: grey;
   --active-color: rgb(30, 29, 29);
+  --closeIcon-color: grey;
+  --closeIcon-hover: rgb(162, 162, 162);
+  --closeIcon-active: hsl(0, 0%, 30%);
 }
 
 aside {
@@ -91,6 +98,23 @@ nav ul {
   color: var(--logo-color);
 }
 
+.closeIcon {
+  display: none;
+  font-size: var(--closeIcon-size);
+  color: var(--closeIcon-color);
+  border-radius: 50%;
+  background-color: var(--sideBar-background-color);
+}
+
+.closeIcon:hover {
+  color: var(--closeIcon-hover);
+  background-color: hsl(120, 100%, 89%);
+}
+
+.closeIcon:active {
+  color: var(--closeIcon-active);
+}
+
 nav button:hover {
   cursor: pointer;
 }
@@ -105,6 +129,10 @@ nav button:hover {
   .icon {
     color: var(--active-color);
   }
+}
+
+.hide {
+  display: none;
 }
 
 @media screen and (max-width: 1050px) {
@@ -138,5 +166,112 @@ nav button:hover {
 @media screen and (max-width: 700px) {
   aside {
     display: none;
+  }
+
+  .sideBarMobile {
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    width: 40vw;
+    padding-inline: 1.5rem;
+    z-index: 20;
+  }
+
+  .showCloseIcon {
+    display: block;
+  }
+
+  .logoContainer {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 1rem;
+    width: 100%;
+    grid-auto-flow: column;
+    align-items: center;
+
+    span {
+      justify-self: right;
+    }
+
+    .logo {
+      font-size: 2rem;
+      color: var(--logo-color);
+    }
+
+    p {
+      display: block;
+      justify-self: start;
+      margin: 0;
+      padding: 0;
+      letter-spacing: 0.1rem;
+      font-weight: bolder;
+      font-size: 1.3rem;
+      color: var(--text-color);
+    }
+  }
+
+  nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: max(0.75rem, 2vh);
+    padding: 0;
+
+    li {
+      list-style: none;
+      width: 100%;
+
+      button {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 1rem;
+        width: 100%;
+        grid-auto-flow: column;
+        align-items: center;
+        border-radius: 0.65rem;
+        padding-block: 0.7rem;
+        border: none;
+        background-color: var(--sideBar-background-color);
+
+        span {
+          justify-self: right;
+        }
+
+        p {
+          display: block;
+          margin: 0;
+          padding: 0;
+          justify-self: start;
+          font-weight: bold;
+          font-size: 0.9rem;
+          color: var(--text-color);
+        }
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 450px) {
+  nav ul li button {
+    grid-template-columns: none;
+    grid-template-rows: repeat(2, 1fr);
+    gap: 0;
+    padding-block: 0.2rem;
+
+    span {
+      justify-self: center;
+    }
+
+    p {
+      justify-self: center;
+    }
+  }
+
+  .logoContainer p {
+    display: none;
+  }
+
+  .closeIcon {
+    justify-self: right;
   }
 }

@@ -505,3 +505,47 @@ main {
     grid-template-columns: 1fr;
   }
 }
+
+@media screen and (max-width: 700px) {
+  main {
+    padding-inline: 0;
+  }
+
+  .users,
+  .employees,
+  .genderDistribution,
+  .pension,
+  .feedsContainer {
+    border-radius: 0;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .users .bottomUserSection {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 40.5%;
+    overflow-x: scroll;
+  }
+
+  .employees .employeeUnitSection {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 50.5%;
+    overflow-x: scroll;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .users .bottomUserSection {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: 40.5%;
+    overflow-x: scroll;
+  }
+
+  .employees .employeeTextAndButtonsSection {
+    flex-direction: column;
+    gap: 0;
+  }
+}

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import style from "../styles/components/headercomponent.module.css";
-import { MdSearch, MdFilterAlt } from "react-icons/md";
+import { MdSearch, MdFilterAlt, MdDehaze } from "react-icons/md";
 import image from "../assets/images/default.png";
 import ThemeToggle from "./ThemeToggleComponent";
 import { useTheme } from "../context/ThemeContext";
@@ -12,9 +12,7 @@ export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
   const [displayFilterBox, setDisplayFilterBox] = useState(false);
-  const [placeholderText, setPlaceholderText] = useState(
-    "Search by Service Number...",
-  );
+  const [placeholderText, setPlaceholderText] = useState("Service Number...");
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -25,11 +23,11 @@ export default function Header(props) {
     const text = e.target.textContent;
     switch (text) {
       case "Service Number":
-        setPlaceholderText("Search by Service Number...");
+        setPlaceholderText("Service Number...");
         setDisplayFilterBox(false);
         break;
       case "Name":
-        setPlaceholderText("Search by Name...");
+        setPlaceholderText("Name...");
         setDisplayFilterBox(false);
         break;
     }
@@ -49,6 +47,8 @@ export default function Header(props) {
 
   return (
     <header className={!theme ? style.dark : ""}>
+      {/* <MobileScreenSideBar /> */}
+      <MdDehaze className={style.icon} onClick={props.toggleSidebar} />
       <div className={style.activePageContainer}>
         <p>{props.activePage}</p>
       </div>

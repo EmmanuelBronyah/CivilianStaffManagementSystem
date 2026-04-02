@@ -9,6 +9,10 @@
   --button-background-color: #156415;
   --button-active-background-color: #004700;
   --button-text-color: white;
+  --hamburgerIcon-color: #004700;
+  --hamburgerIcon-hover: #056705;
+  --hamburgerIcon-active: hsl(120, 100%, 10%);
+  --hamburgerIcon-size: 2rem;
 }
 
 .dark {
@@ -22,6 +26,9 @@
   --button-background-color: grey;
   --button-active-background-color: rgb(90, 90, 90);
   --button-text-color: rgb(30, 30, 30);
+  --hamburgerIcon-color: grey;
+  --hamburgerIcon-hover: rgb(162, 162, 162);
+  --hamburgerIcon-active: hsl(0, 0%, 30%);
 }
 
 header {
@@ -41,6 +48,27 @@ header {
     margin: 0;
     padding: 0;
   }
+}
+
+.mobileScreenSidebar {
+  position: absolute;
+  background-color: red;
+  inset: 0 auto 0 0;
+}
+
+.icon {
+  display: none;
+  color: var(--hamburgerIcon-color);
+  font-size: var(--hamburgerIcon-size);
+  cursor: pointer;
+}
+
+.icon:hover {
+  color: var(--hamburgerIcon-hover);
+}
+
+.icon:active {
+  color: var(--hamburgerIcon-active);
 }
 
 .activePageContainer {
@@ -212,7 +240,27 @@ header {
 }
 
 @media screen and (max-width: 700px) {
+  .activePageContainer {
+    display: none;
+  }
+
+  .searchBoxContainer {
+    margin-left: 0;
+  }
+
+  .icon {
+    display: block;
+  }
+
   header {
     padding-inline: 1rem 0.7rem;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  header {
+    gap: 2.5rem;
   }
 }
