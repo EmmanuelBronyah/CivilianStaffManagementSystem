@@ -47,32 +47,25 @@ export default function Header(props) {
 
   return (
     <header className={!theme ? style.dark : ""}>
-      {/* <MobileScreenSideBar /> */}
-      <MdDehaze className={style.icon} onClick={props.toggleSidebar} />
+      <MdDehaze className={style.icon} onClick={() => props.setOpen(true)} />
       <div className={style.activePageContainer}>
         <p>{props.activePage}</p>
       </div>
       <div className={style.searchBoxContainer}>
         <div className={style.searchBox}>
           <input type="text" placeholder={placeholderText} />
+
           <MdSearch className={style.searchIcon} />
-          <MdFilterAlt
-            className={style.filterIcon}
-            onClick={() => setDisplayFilterBox((prevState) => !prevState)}
-          />
-          <div
-            className={`${style.filterContainer} ${!displayFilterBox && style.displayNone}`}
-          >
-            <div className={style.text}>
-              <p>Search By: </p>
-            </div>
-            <div className={style.filterContainerButtons}>
-              <div className={style.serviceNumberButtonContainer}>
-                <button onClick={setPlaceholder}>Service Number</button>
-              </div>
-              <div className={style.nameButtonContainer}>
-                <button onClick={setPlaceholder}>Name</button>
-              </div>
+
+          <div className={style.filterWrapper}>
+            <MdFilterAlt
+              className={style.filterIcon}
+              onClick={() => setDisplayFilterBox((prev) => !prev)}
+            />
+
+            <div className={style.filterContainer} data-open={displayFilterBox}>
+              <button onClick={setPlaceholder}>Service Number</button>
+              <button onClick={setPlaceholder}>Name</button>
             </div>
           </div>
         </div>

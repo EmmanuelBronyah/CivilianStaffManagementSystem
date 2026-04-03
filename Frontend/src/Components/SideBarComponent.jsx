@@ -6,16 +6,14 @@ import { useTheme } from "../context/ThemeContext";
 export default function SideBar(props) {
   const { theme } = useTheme();
   return (
-    <aside
-      className={`${!theme ? style.dark : ""} ${props.displaySidebar ? style.sideBarMobile : ""}`}
-    >
+    <aside className={!theme ? style.dark : ""} data-open={props.open}>
       <div className={style.logoContainer}>
         <span>
           <MdBadge className={style.logo} />
         </span>
         <p>CiviBase</p>
         <MdClose
-          onClick={props.toggleSidebar}
+          onClick={() => props.setOpen(false)}
           className={`${style.closeIcon} ${style.showCloseIcon}`}
         />
       </div>

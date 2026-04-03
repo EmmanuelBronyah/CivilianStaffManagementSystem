@@ -10,7 +10,8 @@ import { useTheme } from "../context/ThemeContext";
 
 function HomePage() {
   const [activePage, setActivePage] = useState("Dashboard");
-  const [displaySidebar, setDisplaySidebar] = useState(false);
+  const [open, setOpen] = useState(false);
+
   const { theme } = useTheme();
 
   const navigate = useNavigate();
@@ -25,21 +26,17 @@ function HomePage() {
     navigate("/auth/logout");
   };
 
-  const toggleSidebar = () => {
-    setDisplaySidebar((prevState) => !prevState);
-  };
-
   return (
     <div className={`${style.homePage} ${!theme && style.dark}`}>
       <div className={style.wrapper}>
         <SideBar
           activePage={activePage}
           setActivePage={setActivePage}
-          toggleSidebar={toggleSidebar}
-          displaySidebar={displaySidebar}
+          open={open}
+          setOpen={setOpen}
         />
         <div className={style.headerMainContainer}>
-          <Header activePage={activePage} toggleSidebar={toggleSidebar} />
+          <Header activePage={activePage} setOpen={setOpen} />
           {activePage === "Dashboard" && <Dashboard />}
         </div>
       </div>
