@@ -4,6 +4,7 @@ import { TEMP_TOKEN } from "../constants";
 import Header from "../Components/HeaderComponent";
 import SideBar from "../Components/SideBarComponent";
 import Dashboard from "../Components/DashboardComponent";
+import Users from "../Components/UsersComponent";
 import style from "../styles/pages/homepage.module.css";
 import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
@@ -38,6 +39,7 @@ function HomePage() {
         <div className={style.headerMainContainer}>
           <Header activePage={activePage} setOpen={setOpen} />
           {activePage === "Dashboard" && <Dashboard />}
+          {activePage === "Users" && <Users />}
         </div>
       </div>
     </div>
