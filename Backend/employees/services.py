@@ -1,11 +1,11 @@
 from django.db.models import Count, Q
-from employees.models import Employee, Units, Gender
+from employees.models import Employee, Units, Gender, Grades
 from datetime import datetime
 from django.db.models.functions import ExtractYear
 from django.db.models import F
 from activity_feeds.models import ActivityFeeds
 from termination_of_appointment.models import TerminationOfAppointment
-from api.models import CustomUser
+from api.models import CustomUser, Divisions
 
 
 def get_users_per_role():
@@ -91,3 +91,11 @@ def get_sample_activity_feeds():
         }
         for feed in feeds
     ]
+
+
+def get_divisions():
+    return Divisions.objects.all()
+
+
+def get_grades():
+    return Grades.objects.all()

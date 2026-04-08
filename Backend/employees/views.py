@@ -9,9 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.views import APIView
 from django.db.models import Count
-from datetime import datetime
 from django.db.models import F
-from django.db.models.functions import ExtractYear
 from activity_feeds.models import ActivityFeeds
 from . import utils
 from flags.services import create_flag, delete_flag
@@ -1217,7 +1215,7 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
 
 
 # * DASHBOARD
-class DashboardAPiView(APIView):
+class DashboardAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated]
@@ -1255,6 +1253,27 @@ class DashboardAPiView(APIView):
                     "forecasted_retirees": forecasted_retirees,
                 },
                 "feeds": feeds,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+# * DIVISION AND GRADES
+class ListDivisionsAndGradesAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = [UserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        divisions = services.get_divisions()
+        grades = services.get_grades()
+
+        return Response(
+            {
+                "divisions": serializers.ListDivisionsSerializer(
+                    divisions, many=True
+                ).data,
+                "grades": serializers.ListGradesSerializer(grades, many=True).data,
             },
             status=status.HTTP_200_OK,
         )

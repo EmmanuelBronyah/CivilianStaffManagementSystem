@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
 
 function HomePage() {
-  const [activePage, setActivePage] = useState("Dashboard");
+  const [activePage, setActivePage] = useState("Users");
   const [open, setOpen] = useState(false);
 
   const { theme } = useTheme();

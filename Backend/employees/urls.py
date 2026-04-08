@@ -312,7 +312,13 @@ urlpatterns = [
     # Dashboard
     path(
         "dashboard/",
-        views.DashboardAPiView.as_view(),
+        views.DashboardAPIView.as_view(),
         name="dashboard",
+    ),
+    # Divisions And Grades
+    path(
+        "divisions-grades/",
+        views.ListDivisionsAndGradesAPIView.as_view(),
+        name="list-divisions-grades",
     ),
 ]

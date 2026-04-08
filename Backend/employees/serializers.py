@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from . import models
+from api.models import Divisions
 import logging
 
 
@@ -781,3 +782,17 @@ class UnregisteredEmployeeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.UnregisteredEmployees
         fields = "__all__"
+
+
+class ListDivisionsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Divisions
+        fields = ["id", "division_name"]
+
+
+class ListGradesSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Grades
+        fields = ["id", "grade_name"]

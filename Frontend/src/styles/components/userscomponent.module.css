@@ -111,6 +111,17 @@
   }
 }
 
+.dropdown {
+  height: calc(2.5rem + 1vh);
+  border-radius: 2rem;
+  border: 1px solid var(--userComponent-input-borderColor);
+  font-weight: bold;
+  padding-left: 1rem;
+  font-size: 1.05rem;
+  background-color: var(--userComponent-input-backgroundColor);
+  color: var(--userComponent-input-color);
+}
+
 .buttonsContainer {
   justify-self: center;
   display: flex;
