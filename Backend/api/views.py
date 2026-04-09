@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class CreateUserView(generics.CreateAPIView):
     serializer_class = serializers.RetrieveCreateUserSerializer
     queryset = CustomUser.objects.all()
-    throttle_classes = [CustomUserRateThrottle]
+    throttle_classes = [UserRateThrottle]
     permission_classes = [IsAuthenticated, IsAdminUser]
 
     def create(self, request, *args, **kwargs):
@@ -587,4 +587,25 @@ class RevokeTaskView(APIView):
         return Response(
             {"detail": "Task revoked successfully"},
             status=status.HTTP_200_OK,
+        )
+
+
+class VerifyAdminIdentityAPIView(APIView):
+    http_method_names = ["post"]
+    throttle_classes = [CustomUserRateThrottle]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        data = request.data.get("data")
+        user_id = data.get("id")
+        admin_password = data.get("adminPassword")
+
+        username = CustomUser.objects.get(id=user_id).username
+        user = authenticate(request, username=username, password=admin_password)
+
+        if user:
+            return Response({"detail": "User found"}, status=status.HTTP_200_OK)
+
+        return Response(
+            {"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
         )

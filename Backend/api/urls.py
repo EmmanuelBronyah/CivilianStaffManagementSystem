@@ -58,6 +58,11 @@ urlpatterns = [
         views.DeleteUserView.as_view(),
         name="delete-user",
     ),
+    path(
+        "users/verify/admin/",
+        views.VerifyAdminIdentityAPIView.as_view(),
+        name="verify-admin",
+    ),
     # Division
     path(
         "divisions/create/",

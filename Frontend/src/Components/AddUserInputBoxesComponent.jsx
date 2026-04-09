@@ -7,9 +7,9 @@ export default function AddUserInputBoxes({ formData, setFormData }) {
   const [divisions, setDivisions] = useState([]);
   const [grades, setGrades] = useState([]);
   const roles = [
-    { id: 1, name: "Administrator" },
-    { id: 2, name: "Standard User" },
-    { id: 3, name: "Viewer" },
+    { id: 1, name: "ADMINISTRATOR" },
+    { id: 2, name: "STANDARD USER" },
+    { id: 3, name: "VIEWER" },
   ];
 
   useEffect(() => {
