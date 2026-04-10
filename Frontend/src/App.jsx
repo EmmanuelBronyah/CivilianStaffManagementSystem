@@ -1,24 +1,19 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import RegisterUser from "./Pages/RegistrationPage";
-import LoginUser from "./Pages/LoginPage";
-import LogoutUser from "./Pages/LogoutPage";
-import ResendAndVerifyOTP from "./Pages/OTPPage";
-import ResetPassword from "./Pages/ResetPasswordPage";
-import ConfirmPasswordReset from "./Pages/ConfirmPasswordResetPage";
-import ProtectedRoute from "./Components/ProtectedRoute";
-import SplashScreen from "./Pages/SplashScreen";
-import HomePage from "./Pages/HomePage";
-import ProtectOtpRoute from "./Components/OtpProtectedRouteComponent";
+import LoginUser from "./Features/Auth/Pages/LoginPage";
+import LogoutUser from "./Features/Auth/Pages/LogoutPage";
+import ResendAndVerifyOTP from "./Features/Auth/Pages/OTPPage";
+import ResetPassword from "./Features/Auth/Pages/ResetPasswordPage";
+import ConfirmPasswordReset from "./Features/Auth/Pages/ConfirmPasswordResetPage";
+import ProtectedRoute from "./Features/Auth/Components/ProtectedRoute";
+import SplashScreen from "./Components/Common/SplashScreen";
+import HomePage from "./Features/Homepage/Pages/HomePage";
+import ProtectOtpRoute from "./Features/Auth/Components/OtpProtectedRouteComponent";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<SplashScreen />} />
-        <Route
-          path="/auth/register"
-          element={<RegisterUser route="api/register/" />}
-        />
         <Route path="/auth/login" element={<LoginUser route="api/login/" />} />
         <Route
           path="/auth/otp"

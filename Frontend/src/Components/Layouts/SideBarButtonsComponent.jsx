@@ -6,7 +6,7 @@ import {
   MdFlag,
   MdSettings,
 } from "react-icons/md";
-import style from "../styles/components/sidebarcomponent.module.css";
+import style from "../../styles/components/sidebarcomponent.module.css";
 
 export default function SidebarButtons({ activePage, setActivePage }) {
   const buttonsTextAndIcon = [

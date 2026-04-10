@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import api from "../api";
+import api from "../../../api";
 import { useNavigate, Link } from "react-router-dom";
-import checkTaskStatus from "../utils/checkOtpStatus";
-import checkInternetConnection from "../utils/checkInternetConnection";
-import getResponseMessages from "../utils/extractResponseMessage";
-import style from "../styles/pages/loginscreen.module.css";
-import image from "../assets/images/image.svg";
-import darkImage from "../assets/images/darkImage.svg";
+import checkTaskStatus from "../../../utils/checkOtpStatus";
+import checkInternetConnection from "../../../utils/checkInternetConnection";
+import getResponseMessages from "../../../utils/extractResponseMessage";
+import style from "../../../styles/pages/loginscreen.module.css";
+import image from "../../../assets/images/image.svg";
+import darkImage from "../../../assets/images/darkImage.svg";
 import ClipLoader from "react-spinners/ClipLoader";
-import Notification from "../Components/NotificationComponent";
-import ThemeToggle from "../Components/ThemeToggleComponent";
-import { useTheme } from "../context/ThemeContext";
+import Notification from "../../../Components/Common/NotificationComponent";
+import ThemeToggle from "../../../Components/Common/ThemeToggleComponent";
+import { useTheme } from "../../../context/ThemeContext";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
 
 function LoginUser(props) {

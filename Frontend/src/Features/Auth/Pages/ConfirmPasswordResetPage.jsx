@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../api";
-import checkInternetConnection from "../utils/checkInternetConnection";
-import getResponseMessages from "../utils/extractResponseMessage";
-import style from "../styles/pages/confirmpasswordscreen.module.css";
-import Notification from "../Components/NotificationComponent";
+import api from "../../../api";
+import checkInternetConnection from "../../../utils/checkInternetConnection";
+import getResponseMessages from "../../../utils/extractResponseMessage";
+import style from "../../../styles/pages/confirmpasswordscreen.module.css";
+import Notification from "../../../Components/Common/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import { MdVisibility, MdVisibilityOff } from "react-icons/md";
-import { useTheme } from "../context/ThemeContext";
-import ThemeToggle from "../Components/ThemeToggleComponent";
+import { useTheme } from "../../../context/ThemeContext";
+import ThemeToggle from "../../../Components/Common/ThemeToggleComponent";
 
 function ConfirmPasswordReset({ route }) {
   const [password, setPassword] = useState("");

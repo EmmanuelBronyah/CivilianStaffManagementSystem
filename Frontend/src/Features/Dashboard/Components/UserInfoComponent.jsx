@@ -1,6 +1,6 @@
 import { MdShield, MdPreview, MdPerson } from "react-icons/md";
-import style from "../styles/components/dashboardcomponent.module.css";
-import BaseSkeleton from "./SkeletonComponent";
+import style from "../../../styles/components/dashboardcomponent.module.css";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function UserInfo({ totalUsersPerRole, loading }) {
   if (totalUsersPerRole === null) {

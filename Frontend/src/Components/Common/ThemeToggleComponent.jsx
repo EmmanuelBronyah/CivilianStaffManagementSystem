@@ -1,7 +1,7 @@
-import style from "../styles/components/themetogglecomponent.module.css";
+import style from "../../styles/components/themetogglecomponent.module.css";
 import { MdLightMode, MdDarkMode } from "react-icons/md";
 import Switch from "react-switch";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../../context/ThemeContext";
 
 export default function ThemeToggle(props) {
   const { theme, setTheme } = useTheme();

@@ -1,5 +1,4 @@
-import style from "../styles/components/dashboardcomponent.module.css";
-import BaseSkeleton from "./SkeletonComponent";
+import style from "../../../styles/components/dashboardcomponent.module.css";
 
 export default function EmployeesPerUnit({ data }) {
   const keyValue = Object.entries(data)[0];

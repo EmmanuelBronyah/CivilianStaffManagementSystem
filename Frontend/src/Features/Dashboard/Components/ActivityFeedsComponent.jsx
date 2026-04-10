@@ -1,4 +1,4 @@
-import style from "../styles/components/dashboardcomponent.module.css";
+import style from "../../../styles/components/dashboardcomponent.module.css";
 
 export default function ActivityFeeds({ creator, activity, created_at }) {
   return (

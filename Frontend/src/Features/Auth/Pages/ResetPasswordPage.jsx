@@ -1,19 +1,19 @@
 import { useState, useEffect } from "react";
-import api from "../api";
-import checkInternetConnection from "../utils/checkInternetConnection";
-import getResponseMessages from "../utils/extractResponseMessage";
-import style from "../styles/pages/resetpasswordscreen.module.css";
-import Notification from "../Components/NotificationComponent";
+import api from "../../../api";
+import checkInternetConnection from "../../../utils/checkInternetConnection";
+import getResponseMessages from "../../../utils/extractResponseMessage";
+import style from "../../../styles/pages/resetpasswordscreen.module.css";
+import Notification from "../../../Components/Common/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
-import { useTheme } from "../context/ThemeContext";
-import ThemeToggle from "../Components/ThemeToggleComponent";
+import { useTheme } from "../../../context/ThemeContext";
+import ThemeToggle from "../../../Components/Common/ThemeToggleComponent";
 
 function ResetPassword({ route }) {
   const [email, setEmail] = useState("");
   const [response, setResponse] = useState(null);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const { theme } = useTheme();
 
   useEffect(() => {
     if (response?.message) {

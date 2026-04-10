@@ -1,7 +1,7 @@
-import style from "../styles/components/sidebarcomponent.module.css";
+import style from "../../styles/components/sidebarcomponent.module.css";
 import { MdBadge, MdClose } from "react-icons/md";
-import SidebarButtons from "./SideBarButtonsComponent";
-import { useTheme } from "../context/ThemeContext";
+import SidebarButtons from "../../Components/Layouts/SideBarButtonsComponent";
+import { useTheme } from "../../Context/ThemeContext";
 
 export default function SideBar(props) {
   const { theme } = useTheme();

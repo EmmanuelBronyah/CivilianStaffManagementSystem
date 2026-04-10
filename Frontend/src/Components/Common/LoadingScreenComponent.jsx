@@ -1,6 +1,6 @@
 import ClipLoader from "react-spinners/ClipLoader";
-import style from "../styles/components/loadingscreencomponent.module.css";
-import { useTheme } from "../context/ThemeContext";
+import style from "../../styles/components/loadingscreencomponent.module.css";
+import { useTheme } from "../../Context/ThemeContext";
 
 export default function LoadingScreen() {
   const { theme } = useTheme();

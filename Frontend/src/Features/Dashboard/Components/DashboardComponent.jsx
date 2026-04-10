@@ -1,16 +1,16 @@
-import style from "../styles/components/dashboardcomponent.module.css";
-import { useTheme } from "../context/ThemeContext";
+import style from "../../../styles/components/dashboardcomponent.module.css";
+import { useTheme } from "../../../Context/ThemeContext";
 import { useEffect, useState, useRef } from "react";
-import api from "../api";
+import api from "../../../api";
 import UserInfo from "./UserInfoComponent";
 import EmployeesPerUnit from "./EmployeesPerUnitComponent";
 import EmployeeInfo from "./EmployeeInfoComponent";
 import GenderChart from "./GenderChartComponent";
 import RetirementChart from "./RetirementChartComponent";
-import BaseSkeleton from "./SkeletonComponent";
-import ActivityFeeds from "./ActivityFeedsComponent";
-import Notification from "./NotificationComponent";
-import getResponseMessages from "../utils/extractResponseMessage";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import ActivityFeeds from "../../Dashboard/Components/ActivityFeedsComponent";
+import Notification from "../../../Components/Common/NotificationComponent";
+import getResponseMessages from "../../../utils/extractResponseMessage";
 
 export default function Dashboard() {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);

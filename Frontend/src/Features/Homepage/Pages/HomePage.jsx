@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { TEMP_TOKEN } from "../constants";
-import Header from "../Components/HeaderComponent";
-import SideBar from "../Components/SideBarComponent";
-import Dashboard from "../Components/DashboardComponent";
-import Users from "../Components/UsersComponent";
-import style from "../styles/pages/homepage.module.css";
+import { TEMP_TOKEN } from "../../../constants";
+import Header from "../../../Components/Layouts/HeaderComponent";
+import SideBar from "../../../Components/Layouts/SideBarComponent";
+import Dashboard from "../../Dashboard/Components/DashboardComponent";
+import Users from "../../Users/Components/UsersComponent";
+import style from "../../../styles/pages/homepage.module.css";
 import { useState } from "react";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../../../Context/ThemeContext";
 
 function HomePage() {
   const [activePage, setActivePage] = useState("Users");

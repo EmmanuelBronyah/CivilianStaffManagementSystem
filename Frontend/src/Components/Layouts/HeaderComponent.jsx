@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import style from "../styles/components/headercomponent.module.css";
+import style from "../../styles/components/headercomponent.module.css";
 import { MdSearch, MdFilterAlt, MdDehaze } from "react-icons/md";
-import image from "../assets/images/default.png";
-import ThemeToggle from "./ThemeToggleComponent";
-import { useTheme } from "../context/ThemeContext";
-import BaseSkeleton from "./SkeletonComponent";
-import api from "../api";
-import { USER_ID } from "../constants";
+import image from "../../assets/images/default.png";
+import ThemeToggle from "../../Components/Common/ThemeToggleComponent";
+import { useTheme } from "../../context/ThemeContext";
+import BaseSkeleton from "../Common/SkeletonComponent";
+import api from "../../api";
+import { USER_ID } from "../../constants";
 
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);

@@ -1,12 +1,12 @@
-import style from "../styles/components/userscomponent.module.css";
+import style from "../../../styles/components/userscomponent.module.css";
 import AddUserInputBoxes from "./AddUserInputBoxesComponent";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../../../Context/ThemeContext";
 import { useState, useEffect } from "react";
-import Notification from "../Components/NotificationComponent";
+import Notification from "../../../Components/Common/NotificationComponent";
 import Swal from "sweetalert2";
-import { USER_ID } from "../constants";
-import api from "../api";
-import getResponseMessages from "../utils/extractResponseMessage";
+import { USER_ID } from "../../../constants";
+import api from "../../../api";
+import getResponseMessages from "../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 
 export default function Users() {

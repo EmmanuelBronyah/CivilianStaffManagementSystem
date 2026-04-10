@@ -1,6 +1,6 @@
-import style from "../styles/components/dashboardcomponent.module.css";
+import style from "../../../styles/components/dashboardcomponent.module.css";
 import { MdBadge } from "react-icons/md";
-import BaseSkeleton from "./SkeletonComponent";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function EmployeeInfo({
   relatedEmployeeData,

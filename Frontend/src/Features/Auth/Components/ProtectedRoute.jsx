@@ -1,9 +1,9 @@
 import { Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
-import api from "../api";
-import { REFRESH_TOKEN, ACCESS_TOKEN } from "../constants";
+import api from "../../../api";
+import { REFRESH_TOKEN, ACCESS_TOKEN } from "../../../constants";
 import { useState, useEffect, useRef } from "react";
-import LoadingScreen from "./LoadingScreenComponent";
+import LoadingScreen from "../../../Components/Common/LoadingScreenComponent";
 
 function ProtectedRoute({ children }) {
   const [isAuthorized, setIsAuthorized] = useState(null);

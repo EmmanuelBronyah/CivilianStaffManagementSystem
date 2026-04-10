@@ -1,7 +1,7 @@
-import style from "../styles/pages/splashscreen.module.css";
+import style from "../../styles/pages/splashscreen.module.css";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../../Context/ThemeContext";
 
 function SplashScreen() {
   const { theme } = useTheme();

@@ -1,6 +1,6 @@
 import Skeleton from "react-loading-skeleton";
 import "react-loading-skeleton/dist/skeleton.css";
-import { useTheme } from "../context/ThemeContext";
+import { useTheme } from "../../Context/ThemeContext";
 
 export default function BaseSkeleton(props) {
   const { theme } = useTheme();

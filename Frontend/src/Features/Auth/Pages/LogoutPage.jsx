@@ -1,6 +1,6 @@
-import { Route, useNavigate } from "react-router-dom";
-import api from "../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../constants";
+import { useNavigate } from "react-router-dom";
+import api from "../../../api";
+import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN } from "../../../constants";
 
 export default function LogoutUser({ route }) {
   const navigate = useNavigate();

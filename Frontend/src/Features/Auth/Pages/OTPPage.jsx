@@ -1,16 +1,21 @@
 import { useState, useEffect } from "react";
-import api from "../api";
-import { ACCESS_TOKEN, REFRESH_TOKEN, TEMP_TOKEN, USER_ID } from "../constants";
+import api from "../../../api";
+import {
+  ACCESS_TOKEN,
+  REFRESH_TOKEN,
+  TEMP_TOKEN,
+  USER_ID,
+} from "../../../constants";
 import { useNavigate } from "react-router-dom";
-import checkInternetConnection from "../utils/checkInternetConnection";
-import getResponseMessages from "../utils/extractResponseMessage";
-import style from "../styles/pages/otpscreen.module.css";
-import Notification from "../Components/NotificationComponent";
+import checkInternetConnection from "../../../utils/checkInternetConnection";
+import getResponseMessages from "../../../utils/extractResponseMessage";
+import style from "../../../styles/pages/otpscreen.module.css";
+import Notification from "../../../Components/Common/NotificationComponent";
 import ClipLoader from "react-spinners/ClipLoader";
-import OTPTimer from "../Components/OTPTimerComponent";
-import handleRevokeAndResendOTP from "../utils/revokeAndResendOtp";
-import { useTheme } from "../context/ThemeContext";
-import ThemeToggle from "../Components/ThemeToggleComponent";
+import OTPTimer from "../../../Components/Common/OTPTimerComponent";
+import handleRevokeAndResendOTP from "../../../utils/revokeAndResendOtp";
+import { useTheme } from "../../../context/ThemeContext";
+import ThemeToggle from "../../../Components/Common/ThemeToggleComponent";
 
 function ResendAndVerifyOTP({ route }) {
   const [otp, setOTP] = useState("");
