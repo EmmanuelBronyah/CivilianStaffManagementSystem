@@ -75,6 +75,11 @@ urlpatterns = [
         name="retrieve-all-divisions",
     ),
     path(
+        "divisions/users/",
+        views.ListUsersPerDivision.as_view(),
+        name="list-users-per-division",
+    ),
+    path(
         "divisions/<int:pk>/detail/",
         views.RetrieveDivisionAPIView.as_view(),
         name="retrieve-division",

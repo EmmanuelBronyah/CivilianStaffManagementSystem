@@ -157,7 +157,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <main className={!theme ? style.dark : ""}>
+      <main className={`${style.dashboardMain} ${!theme ? style.dark : ""}`}>
         <div className={style.usersEmployeeContainer}>
           <div className={style.users}>
             <div className={style.topUserSection}>

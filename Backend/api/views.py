@@ -229,6 +229,20 @@ class ListDivisionsAPIView(generics.ListAPIView):
     throttle_classes = [UserRateThrottle]
 
 
+class ListUsersPerDivision(APIView):
+    http_method_names = ["get"]
+    permission_classes = [IsAuthenticated]
+    throttle_classes = []
+
+    def get(self, request, *args, **kwargs):
+        users_per_division = models.Divisions.objects.prefetch_related("users")
+        serializer = serializers.ListUsersPerDivisionSerializer(
+            users_per_division, many=True
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 class EditDivisionAPIView(generics.UpdateAPIView):
     queryset = models.Divisions.objects.all()
     lookup_field = "pk"

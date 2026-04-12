@@ -119,6 +119,14 @@ class UserReadSerializer(serializers.ModelSerializer):
         )
 
 
+# AN EXTRA USER READ SERIALIZER
+class LimitedFieldsUserReadSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ["id", "fullname", "username"]
+
+
 class DivisionSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -144,6 +152,14 @@ class DivisionSerializer(serializers.ModelSerializer):
                 )
 
         return value
+
+
+class ListUsersPerDivisionSerializer(serializers.ModelSerializer):
+    users = LimitedFieldsUserReadSerializer(many=True)
+
+    class Meta:
+        model = models.Divisions
+        fields = ["division_name", "users"]
 
 
 class LoginSerializer(serializers.Serializer):

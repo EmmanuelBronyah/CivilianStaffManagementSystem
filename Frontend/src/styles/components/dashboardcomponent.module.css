@@ -58,7 +58,7 @@
   scrollbar-color: var(--scroll-thumb) var(--scroll-track);
 }
 
-main {
+.dashboardMain {
   display: grid;
   grid-template-rows: 15rem 18.5rem 1fr;
   gap: 1rem;
@@ -465,7 +465,7 @@ main {
 }
 
 @media screen and (max-width: 880px) {
-  main {
+  .dashboardMain {
     display: grid;
     grid-template-rows: 35rem 18.5rem 1fr;
   }
@@ -496,7 +496,7 @@ main {
 }
 
 @media screen and (max-width: 800px) {
-  main {
+  .dashboardMain {
     display: grid;
     grid-template-rows: 35rem 40rem 1fr;
   }
@@ -507,7 +507,7 @@ main {
 }
 
 @media screen and (max-width: 700px) {
-  main {
+  .dashboardMain {
     padding-inline: 0;
   }
 

@@ -83,7 +83,9 @@ class CustomUser(AbstractUser):
     email = models.EmailField(max_length=255, unique=True)
     role = models.CharField(max_length=50, choices=ROLES)
     grade = models.ForeignKey(Grades, on_delete=models.PROTECT)
-    division = models.ForeignKey("Divisions", on_delete=models.PROTECT)
+    division = models.ForeignKey(
+        "Divisions", on_delete=models.PROTECT, related_name="users"
+    )
 
     created_by = models.ForeignKey(
         "CustomUser",
