@@ -5,7 +5,7 @@ import style from "../../../styles/components/userscomponent.module.css";
 import { useTheme } from "../../../Context/ThemeContext";
 
 export default function Users() {
-  const [userPage, setUserPage] = useState("Add User");
+  const [userPage, setUserPage] = useState("All Users");
   const { theme } = useTheme();
   return (
     <main className={`${style.usersMain} ${!theme ? style.dark : ""}`}>

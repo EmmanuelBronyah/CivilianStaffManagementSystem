@@ -121,10 +121,11 @@ class UserReadSerializer(serializers.ModelSerializer):
 
 # AN EXTRA USER READ SERIALIZER
 class LimitedFieldsUserReadSerializer(serializers.ModelSerializer):
+    grade_name = serializers.CharField(source="grade.grade_name")
 
     class Meta:
         model = CustomUser
-        fields = ["id", "fullname", "username"]
+        fields = ["id", "fullname", "username", "grade_name"]
 
 
 class DivisionSerializer(serializers.ModelSerializer):

@@ -14,6 +14,9 @@
   --confirmButton-active: hsl(120, 100%, 10%);
   --cancelButton-hover: hsl(348, 83%, 55%);
   --cancelButton-active: hsl(348, 83%, 40%);
+  --userInfo-container-background-color: #0360038c;
+  --userInfo-container-hover-background-color: hsla(120, 94%, 24%, 0.549);
+  --userInfo-container-active-background-color: hsla(120, 94%, 16%, 0.549);
 }
 
 .dark {
@@ -30,6 +33,9 @@
   --userComponent-input-color: hsl(0, 0%, 80%);
   --confirmButton-hover: hsl(0, 0%, 60%);
   --confirmButton-active: rgb(90, 90, 90);
+  --userInfo-container-background-color: rgb(30, 30, 30);
+  --userInfo-container-hover-background-color: hsl(0, 0%, 15%);
+  --userInfo-container-active-background-color: rgb(25, 25, 25);
 }
 
 .usersMain {
@@ -233,6 +239,7 @@
 .titleButtonSection {
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
   p {
     margin: 0;
@@ -243,7 +250,6 @@
   }
 
   button {
-    margin-left: auto;
     padding: 0.5rem 1.8rem;
     font-size: 1rem;
     border-radius: 0.4rem;
@@ -264,12 +270,87 @@
   }
 }
 
-.divisions {
-  border: 2px solid blue;
+.divisionNameAndUsersContainer {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  background-color: var(--card-background-color);
+  box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
 }
 
-.divisionNameAndUsersContainer {
-  border: 2px solid red;
+.divisionName {
+  margin-bottom: 1rem;
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    font-size: 1.25rem;
+    color: var(--text-color);
+  }
+}
+
+.userList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(17rem, 100%), 1fr));
+  gap: 0.5rem;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background-color: var(--userInfo-container-background-color);
+  cursor: pointer;
+}
+
+.userInfo:hover {
+  background-color: var(--userInfo-container-hover-background-color);
+}
+
+.userInfo:active {
+  background-color: var(--userInfo-container-active-background-color);
+}
+
+.profilePicture {
+  border-radius: 50%;
+
+  img {
+    border-radius: 50%;
+  }
+}
+
+.infoSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  p {
+    margin: 0;
+    padding: 0;
+  }
+}
+
+.fullName p {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.username p {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
+.grade p {
+  color: var(--text-color);
+}
+
+.noUsers p {
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
 }
 
 @media screen and (max-width: 600px) {

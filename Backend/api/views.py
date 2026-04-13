@@ -28,8 +28,6 @@ from .services import (
 )
 from django.db import transaction
 from celery.result import AsyncResult
-from . import services
-
 
 logger = logging.getLogger(__name__)
 

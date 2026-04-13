@@ -5,11 +5,12 @@ import style from "../../../styles/components/userscomponent.module.css";
 import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import UsersPerDivision from "./UsersPerDivisionComponent";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function AllUsersComponent({ setUserPage }) {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [usersPerDivision, setUsersPerDivision] = useState([]);
 
   const { theme } = useTheme();
@@ -30,6 +31,7 @@ export default function AllUsersComponent({ setUserPage }) {
     const fetchUsersPerDivision = async () => {
       try {
         const res = await api.get("api/divisions/users/");
+        setLoading(false);
         setUsersPerDivision(res.data);
       } catch (error) {
         setResponse({
@@ -48,13 +50,24 @@ export default function AllUsersComponent({ setUserPage }) {
     <>
       <div className={`${style.allUsersContainer} ${!theme ? style.dark : ""}`}>
         <div className={style.titleButtonSection}>
-          <div className={style.title}>
-            <p>User Management</p>
-          </div>
-          <button onClick={() => setUserPage("Add User")}>Add User</button>
+          {loading ? (
+            <BaseSkeleton height={37} width={200} />
+          ) : (
+            <div className={style.title}>
+              <p>User Management</p>
+            </div>
+          )}
+          {loading ? (
+            <BaseSkeleton height={37} width={100} />
+          ) : (
+            <button onClick={() => setUserPage("Add User")}>Add User</button>
+          )}
         </div>
         <div className={style.divisions}>
-          <UsersPerDivision usersPerDivision={usersPerDivision} />
+          <UsersPerDivision
+            loading={loading}
+            usersPerDivision={usersPerDivision}
+          />
         </div>
       </div>
       <Notification isVisible={visible} response={response} />
