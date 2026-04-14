@@ -2,7 +2,12 @@ import style from "../../../styles/components/userscomponent.module.css";
 import image from "../../../assets/images/default.png";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
-export default function UsersPerDivision({ loading, usersPerDivision }) {
+export default function UsersPerDivision({
+  loading,
+  usersPerDivision,
+  setUserPage,
+  setUserId,
+}) {
   return (
     <>
       {usersPerDivision.map(({ division_name: divisionName, users }) => {
@@ -31,7 +36,14 @@ export default function UsersPerDivision({ loading, usersPerDivision }) {
                   users.map(
                     ({ id, fullname, username, grade_name: gradeName }) => {
                       return (
-                        <div key={id} className={style.userInfo}>
+                        <div
+                          key={id}
+                          onClick={() => {
+                            setUserId(id);
+                            setUserPage("Update User");
+                          }}
+                          className={style.userInfo}
+                        >
                           <div className={style.profilePicture}>
                             <img
                               src={image}

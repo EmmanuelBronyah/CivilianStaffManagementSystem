@@ -116,6 +116,7 @@ class UserReadSerializer(serializers.ModelSerializer):
             "updated_by_display",
             "created_at",
             "updated_at",
+            "is_active",
         )
 
 

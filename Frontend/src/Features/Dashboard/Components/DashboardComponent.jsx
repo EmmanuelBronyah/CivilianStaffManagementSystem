@@ -172,7 +172,7 @@ export default function Dashboard() {
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={38} width={130} />
                 ) : (
-                  <button>Add User</button>
+                  <button>New User</button>
                 )}
               </div>
             </div>

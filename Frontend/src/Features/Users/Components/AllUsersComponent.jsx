@@ -7,7 +7,7 @@ import getResponseMessages from "../../../utils/extractResponseMessage";
 import UsersPerDivision from "./UsersPerDivisionComponent";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
-export default function AllUsersComponent({ setUserPage }) {
+export default function AllUsersComponent({ setUserPage, setUserId }) {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -60,13 +60,15 @@ export default function AllUsersComponent({ setUserPage }) {
           {loading ? (
             <BaseSkeleton height={37} width={100} />
           ) : (
-            <button onClick={() => setUserPage("Add User")}>Add User</button>
+            <button onClick={() => setUserPage("New User")}>New User</button>
           )}
         </div>
         <div className={style.divisions}>
           <UsersPerDivision
             loading={loading}
             usersPerDivision={usersPerDivision}
+            setUserPage={setUserPage}
+            setUserId={setUserId}
           />
         </div>
       </div>

@@ -74,7 +74,8 @@
   }
 }
 
-.addUserContainer {
+.addUserContainer,
+.updateUserContainer {
   display: grid;
   gap: 1rem;
   grid-template-rows: 2.5rem calc(20rem + 5vh);
@@ -351,6 +352,125 @@
   color: var(--text-color);
   margin: 0;
   padding: 0;
+}
+
+/* UPDATE USER SECTION */
+.updateUserComponentContainer {
+  display: grid;
+  grid-template-rows: 2rem repeat(2, 1fr);
+  gap: 1rem;
+  background-color: var(--usersComponent-backgroundColor);
+}
+
+.titleButtonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    font-size: 1.125rem;
+    color: var(--text-color);
+  }
+
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    background-color: var(--button-background-color);
+    font-weight: bold;
+    color: var(--button-text-color);
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  button:active {
+    background-color: var(--button-active-background-color);
+    color: var(--button-text-color);
+  }
+}
+
+.danger {
+  border-radius: 0.5rem;
+  border: none;
+  padding: 0.7rem;
+
+  > p {
+    font-size: 1.5rem;
+    letter-spacing: 0.2ch;
+    margin: 0;
+    color: red;
+    font-weight: bold;
+    margin-bottom: 1rem;
+  }
+}
+
+.deactivate {
+  margin-bottom: 1rem;
+
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    font-weight: bold;
+    border: 1px solid rgb(163, 162, 162);
+    color: red;
+    background-color: white;
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: white;
+    background-color: red;
+  }
+
+  button:active {
+    color: white;
+    background-color: hsl(0, 100%, 70%);
+  }
+
+  p {
+    margin-bottom: 1rem;
+    padding: 0;
+    font-size: 1.125rem;
+    color: var(--text-color);
+  }
+}
+
+.delete {
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    font-weight: bold;
+    border: 1px solid rgb(163, 162, 162);
+    color: white;
+    background-color: red;
+    cursor: pointer;
+  }
+
+  button:hover {
+    color: red;
+    background-color: white;
+  }
+
+  button:active {
+    color: hsl(0, 100%, 70%);
+    background-color: white;
+  }
+
+  p {
+    margin-bottom: 1rem;
+    padding: 0;
+    font-size: 1.125rem;
+    color: var(--text-color);
+  }
 }
 
 @media screen and (max-width: 600px) {

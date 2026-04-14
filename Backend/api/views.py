@@ -71,7 +71,7 @@ class RetrieveUserView(generics.RetrieveAPIView):
         "created_by", "updated_by", "grade", "division"
     )
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
 

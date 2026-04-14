@@ -3,7 +3,7 @@ import Select from "react-select";
 import { useEffect, useState } from "react";
 import api from "../../../api";
 
-export default function AddUserInputBoxes({ formData, setFormData }) {
+export default function AddUserInputBoxes({ userPage, formData, setFormData }) {
   const [divisions, setDivisions] = useState([]);
   const [grades, setGrades] = useState([]);
   const roles = [
@@ -30,8 +30,16 @@ export default function AddUserInputBoxes({ formData, setFormData }) {
     ["Username", "text", "input"],
     ["Email Address", "email", "input"],
     ["Role", "text", "dropdown"],
-    ["Password", "password", "input"],
-    ["Confirm Password", "password", "input"],
+    [
+      userPage === "Update User" ? "Old Password" : "Password",
+      "password",
+      "input",
+    ],
+    [
+      userPage === "Update User" ? "New Password" : "Confirm Password",
+      "password",
+      "input",
+    ],
     ["Grade", "text", "dropdown"],
     ["Division", "text", "dropdown"],
   ];
@@ -145,10 +153,10 @@ export default function AddUserInputBoxes({ formData, setFormData }) {
         return "username";
       case "Email Address":
         return "email";
-      case "Password":
-        return "password";
-      case "Confirm Password":
-        return "confirmPassword";
+      case userPage === "Update User" ? "Old Password" : "Password":
+        return userPage === "Update User" ? "oldPassword" : "password";
+      case userPage === "Update User" ? "New Password" : "Confirm Password":
+        return userPage === "Update User" ? "newPassword" : "confirmPassword";
       case "Role":
         return "role";
       case "Grade":
