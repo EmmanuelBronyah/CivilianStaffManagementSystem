@@ -8,7 +8,7 @@ import { USER_ID } from "../../../constants";
 import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
-import showAskAdminIdentityModal, {
+import verifyAdminProcess, {
   showErrorModal,
 } from "../../../utils/askAdminIdentity";
 
@@ -42,26 +42,6 @@ export default function AddUsersComponent({ setUserPage }) {
     return () => clearTimeout(timer);
   }, [response]);
 
-  const verifyAdminIdentity = async (verificationData) => {
-    setLoading(true);
-    try {
-      await api.post("api/users/verify/admin/", { data: verificationData });
-    } catch (error) {
-      if (error.response.status === 401) {
-        setLoading(false);
-        return error.response.status;
-      } else {
-        setLoading(false);
-        setResponse({
-          message: getResponseMessages(error.response),
-          type: "error",
-          id: Date.now(),
-        });
-        return;
-      }
-    }
-  };
-
   const registerUser = async () => {
     const data = Object.values(formData);
 
@@ -90,54 +70,42 @@ export default function AddUsersComponent({ setUserPage }) {
       return;
     }
 
-    const result = await showAskAdminIdentityModal(theme);
-
-    if (!result.isConfirmed) {
-      return;
-    }
-
-    const userID = localStorage.getItem(USER_ID);
-    const verificationData = {
-      id: userID,
-      adminPassword: result.value,
-    };
-
-    const status = await verifyAdminIdentity(verificationData);
+    const status = await verifyAdminProcess(theme, setLoading, setResponse);
 
     if (status === 401) {
       await showErrorModal(theme);
       return;
-    }
+    } else if (status === 200) {
+      const payload = {
+        fullname: formData.fullName,
+        password: formData.password,
+        username: formData.username,
+        email: formData.email,
+        role: formData.role?.label || "",
+        grade: formData.grade?.value || null,
+        division: formData.division?.value || null,
+      };
 
-    const payload = {
-      fullname: formData.fullName,
-      password: formData.password,
-      username: formData.username,
-      email: formData.email,
-      role: formData.role?.label || "",
-      grade: formData.grade?.value || null,
-      division: formData.division?.value || null,
-    };
-
-    try {
-      const res = await api.post("api/register/", payload);
-      if (res.status === 201) {
+      try {
+        const res = await api.post("api/register/", payload);
+        if (res.status === 201) {
+          setLoading(false);
+          setResponse({
+            message: "User Account created",
+            id: Date.now(),
+          });
+          setFormData(initialFormData);
+          return;
+        }
+      } catch (error) {
         setLoading(false);
         setResponse({
-          message: "User Account created",
+          message: getResponseMessages(error.response),
+          type: "error",
           id: Date.now(),
         });
-        setFormData(initialFormData);
         return;
       }
-    } catch (error) {
-      setLoading(false);
-      setResponse({
-        message: getResponseMessages(error.response),
-        type: "error",
-        id: Date.now(),
-      });
-      return;
     }
   };
 

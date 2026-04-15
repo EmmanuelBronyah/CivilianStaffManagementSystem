@@ -1,7 +1,10 @@
 import Swal from "sweetalert2";
 import style from "../styles/components/userscomponent.module.css";
+import api from "../api";
+import getResponseMessages from "./extractResponseMessage";
+import { USER_ID } from "../constants";
 
-export default async function showAskAdminIdentityModal(theme) {
+const showAskAdminIdentityModal = async (theme) => {
   const askForAdminPassword = async () => {
     const result = await Swal.fire({
       title: "Confirm Admin Password",
@@ -29,6 +32,59 @@ export default async function showAskAdminIdentityModal(theme) {
 
   const result = await askForAdminPassword();
   return result;
+};
+
+const verifyAdminIdentity = async (
+  verificationData,
+  setLoading,
+  setResponse,
+) => {
+  setLoading(true);
+  try {
+    const res = await api.post("api/users/verify/admin/", {
+      data: verificationData,
+    });
+    return res.status;
+  } catch (error) {
+    if (error.response.status === 401) {
+      setLoading(false);
+      return error.response.status;
+    } else {
+      setLoading(false);
+      setResponse({
+        message: getResponseMessages(error.response),
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
+  }
+};
+
+export default async function verifyAdminProcess(
+  theme,
+  setLoading,
+  setResponse,
+) {
+  const result = await showAskAdminIdentityModal(theme);
+
+  if (!result.isConfirmed) {
+    return;
+  }
+
+  const userID = localStorage.getItem(USER_ID);
+  const verificationData = {
+    id: userID,
+    adminPassword: result.value,
+  };
+
+  const status = await verifyAdminIdentity(
+    verificationData,
+    setLoading,
+    setResponse,
+  );
+
+  return status;
 }
 
 export async function showErrorModal(theme) {

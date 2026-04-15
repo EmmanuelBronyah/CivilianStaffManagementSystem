@@ -57,6 +57,13 @@ class RetrieveUpdateDestroyUserSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = "__all__"
 
+    def validate_email(self, value):
+        value = value.strip().lower()
+        if not serializers.EmailField().run_validation(value):
+            raise serializers.ValidationError("Enter a valid email address.")
+
+        return value
+
     def update(self, instance, validated_data):
         instance = super().update(instance, validated_data)
         admin_group_id, standard_user_group_id, viewer_group_id = 1, 3, 2

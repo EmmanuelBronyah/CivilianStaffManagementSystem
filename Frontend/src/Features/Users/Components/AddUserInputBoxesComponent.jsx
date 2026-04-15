@@ -2,8 +2,14 @@ import style from "../../../styles/components/userscomponent.module.css";
 import Select from "react-select";
 import { useEffect, useState } from "react";
 import api from "../../../api";
+import ReadOnlyUserData from "./AddReadOnlyUserData";
 
-export default function AddUserInputBoxes({ userPage, formData, setFormData }) {
+export default function AddUserInputBoxes({
+  userPage,
+  formData,
+  setFormData,
+  initialData,
+}) {
   const [divisions, setDivisions] = useState([]);
   const [grades, setGrades] = useState([]);
   const roles = [
@@ -30,16 +36,8 @@ export default function AddUserInputBoxes({ userPage, formData, setFormData }) {
     ["Username", "text", "input"],
     ["Email Address", "email", "input"],
     ["Role", "text", "dropdown"],
-    [
-      userPage === "Update User" ? "Old Password" : "Password",
-      "password",
-      "input",
-    ],
-    [
-      userPage === "Update User" ? "New Password" : "Confirm Password",
-      "password",
-      "input",
-    ],
+    ["Password", "password", "input"],
+    ["Confirm Password", "password", "input"],
     ["Grade", "text", "dropdown"],
     ["Division", "text", "dropdown"],
   ];
@@ -168,27 +166,37 @@ export default function AddUserInputBoxes({ userPage, formData, setFormData }) {
     }
   };
 
-  return (
-    <div className={style.addUserInputs}>
-      {labelsAndInputType.map(([label, type, state]) => (
-        <div key={label} className={style.labelInputContainer}>
-          <label>{label}</label>
-          {state === "input" ? (
-            <input
-              type={type}
-              value={formData[labelKey(label)]}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  [labelKey(label)]: e.target.value,
-                }))
-              }
-            />
-          ) : (
-            createDropdown(label)
-          )}
-        </div>
-      ))}
-    </div>
-  );
+  const fields = labelsAndInputType.map(([label, type, state]) => {
+    if (
+      userPage === "Update User" &&
+      (label === "Password" || label === "Confirm Password")
+    ) {
+      return;
+    }
+    return (
+      <div key={label} className={style.labelInputContainer}>
+        <label>{label}</label>
+        {state === "input" ? (
+          <input
+            type={type}
+            value={formData[labelKey(label)]}
+            onChange={(e) =>
+              setFormData((prev) => ({
+                ...prev,
+                [labelKey(label)]: e.target.value,
+              }))
+            }
+          />
+        ) : (
+          createDropdown(label)
+        )}
+      </div>
+    );
+  });
+
+  if (userPage === "Update User") {
+    fields.push(<ReadOnlyUserData initialData={initialData} />);
+  }
+
+  return <div className={style.addUserInputs}>{fields}</div>;
 }
