@@ -10,7 +10,7 @@ import verifyAdminProcess, {
 } from "../../../utils/askAdminIdentity";
 import ClipLoader from "react-spinners/ClipLoader";
 import manageUserAccessProcess from "../../../utils/manageUserAccess";
-import ReadOnlyUserData from "./AddReadOnlyUserData";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function UpdateUser({ userPage, setUserPage, userId }) {
   const [initialData, setInitialData] = useState({
@@ -32,6 +32,7 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingUserData, setLoadingUserData] = useState(true);
 
   const { theme } = useTheme();
 
@@ -68,8 +69,7 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
     const fetchUser = async () => {
       try {
         const res = await api.get(`api/users/${userId}/`);
-        console.log(res.data);
-
+        setLoadingUserData(false);
         setActive(res.data.is_active);
 
         setInitialData({
@@ -236,79 +236,126 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
         className={`${style.updateUserComponentContainer} ${!theme ? style.dark : ""}`}
       >
         <div className={style.allUsersButtonContainer}>
-          <button disabled={loading} onClick={() => setUserPage("All Users")}>
-            All Users
-          </button>
+          {loadingUserData ? (
+            <BaseSkeleton height={37} width={100} />
+          ) : (
+            <button disabled={loading} onClick={() => setUserPage("All Users")}>
+              All Users
+            </button>
+          )}
         </div>
         <div className={style.updateUserContainer}>
           <div className={style.titleButtonContainer}>
-            <p>Update User Info</p>
-            {!active && (
-              <button
-                className={style.restoreButton}
-                disabled={loading}
-                onClick={initiateRestoreUserProcess}
-              >
-                Restore Account
-              </button>
+            {loadingUserData ? (
+              <BaseSkeleton height={37} width={200} />
+            ) : (
+              <p>Update User Info</p>
             )}
+
+            {!active &&
+              (loadingUserData ? (
+                <BaseSkeleton height={37} width={150} />
+              ) : (
+                <button
+                  className={style.restoreButton}
+                  disabled={loading}
+                  onClick={initiateRestoreUserProcess}
+                >
+                  Restore Account
+                </button>
+              ))}
           </div>
           <AddUserInputBoxes
+            loading={loadingUserData}
             userPage={userPage}
             formData={formData}
             setFormData={setFormData}
             initialData={initialData}
           />
           <div className={style.buttonsContainer}>
-            <div className={style.addUserButton}>
-              <button disabled={loading} onClick={updateUser}>
-                {loading ? (
-                  <ClipLoader
-                    size={13}
-                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                  />
-                ) : (
-                  "Save Changes"
-                )}
-              </button>
-            </div>
-            <div className={style.discardButton}>
-              <button disabled={loading} onClick={resetData}>
-                Cancel
-              </button>
-            </div>
-            <p onClick={initiatePasswordReset}>Reset Password?</p>
+            {loadingUserData ? (
+              <BaseSkeleton height={37} width={100} />
+            ) : (
+              <div className={style.addUserButton}>
+                <button disabled={loading} onClick={updateUser}>
+                  {loading ? (
+                    <ClipLoader
+                      size={13}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Save Changes"
+                  )}
+                </button>
+              </div>
+            )}
+            {loadingUserData ? (
+              <BaseSkeleton height={37} width={100} />
+            ) : (
+              <div className={style.discardButton}>
+                <button disabled={loading} onClick={resetData}>
+                  Cancel
+                </button>
+              </div>
+            )}
+            {loadingUserData ? (
+              <BaseSkeleton height={37} width={150} />
+            ) : (
+              <p onClick={initiatePasswordReset}>Reset Password?</p>
+            )}
           </div>
         </div>
         <div className={style.danger}>
-          <p>Danger Zone</p>
+          {loadingUserData ? (
+            <BaseSkeleton height={42} width={150} />
+          ) : (
+            <p>Danger Zone</p>
+          )}
+
           <div
             className={`${style.deactivate} ${active ? "" : style.displayNone}`}
           >
-            <p>
-              Temporarily disable this user's access. You can reactivate them at
-              any time.
-            </p>
-            <button
-              onClick={initiateDeactivateUserProcess}
-              disabled={loading}
-              className={style.deactivate}
-            >
-              Deactivate Account
-            </button>
+            {loadingUserData ? (
+              <BaseSkeleton height={39} width={600} />
+            ) : (
+              <p>
+                Temporarily disable this user's access. You can reactivate them
+                at any time.
+              </p>
+            )}
+            {loadingUserData ? (
+              <BaseSkeleton height={39} width={180} />
+            ) : (
+              <button
+                onClick={initiateDeactivateUserProcess}
+                disabled={loading}
+                className={style.deactivate}
+              >
+                Deactivate Account
+              </button>
+            )}
           </div>
           <div className={style.delete}>
-            <p>
-              This action is irreversible. All user data will be permanently
-              removed.
-            </p>
-            <button
-              onClick={initiateDeleteUserProcess}
-              disabled={loading}
-              className={style.delete}
-            >
-              Delete User
-            </button>
+            {loadingUserData ? (
+              <BaseSkeleton height={39} width={600} />
+            ) : (
+              <p>
+                This action is irreversible. All user data will be permanently
+                removed.
+              </p>
+            )}
+
+            {loadingUserData ? (
+              <BaseSkeleton height={39} width={180} />
+            ) : (
+              <button
+                onClick={initiateDeleteUserProcess}
+                disabled={loading}
+                className={style.delete}
+              >
+                Delete User
+              </button>
+            )}
           </div>
         </div>
       </div>

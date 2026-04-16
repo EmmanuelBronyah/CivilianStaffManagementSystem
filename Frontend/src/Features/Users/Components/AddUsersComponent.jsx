@@ -3,8 +3,6 @@ import AddUserInputBoxes from "./AddUserInputBoxesComponent";
 import { useTheme } from "../../../Context/ThemeContext";
 import { useState, useEffect } from "react";
 import Notification from "../../../Components/Common/NotificationComponent";
-import Swal from "sweetalert2";
-import { USER_ID } from "../../../constants";
 import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";

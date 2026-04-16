@@ -133,7 +133,7 @@ class LimitedFieldsUserReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ["id", "fullname", "username", "grade_name"]
+        fields = ["id", "fullname", "username", "role", "grade_name"]
 
 
 class DivisionSerializer(serializers.ModelSerializer):

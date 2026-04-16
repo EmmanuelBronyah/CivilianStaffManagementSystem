@@ -11,6 +11,7 @@ import { useTheme } from "../../../Context/ThemeContext";
 
 function HomePage() {
   const [activePage, setActivePage] = useState("Users");
+  const [userPage, setUserPage] = useState("All Users");
   const [open, setOpen] = useState(false);
 
   const { theme } = useTheme();
@@ -38,8 +39,15 @@ function HomePage() {
         />
         <div className={style.headerMainContainer}>
           <Header activePage={activePage} setOpen={setOpen} />
-          {activePage === "Dashboard" && <Dashboard />}
-          {activePage === "Users" && <Users />}
+          {activePage === "Dashboard" && (
+            <Dashboard
+              setActivePage={setActivePage}
+              setUserPage={setUserPage}
+            />
+          )}
+          {activePage === "Users" && (
+            <Users userPage={userPage} setUserPage={setUserPage} />
+          )}
         </div>
       </div>
     </div>

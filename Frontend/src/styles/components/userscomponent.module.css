@@ -20,6 +20,8 @@
   --restoreButton-background-color: hsl(120, 100%, 13%);
   --restoreButton-active-background-color: #004700;
   --deactivateButton-backgroundColor: white;
+  --icon-color: white;
+  --icon-size: 1.7rem;
 }
 
 .dark {
@@ -42,6 +44,7 @@
   --restoreButton-background-color: hsl(0, 0%, 40%);
   --restoreButton-active-background-color: rgb(90, 90, 90);
   --deactivateButton-backgroundColor: grey;
+  --icon-color: grey;
 }
 
 .usersMain {
@@ -325,6 +328,7 @@
 }
 
 .userInfo {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -503,6 +507,13 @@
 
 .displayNone {
   display: none;
+}
+
+.icon {
+  color: var(--icon-color);
+  font-size: var(--icon-size);
+  position: absolute;
+  inset: 5px 5px auto auto;
 }
 
 @media screen and (max-width: 600px) {

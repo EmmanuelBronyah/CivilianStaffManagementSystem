@@ -2,7 +2,12 @@ import { MdShield, MdPreview, MdPerson } from "react-icons/md";
 import style from "../../../styles/components/dashboardcomponent.module.css";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
-export default function UserInfo({ totalUsersPerRole, loading }) {
+export default function UserInfo({
+  totalUsersPerRole,
+  loading,
+  setActivePage,
+  setUserPage,
+}) {
   if (totalUsersPerRole === null) {
     return (
       <>
@@ -29,7 +34,14 @@ export default function UserInfo({ totalUsersPerRole, loading }) {
     return loading ? (
       <BaseSkeleton />
     ) : (
-      <div key={role} className={style.userInfoContainer}>
+      <div
+        key={role}
+        className={style.userInfoContainer}
+        onClick={() => {
+          setActivePage("Users");
+          setUserPage("All Users");
+        }}
+      >
         <div className={style.userIcon}>{icon}</div>
         <div className={style.totalUsersContainer}>
           <p>{total}</p>

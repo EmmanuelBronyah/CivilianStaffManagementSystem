@@ -12,7 +12,7 @@ import ActivityFeeds from "../../Dashboard/Components/ActivityFeedsComponent";
 import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 
-export default function Dashboard() {
+export default function Dashboard(props) {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);
   const [relatedEmployeeData, setRelatedEmployeeData] = useState(null);
   const [genderStat, setGenderStat] = useState(null);
@@ -172,7 +172,14 @@ export default function Dashboard() {
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={38} width={130} />
                 ) : (
-                  <button>New User</button>
+                  <button
+                    onClick={() => {
+                      props.setActivePage("Users");
+                      props.setUserPage("New User");
+                    }}
+                  >
+                    New User
+                  </button>
                 )}
               </div>
             </div>
@@ -180,6 +187,8 @@ export default function Dashboard() {
               <UserInfo
                 totalUsersPerRole={totalUsersPerRole}
                 loading={loadingDashboardStat}
+                setActivePage={props.setActivePage}
+                setUserPage={props.setUserPage}
               />
             </div>
           </div>

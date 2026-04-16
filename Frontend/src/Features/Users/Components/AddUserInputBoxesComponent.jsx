@@ -3,8 +3,10 @@ import Select from "react-select";
 import { useEffect, useState } from "react";
 import api from "../../../api";
 import ReadOnlyUserData from "./AddReadOnlyUserData";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function AddUserInputBoxes({
+  loading,
   userPage,
   formData,
   setFormData,
@@ -175,18 +177,29 @@ export default function AddUserInputBoxes({
     }
     return (
       <div key={label} className={style.labelInputContainer}>
-        <label>{label}</label>
+        {loading ? (
+          <BaseSkeleton height={30} width={150} />
+        ) : (
+          <label>{label}</label>
+        )}
+
         {state === "input" ? (
-          <input
-            type={type}
-            value={formData[labelKey(label)]}
-            onChange={(e) =>
-              setFormData((prev) => ({
-                ...prev,
-                [labelKey(label)]: e.target.value,
-              }))
-            }
-          />
+          loading ? (
+            <BaseSkeleton height={40} />
+          ) : (
+            <input
+              type={type}
+              value={formData[labelKey(label)]}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  [labelKey(label)]: e.target.value,
+                }))
+              }
+            />
+          )
+        ) : loading ? (
+          <BaseSkeleton height={40} />
         ) : (
           createDropdown(label)
         )}
@@ -195,7 +208,9 @@ export default function AddUserInputBoxes({
   });
 
   if (userPage === "Update User") {
-    fields.push(<ReadOnlyUserData initialData={initialData} />);
+    fields.push(
+      <ReadOnlyUserData loading={loading} initialData={initialData} />,
+    );
   }
 
   return <div className={style.addUserInputs}>{fields}</div>;

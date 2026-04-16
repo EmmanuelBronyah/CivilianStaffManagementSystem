@@ -1,6 +1,7 @@
 import style from "../../../styles/components/userscomponent.module.css";
 import image from "../../../assets/images/default.png";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { MdShield, MdPreview, MdPerson } from "react-icons/md";
 
 export default function UsersPerDivision({
   loading,
@@ -8,6 +9,19 @@ export default function UsersPerDivision({
   setUserPage,
   setUserId,
 }) {
+  const getRoleIcon = (role) => {
+    switch (role) {
+      case "ADMINISTRATOR":
+        return <MdShield className={style.icon} />;
+      case "STANDARD USER":
+        return <MdPerson className={style.icon} />;
+      case "VIEWER":
+        return <MdPreview className={style.icon} />;
+      default:
+        break;
+    }
+  };
+
   return (
     <>
       {usersPerDivision.map(({ division_name: divisionName, users }) => {
@@ -34,7 +48,13 @@ export default function UsersPerDivision({
                   </div>
                 ) : (
                   users.map(
-                    ({ id, fullname, username, grade_name: gradeName }) => {
+                    ({
+                      id,
+                      fullname,
+                      username,
+                      role,
+                      grade_name: gradeName,
+                    }) => {
                       return (
                         <div
                           key={id}
@@ -44,6 +64,9 @@ export default function UsersPerDivision({
                           }}
                           className={style.userInfo}
                         >
+                          <div className={style.iconContainer}>
+                            {getRoleIcon(role)}
+                          </div>
                           <div className={style.profilePicture}>
                             <img
                               src={image}
