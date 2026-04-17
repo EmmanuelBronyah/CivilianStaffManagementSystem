@@ -108,6 +108,17 @@ class ListEmployeesAPIView(generics.ListAPIView):
     pagination_class = LargeResultsSetPagination
 
 
+class ListEmployeesDTO(generics.ListAPIView):
+    queryset = models.Employee.objects.select_related(
+        "unit", "grade", "termination_of_appointment__status"
+    )
+    lookup_field = "pk"
+    serializer_class = serializers.EmployeeDTOReadSerializer
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+    pagination_class = StandardResultsSetPagination
+
+
 class EditEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"

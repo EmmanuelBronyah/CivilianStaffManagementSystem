@@ -369,6 +369,33 @@ class EmployeeReadSerializer(serializers.ModelSerializer):
         exclude = ("search_vector",)
 
 
+class EmployeeDTOReadSerializer(serializers.ModelSerializer):
+    unit = serializers.CharField(source="unit.unit_name")
+    grade = serializers.CharField(source="grade.grade_name")
+    termination_status = serializers.SerializerMethodField()
+
+    class Meta:
+        model = models.Employee
+        fields = [
+            "service_id",
+            "last_name",
+            "other_names",
+            "unit",
+            "grade",
+            "category",
+            "appointment_date",
+            "termination_status",
+        ]
+
+    def get_termination_status(self, obj):
+        termination = getattr(obj, "termination_of_appointment", None)
+
+        if termination and termination.status:
+            return termination.status.termination_status
+
+        return "Active"
+
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:

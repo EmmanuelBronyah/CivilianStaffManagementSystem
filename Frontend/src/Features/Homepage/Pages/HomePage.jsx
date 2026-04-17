@@ -5,12 +5,13 @@ import Header from "../../../Components/Layouts/HeaderComponent";
 import SideBar from "../../../Components/Layouts/SideBarComponent";
 import Dashboard from "../../Dashboard/Components/DashboardComponent";
 import Users from "../../Users/Components/UsersComponent";
+import Employees from "../../Employees/Components/EmployeeComponent";
 import style from "../../../styles/pages/homepage.module.css";
 import { useState } from "react";
 import { useTheme } from "../../../Context/ThemeContext";
 
 function HomePage() {
-  const [activePage, setActivePage] = useState("Users");
+  const [activePage, setActivePage] = useState("Employees");
   const [userPage, setUserPage] = useState("All Users");
   const [open, setOpen] = useState(false);
 
@@ -48,6 +49,7 @@ function HomePage() {
           {activePage === "Users" && (
             <Users userPage={userPage} setUserPage={setUserPage} />
           )}
+          {activePage === "Employees" && <Employees />}
         </div>
       </div>
     </div>

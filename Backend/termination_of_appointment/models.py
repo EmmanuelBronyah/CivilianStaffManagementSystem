@@ -4,7 +4,7 @@ from api.models import CustomUser
 
 
 class TerminationOfAppointment(models.Model):
-    employee = models.ForeignKey(
+    employee = models.OneToOneField(
         Employee, on_delete=models.CASCADE, related_name="termination_of_appointment"
     )
     cause = models.ForeignKey("CausesOfTermination", on_delete=models.PROTECT)

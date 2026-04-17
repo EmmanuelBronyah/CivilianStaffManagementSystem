@@ -5,6 +5,7 @@ from . import views
 urlpatterns = [
     # ----- EMPLOYEES -----
     path("staff/", views.ListEmployeesAPIView.as_view(), name="list-all-employees"),
+    path("staff/dto/", views.ListEmployeesDTO.as_view(), name="list-employees-dto"),
     path(
         "staff/search/", views.SearchEmployeeAPIView.as_view(), name="search-employees"
     ),

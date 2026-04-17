@@ -53,6 +53,15 @@ export default async function manageUserAccessProcess(
 
     switch (action) {
       case "deactivate":
+        if (sameUser) {
+          setLoading(false);
+          setResponse({
+            message: "This action cannot be done",
+            type: "error",
+            id: Date.now(),
+          });
+          return;
+        }
         res = await api.delete(`api/users/deactivate/${userId}/`);
         message = "User Account deactivated";
         break;
