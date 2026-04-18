@@ -13,6 +13,11 @@
   --employeeData-background-color: #d3ead3;
   --employeeData-hover-background-color: hsl(120, 35%, 80%);
   --employeeData-active-background-color: hsl(120, 35%, 73%);
+  --icon-color: hsl(120, 65%, 10%);
+  --icon-active-color: hsl(120, 65%, 4%);
+  --icon-size: 1.7rem;
+  --employeeSection-text-color: #d3ead3;
+  --employeeSection-background-color: hsl(120, 100%, 20%);
 }
 
 .dark {
@@ -30,6 +35,10 @@
   --employeeData-background-color: rgb(49, 49, 49);
   --employeeData-hover-background-color: hsl(0, 0%, 12%);
   --employeeData-active-background-color: hsl(0, 0%, 5%);
+  --icon-color: grey;
+  --icon-active-color: hsl(0, 0%, 44%);
+  --employeeSection-text-color: black;
+  --employeeSection-background-color: grey;
 }
 
 .dashboardMain {
@@ -159,4 +168,122 @@ tbody tr:hover {
 
 tbody tr:active {
   background-color: var(--employeeData-active-background-color);
+}
+
+.employeeDashboard {
+  display: grid;
+  grid-template-rows: 4rem 1fr;
+  gap: 1rem;
+  height: 100%;
+  background-color: var(--employee-background-color);
+}
+
+.employeeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--employeeData-background-color);
+  border-radius: 0.5rem;
+  box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
+  padding: 0.5rem;
+}
+
+.backIconAndServiceId {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.icon {
+  color: var(--icon-color);
+  font-size: 1.5rem;
+}
+
+.icon:hover {
+  opacity: 0.8;
+}
+
+.icon:active {
+  color: var(--icon-active-color);
+}
+
+.serviceId {
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.nameAndAge {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.name {
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.age {
+  color: var(--text-color);
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.employeeSections {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-items: center;
+  padding: 0.25rem 0.8rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  color: var(--employeeSection-text-color);
+  background-color: var(--employeeSection-background-color);
+  cursor: pointer;
+
+  p {
+    margin: 0;
+  }
+
+  .icon {
+    color: var(--employeeSection-text-color);
+  }
+}
+
+.employeeSections:hover {
+  opacity: 0.8;
+}
+
+.sectionsDropdown {
+  position: absolute;
+  inset: 2.3rem -0.25rem auto auto;
+  background-color: #d3ead3;
+  border-radius: 0.5rem;
+  border: 1px solid #004700;
+
+  ul {
+    padding: 0.6rem;
+    margin: 0;
+    text-align: center;
+
+    li {
+      color: hsl(120, 100%, 20%);
+      font-size: 0.9rem;
+      list-style: none;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid #004700;
+    }
+  }
+}
+
+.employeePrimary {
+  border: 2px solid green;
+}
+
+@media screen and (max-width: 800px) {
+  .listEmployeesContainer {
+    min-width: 800px;
+  }
 }

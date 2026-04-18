@@ -9,8 +9,6 @@ export default function EmployeeData(props) {
     const fetchEmployeeData = async () => {
       try {
         const res = await api.get("api/employees/staff/dto/");
-        console.log(res.data.results);
-
         setEmployeeData(res.data.results);
       } catch (error) {
         props.setResponse({
@@ -26,7 +24,10 @@ export default function EmployeeData(props) {
 
   const data = employeeData.map((data) => {
     return (
-      <tr>
+      <tr
+        key={data.service_id}
+        onClick={() => props.displayEmployeeInfo(data.service_id)}
+      >
         <td title={data.service_id}>{data.service_id}</td>
         <td title={`${data.last_name} ${data.other_names}`}>
           {data.last_name} {data.other_names}

@@ -4,7 +4,7 @@ import EmployeeData from "./EmployeeDataComponent";
 import { useState, useEffect } from "react";
 import Notification from "../../../Components/Common/NotificationComponent";
 
-export default function AllEmployees() {
+export default function SampleEmployees({ displayEmployeeInfo }) {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -30,7 +30,7 @@ export default function AllEmployees() {
       >
         <div className={style.titleAndButtonsContainer}>
           <div className={style.employeeTitleAndTwoButtonsContainer}>
-            <p className={style.employeesTitle}>Employees</p>
+            <p className={style.employeesTitle}>Sample Employees</p>
             <div className={style.twoButtonsContainer}>
               <button className={style.newEmployeeButton}>New Employee</button>
               <button className={style.advancedSearchButton}>
@@ -46,13 +46,13 @@ export default function AllEmployees() {
           <table>
             <thead>
               <tr>
-                <th>Service Number</th>
-                <th>Name</th>
-                <th>Unit</th>
-                <th>Grade</th>
-                <th>Category</th>
-                <th>Appointment Date</th>
-                <th>Status</th>
+                <th title="Service Number">Service Number</th>
+                <th title="Name">Name</th>
+                <th title="Unit">Unit</th>
+                <th title="Grade">Grade</th>
+                <th title="Category">Category</th>
+                <th title="Appointment Date">Appointment Date</th>
+                <th title="Status">Status</th>
               </tr>
             </thead>
 
@@ -61,6 +61,7 @@ export default function AllEmployees() {
                 loading={loading}
                 setLoading={setLoading}
                 setResponse={setResponse}
+                displayEmployeeInfo={displayEmployeeInfo}
               />
             </tbody>
           </table>
