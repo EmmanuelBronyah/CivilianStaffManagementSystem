@@ -124,7 +124,11 @@ export default function AddUsersComponent({ setUserPage }) {
           <div className={style.addUserTitle}>
             <p>Add A New User</p>
           </div>
-          <AddUserInputBoxes formData={formData} setFormData={setFormData} />
+          <AddUserInputBoxes
+            formData={formData}
+            setFormData={setFormData}
+            setResponse={setResponse}
+          />
           <div className={style.buttonsContainer}>
             <div className={style.addUserButton}>
               <button disabled={loading} onClick={registerUser}>

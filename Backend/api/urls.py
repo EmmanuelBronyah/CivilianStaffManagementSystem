@@ -39,6 +39,11 @@ urlpatterns = [
         name="retrieve-user",
     ),
     path(
+        "users/<int:pk>/role/",
+        views.RetrieveUserRoleView.as_view(),
+        name="retrieve-user-role",
+    ),
+    path(
         "users/update/<int:pk>/",
         views.UpdateUserView.as_view(),
         name="update-user",

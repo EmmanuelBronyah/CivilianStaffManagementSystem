@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import api from "../../../api";
 import ReadOnlyUserData from "./AddReadOnlyUserData";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import getResponseMessages from "../../../utils/extractResponseMessage";
 
 export default function AddUserInputBoxes({
   loading,
   userPage,
   formData,
   setFormData,
+  setResponse,
   initialData,
 }) {
   const [divisions, setDivisions] = useState([]);
@@ -27,7 +29,12 @@ export default function AddUserInputBoxes({
         setDivisions(res.data.divisions || []);
         setGrades(res.data.grades || []);
       } catch (error) {
-        console.error(error.response || error);
+        setResponse({
+          message: getResponseMessages(error.response),
+          type: "error",
+          id: Date.now(),
+        });
+        return;
       }
     };
     fetchDivisionsAndGrades();

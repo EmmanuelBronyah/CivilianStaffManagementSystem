@@ -75,6 +75,17 @@ class RetrieveUserView(generics.RetrieveAPIView):
     permission_classes = [IsAuthenticated]
 
 
+class RetrieveUserRoleView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs.get("pk")
+        role = CustomUser.objects.get(id=user_id).role
+        return Response({"role": role}, status=status.HTTP_200_OK)
+
+
 class RetrieveAllUsersView(generics.ListAPIView):
     serializer_class = serializers.UserReadSerializer
     queryset = CustomUser.objects.select_related(

@@ -1,27 +1,12 @@
 import style from "../../../styles/components/employees.module.css";
 import { useTheme } from "../../../context/ThemeContext";
 import EmployeeData from "./EmployeeDataComponent";
-import { useState, useEffect } from "react";
-import Notification from "../../../Components/Common/NotificationComponent";
+import { useState } from "react";
 
-export default function SampleEmployees({ displayEmployeeInfo }) {
-  const [visible, setVisible] = useState(false);
-  const [response, setResponse] = useState(null);
+export default function SampleEmployees({ displayEmployeeInfo, setResponse }) {
   const [loading, setLoading] = useState(true);
 
   const { theme } = useTheme();
-
-  useEffect(() => {
-    if (!response) return;
-
-    setVisible(true);
-
-    const timer = setTimeout(() => {
-      setVisible(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [response]);
 
   return (
     <>
@@ -67,7 +52,6 @@ export default function SampleEmployees({ displayEmployeeInfo }) {
           </table>
         </div>
       </div>
-      <Notification isVisible={visible} response={response} />
     </>
   );
 }

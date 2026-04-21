@@ -115,7 +115,7 @@ class ListEmployeesDTO(generics.ListAPIView):
     lookup_field = "pk"
     serializer_class = serializers.EmployeeDTOReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = StandardResultsSetPagination
 
 
@@ -127,6 +127,7 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
+        print("REQUEST DATA -> ", request.data)
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
@@ -1272,7 +1273,7 @@ class DashboardAPIView(APIView):
 # * DIVISION AND GRADES
 class ListDivisionsAndGradesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -1285,6 +1286,45 @@ class ListDivisionsAndGradesAPIView(APIView):
                     divisions, many=True
                 ).data,
                 "grades": serializers.ListGradesSerializer(grades, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+# * STRUCTURE, MARITAL STATUS, GRADES, UNITS, REGION, RELIGION, BLOOD GROUP, GENDER
+class ListOptionsAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        structure = services.get_structure()
+        grades = services.get_grades()
+        marital_status = services.get_marital_status()
+        units = services.get_units()
+        region = services.get_region()
+        religion = services.get_religion()
+        blood_group = services.get_blood_group()
+        gender = services.get_gender()
+
+        return Response(
+            {
+                "structure": serializers.ListStructureSerializer(
+                    structure, many=True
+                ).data,
+                "grades": serializers.ListGradesSerializer(grades, many=True).data,
+                "marital_status": serializers.ListMaritalStatusSerializer(
+                    marital_status, many=True
+                ).data,
+                "units": serializers.ListUnitsSerializer(units, many=True).data,
+                "region": serializers.ListRegionSerializer(region, many=True).data,
+                "religion": serializers.ListReligionSerializer(
+                    religion, many=True
+                ).data,
+                "blood_group": serializers.ListBloodGroupSerializer(
+                    blood_group, many=True
+                ).data,
+                "gender": serializers.ListGenderSerializer(gender, many=True).data,
             },
             status=status.HTTP_200_OK,
         )

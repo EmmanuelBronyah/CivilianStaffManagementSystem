@@ -70,9 +70,12 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_other_text_with_digits(field, value):
+        # print("Address value ->", value)
         if not value:
             logger.debug(f"{field} is empty")
             return value
+
+        value = value.replace("\n", " ").replace("\r", " ").strip()
 
         import string
 
@@ -146,6 +149,11 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
                 self.warnings.append(
                     "DOB could not be inferred from the social security number."
                 )
+
+        else:
+            self.warnings.append(
+                "DOB could not be inferred from the social security number."
+            )
 
         return attrs
 
@@ -314,6 +322,7 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
+        # print("ATTRIBUTES -> ", attrs)
         self.warnings = []
 
         attrs = self.assign_dob_and_age(attrs)
@@ -823,3 +832,52 @@ class ListGradesSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Grades
         fields = ["id", "grade_name"]
+
+
+class ListStructureSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Structure
+        fields = ["id", "structure_name"]
+
+
+class ListMaritalStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.MaritalStatus
+        fields = ["id", "marital_status_name"]
+
+
+class ListUnitsSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Units
+        fields = ["id", "unit_name"]
+
+
+class ListRegionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Region
+        fields = ["id", "region_name"]
+
+
+class ListReligionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Religion
+        fields = ["id", "religion_name"]
+
+
+class ListBloodGroupSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.BloodGroup
+        fields = ["id", "blood_group_name"]
+
+
+class ListGenderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.Gender
+        fields = ["id", "sex"]

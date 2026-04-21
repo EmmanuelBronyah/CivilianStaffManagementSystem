@@ -37,6 +37,11 @@ urlpatterns = [
         views.ForecastedRetireesAPIView.as_view(),
         name="employee-pension",
     ),
+    path(
+        "staff/options/",
+        views.ListOptionsAPIView.as_view(),
+        name="list-options",
+    ),
     # ----- CATEGORY -----
     path("category/", views.ListCategoryAPIView.as_view(), name="list-all-category"),
     path(

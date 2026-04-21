@@ -1,5 +1,5 @@
 from django.db.models import Count, Q
-from employees.models import Employee, Units, Gender, Grades
+from employees import models
 from datetime import datetime
 from django.db.models.functions import ExtractYear
 from django.db.models import F
@@ -17,18 +17,18 @@ def get_users_per_role():
 
 
 def get_total_number_of_employees():
-    return Employee.objects.count()
+    return models.Employee.objects.count()
 
 
 def get_two_employee_per_unit_instances():
-    units = Units.objects.annotate(total_employees=Count("employee")).order_by(
+    units = models.Units.objects.annotate(total_employees=Count("employee")).order_by(
         "-total_employees"
     )[:2]
     return [{unit.unit_name: unit.total_employees} for unit in units]
 
 
 def individual_gender_total():
-    genders = Gender.objects.annotate(total_employees=Count("employee"))
+    genders = models.Gender.objects.annotate(total_employees=Count("employee"))
     return [{"name": gender.sex, "value": gender.total_employees} for gender in genders]
 
 
@@ -50,7 +50,7 @@ def get_forecasted_retirees():
 
     # Annotate retirement year
     employees = (
-        Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
+        models.Employee.objects.annotate(retirement_year=ExtractYear(F("dob")) + 60)
         .filter(retirement_year__range=(current_year, end_year))
         .values("service_id", "retirement_year")
     )
@@ -98,4 +98,32 @@ def get_divisions():
 
 
 def get_grades():
-    return Grades.objects.all()
+    return models.Grades.objects.all()
+
+
+def get_marital_status():
+    return models.MaritalStatus.objects.all()
+
+
+def get_gender():
+    return models.Gender.objects.all()
+
+
+def get_structure():
+    return models.Structure.objects.all()
+
+
+def get_units():
+    return models.Units.objects.all()
+
+
+def get_region():
+    return models.Region.objects.all()
+
+
+def get_religion():
+    return models.Religion.objects.all()
+
+
+def get_blood_group():
+    return models.BloodGroup.objects.all()
