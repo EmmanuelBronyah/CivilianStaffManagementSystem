@@ -5,6 +5,7 @@ import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import EmployeePrimary from "./EmployeePrimaryComponent";
 import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function EmployeeDashboard({
   serviceId,
@@ -35,8 +36,7 @@ export default function EmployeeDashboard({
     const fetchEmployee = async () => {
       try {
         const res = await api.get(`api/employees/staff/${serviceId}/detail/`);
-        // console.log(res.data);
-
+        setLoading(false);
         setHeaderData({
           serviceId: res.data.service_id,
           lastName: res.data.last_name,
@@ -57,6 +57,7 @@ export default function EmployeeDashboard({
           category: res.data.category,
           disable: res.data.disable,
           dob: res.data.dob,
+          age: res.data.age,
           email: res.data.email,
           entryQualification: res.data.entry_qualification,
           gender: {
@@ -96,6 +97,7 @@ export default function EmployeeDashboard({
           updatedBy: res.data.updated_by_display,
         });
       } catch (error) {
+        setLoading(false);
         setResponse({
           message: getResponseMessages(error.response),
           type: "error",
@@ -113,43 +115,93 @@ export default function EmployeeDashboard({
         <div className={`${style.employeeHeader} ${!theme ? style.dark : ""}`}>
           <div className={style.backIconAndServiceId}>
             <MdArrowBack
-              className={style.icon}
+              className={style.backIcon}
               onClick={() => setEmployeePage("Sample Employees")}
             />
-            <div className={style.serviceId}>{headerData.serviceId}</div>
+            {loading ? (
+              <BaseSkeleton width={100} height={34} />
+            ) : (
+              <div className={style.serviceId}>{headerData.serviceId}</div>
+            )}
           </div>
 
           <div className={style.nameAndAge}>
-            <div
-              className={style.name}
-            >{`${headerData.lastName} ${headerData.otherNames}`}</div>
-            <div className={style.age}>{headerData.age || "__"} years</div>
+            {loading ? (
+              <BaseSkeleton width={200} height={42} />
+            ) : (
+              <div
+                className={style.name}
+              >{`${headerData.lastName} ${headerData.otherNames}`}</div>
+            )}
+            {loading ? (
+              <BaseSkeleton width={60} height={33} />
+            ) : (
+              <div className={style.age}>{headerData.age || "__"} years</div>
+            )}
           </div>
-          <div
-            className={style.employeeSections}
-            onClick={() => setShowDropdown((prev) => !prev)}
-          >
-            <p>Sections</p>
-            <MdKeyboardArrowDown className={style.icon} />
+          {loading ? (
+            <BaseSkeleton width={100} height={33} />
+          ) : (
             <div
-              className={style.sectionsDropdown}
-              data-show-dropdown={showDropdown}
+              className={style.employeeSections}
+              onClick={() => setShowDropdown((prev) => !prev)}
             >
-              <ul>
-                <li>Primary</li>
-                <li>Occurrence</li>
-                <li>Children</li>
-                <li>Courses</li>
-                <li>Absences</li>
-                <li>Emergency | Next of Kin</li>
-                <li>Spouse</li>
-                <li>Termination of Appointment</li>
-                <li>Identity</li>
-                <li>Service With Forces</li>
-                <li>Previous Government Services</li>
-              </ul>
+              <p>{employeeSections}</p>
+              <MdKeyboardArrowDown className={style.arrowDownIcon} />
+              <div
+                className={style.sectionsDropdown}
+                data-show-dropdown={showDropdown}
+              >
+                <ul>
+                  <li onClick={() => setEmployeeSections("Primary")}>
+                    Primary
+                  </li>
+                  <li onClick={() => setEmployeeSections("Occurrence")}>
+                    Occurrence
+                  </li>
+                  <li onClick={() => setEmployeeSections("Primary")}>
+                    Children
+                  </li>
+                  <li onClick={() => setEmployeeSections("Children")}>
+                    Courses
+                  </li>
+                  <li onClick={() => setEmployeeSections("Absences")}>
+                    Absences
+                  </li>
+                  <li
+                    onClick={() =>
+                      setEmployeeSections("Emergency | Next of Kin")
+                    }
+                  >
+                    Emergency | Next of Kin
+                  </li>
+                  <li onClick={() => setEmployeeSections("Spouse")}>Spouse</li>
+                  <li
+                    onClick={() =>
+                      setEmployeeSections("Termination of Appointment")
+                    }
+                  >
+                    Termination of Appointment
+                  </li>
+                  <li onClick={() => setEmployeeSections("Identity")}>
+                    Identity
+                  </li>
+                  <li
+                    onClick={() => setEmployeeSections("Service With Forces")}
+                  >
+                    Service With Forces
+                  </li>
+                  <li
+                    onClick={() =>
+                      setEmployeeSections("Previous Government Services")
+                    }
+                  >
+                    Previous Government Services
+                  </li>
+                </ul>
+              </div>
             </div>
-          </div>
+          )}
         </div>
         {employeeSections === "Primary" && (
           <EmployeePrimary

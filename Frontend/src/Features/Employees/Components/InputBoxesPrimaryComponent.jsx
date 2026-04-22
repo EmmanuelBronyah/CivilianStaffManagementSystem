@@ -5,12 +5,9 @@ import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 import isReadOnly from "../utils/assignReadOnly";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
-export default function PrimaryComponentInputBoxes({
-  formData,
-  setFormData,
-  setResponse,
-}) {
+export default function PrimaryComponentInputBoxes(props) {
   const [units, setUnits] = useState([]);
   const [grades, setGrades] = useState([]);
   const [gender, setGender] = useState([]);
@@ -23,15 +20,14 @@ export default function PrimaryComponentInputBoxes({
 
   useEffect(() => {
     if (!response) return;
-    setResponse(response);
+    props.setResponse(response);
   });
 
   useEffect(() => {
     const fetchAllDropdownData = async () => {
       try {
         const res = await api.get("api/employees/staff/options/");
-        // console.log("response", res.data);
-
+        props.setLoadingData(false);
         setUnits(res.data.units || []);
         setGrades(res.data.grades || []);
         setGender(res.data.gender || []);
@@ -41,7 +37,8 @@ export default function PrimaryComponentInputBoxes({
         setStructure(res.data.structure || []);
         setBloodGroup(res.data.blood_group || []);
       } catch (error) {
-        setResponse({
+        props.setLoadingData(false);
+        props.setResponse({
           message: getResponseMessages(error.response),
           type: "error",
           id: Date.now(),
@@ -71,19 +68,21 @@ export default function PrimaryComponentInputBoxes({
     ["Station", "text", "input"],
 
     ["Date of Birth", "date", "input"],
+    ["Age", "text", "input"],
     ["Gender", "text", "dropdown"],
-    ["Hometown", "text", "input"],
 
+    ["Hometown", "text", "input"],
     ["Region", "text", "dropdown"],
     ["Nationality", "text", "input"],
-    ["Address", "text", "input"],
 
+    ["Address", "text", "input"],
     ["Email", "email", "input"],
     ["Marital Status", "text", "dropdown"],
-    ["Religion", "text", "dropdown"],
 
+    ["Religion", "text", "dropdown"],
     ["Structure", "text", "dropdown"],
     ["Blood Group", "text", "dropdown"],
+
     ["Disable", "checkbox", "input"],
   ];
 
@@ -93,12 +92,13 @@ export default function PrimaryComponentInputBoxes({
       height: "calc(2.5rem + 1vh)",
       minHeight: "calc(2.5rem + 1vh)",
       width: "95%",
+      marginTop: "0.28rem",
       borderRadius: "2rem",
-      border: "1px solid var(--userComponent-input-borderColor)",
+      border: "1px solid var(--employeeComponent-input-borderColor)",
       fontWeight: "bold",
       fontSize: "1.05rem",
-      backgroundColor: "var(--userComponent-input-backgroundColor)",
-      color: "var(--userComponent-input-color)",
+      backgroundColor: "var(--employeeComponent-input-backgroundColor)",
+      color: "var(--employeeComponent-input-color)",
       paddingLeft: "0.5rem",
       boxShadow: "none",
 
@@ -106,7 +106,7 @@ export default function PrimaryComponentInputBoxes({
       alignItems: "center",
 
       "&:hover": {
-        border: "1px solid var(--userComponent-input-borderColor)",
+        border: "1px solid var(--employeeComponent-input-borderColor)",
       },
     }),
 
@@ -127,28 +127,28 @@ export default function PrimaryComponentInputBoxes({
 
     singleValue: (base) => ({
       ...base,
-      color: "var(--userComponent-input-color)",
+      color: "var(--employeeComponent-input-color)",
       margin: 0,
     }),
 
     placeholder: (base) => ({
       ...base,
-      color: "var(--userComponent-input-color)",
+      color: "var(--employeeComponent-input-color)",
       margin: 0,
     }),
 
     menu: (base) => ({
       ...base,
-      backgroundColor: "var(--userComponent-input-backgroundColor)",
+      backgroundColor: "var(--employeeComponent-input-backgroundColor)",
     }),
 
     option: (base, state) => ({
       ...base,
       backgroundColor: state.isFocused
-        ? "var(--userComponent-input-backgroundColor)"
+        ? "var(--employeeComponent-input-backgroundColor)"
         : "white",
 
-      color: "var(--userComponent-input-color)",
+      color: "var(--employeeComponent-input-color)",
       fontWeight: "bold",
 
       cursor: "pointer",
@@ -227,6 +227,8 @@ export default function PrimaryComponentInputBoxes({
         return "station";
       case "Date of Birth":
         return "dob";
+      case "Age":
+        return "age";
       case "Gender":
         return "gender";
       case "Hometown":
@@ -262,9 +264,12 @@ export default function PrimaryComponentInputBoxes({
         styles={customSelectStyles}
         options={options}
         placeholder={`Select ${label}`}
-        value={formData[labelKey(label)]}
+        value={props.formData[labelKey(label)]}
         onChange={(selected) =>
-          setFormData((prev) => ({ ...prev, [labelKey(label)]: selected }))
+          props.setFormData((prev) => ({
+            ...prev,
+            [labelKey(label)]: selected,
+          }))
         }
       />
     );
@@ -273,27 +278,37 @@ export default function PrimaryComponentInputBoxes({
   const fields = labelsAndInputType.map(([label, type, state]) => {
     return (
       <div key={label}>
-        <label>{label}</label>
+        {props.loadingData ? (
+          <BaseSkeleton height={30} width={150} />
+        ) : (
+          <label>{label}</label>
+        )}
         <div>
           {state === "input" ? (
-            <input
-              disabled={role && isReadOnly(label, role)} // Disable checkbox due to user's role
-              readOnly={role && isReadOnly(label, role)} // Disable text input due to user's role
-              className={`${style.primaryPageInputs} ${
-                type === "checkbox" && style.checkbox
-              }`}
-              type={type}
-              {...(type === "checkbox"
-                ? { checked: formData[labelKey(label)] }
-                : { value: formData[labelKey(label)] })}
-              onChange={(e) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  [labelKey(label)]:
-                    type === "checkbox" ? e.target.checked : e.target.value,
-                }))
-              }
-            />
+            props.loadingData ? (
+              <BaseSkeleton height={40} />
+            ) : (
+              <input
+                disabled={role && isReadOnly(label, role)} // Disable checkbox due to user's role
+                readOnly={role && isReadOnly(label, role)} // Disable text input due to user's role
+                className={`${style.primaryPageInputs} ${
+                  type === "checkbox" && style.checkbox
+                }`}
+                type={type}
+                {...(type === "checkbox"
+                  ? { checked: props.formData[labelKey(label)] }
+                  : { value: props.formData[labelKey(label)] })}
+                onChange={(e) =>
+                  props.setFormData((prev) => ({
+                    ...prev,
+                    [labelKey(label)]:
+                      type === "checkbox" ? e.target.checked : e.target.value,
+                  }))
+                }
+              />
+            )
+          ) : props.loadingData ? (
+            <BaseSkeleton height={40} />
           ) : (
             createDropdown(label, role)
           )}

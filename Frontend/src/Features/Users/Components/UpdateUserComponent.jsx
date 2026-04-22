@@ -69,8 +69,6 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
     const fetchUser = async () => {
       try {
         const res = await api.get(`api/users/${userId}/`);
-        // console.log("data", res.data);
-
         setLoadingUserData(false);
         setActive(res.data.is_active);
 

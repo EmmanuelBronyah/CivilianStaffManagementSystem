@@ -2,6 +2,7 @@ import style from "../../../styles/components/employees.module.css";
 import { useTheme } from "../../../context/ThemeContext";
 import EmployeeData from "./EmployeeDataComponent";
 import { useState } from "react";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function SampleEmployees({ displayEmployeeInfo, setResponse }) {
   const [loading, setLoading] = useState(true);
@@ -15,32 +16,56 @@ export default function SampleEmployees({ displayEmployeeInfo, setResponse }) {
       >
         <div className={style.titleAndButtonsContainer}>
           <div className={style.employeeTitleAndTwoButtonsContainer}>
-            <p className={style.employeesTitle}>Sample Employees</p>
+            {loading ? (
+              <BaseSkeleton width={200} height={34} />
+            ) : (
+              <p className={style.employeesTitle}>Sample Employees</p>
+            )}
+
             <div className={style.twoButtonsContainer}>
-              <button className={style.newEmployeeButton}>New Employee</button>
-              <button className={style.advancedSearchButton}>
-                Advanced Search
-              </button>
+              {loading ? (
+                <BaseSkeleton width={120} height={36} />
+              ) : (
+                <button className={style.newEmployeeButton}>
+                  New Employee
+                </button>
+              )}
+
+              {loading ? (
+                <BaseSkeleton width={120} height={36} />
+              ) : (
+                <button className={style.advancedSearchButton}>
+                  Advanced Search
+                </button>
+              )}
             </div>
           </div>
-          <button className={style.applyOccurrenceButton}>
-            Apply Occurrence
-          </button>
+          {loading ? (
+            <BaseSkeleton width={150} height={36} />
+          ) : (
+            <button className={style.applyOccurrenceButton}>
+              Apply Occurrence
+            </button>
+          )}
         </div>
+
         <div className={style.employeeListContainer}>
           <table>
-            <thead>
-              <tr>
-                <th title="Service Number">Service Number</th>
-                <th title="Name">Name</th>
-                <th title="Unit">Unit</th>
-                <th title="Grade">Grade</th>
-                <th title="Category">Category</th>
-                <th title="Appointment Date">Appointment Date</th>
-                <th title="Status">Status</th>
-              </tr>
-            </thead>
-
+            {loading ? (
+              <BaseSkeleton height={38} />
+            ) : (
+              <thead>
+                <tr>
+                  <th title="Service Number">Service Number</th>
+                  <th title="Name">Name</th>
+                  <th title="Unit">Unit</th>
+                  <th title="Grade">Grade</th>
+                  <th title="Category">Category</th>
+                  <th title="Appointment Date">Appointment Date</th>
+                  <th title="Status">Status</th>
+                </tr>
+              </thead>
+            )}
             <tbody>
               <EmployeeData
                 loading={loading}

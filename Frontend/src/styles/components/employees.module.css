@@ -13,17 +13,22 @@
   --employeeData-background-color: #d3ead3;
   --employeeData-hover-background-color: hsl(120, 35%, 80%);
   --employeeData-active-background-color: hsl(120, 35%, 73%);
-  --icon-color: hsl(120, 65%, 10%);
+  --backIcon-color: hsl(120, 65%, 10%);
   --icon-active-color: hsl(120, 65%, 4%);
   --icon-size: 1.7rem;
   --employeeSection-text-color: #d3ead3;
   --employeeSection-background-color: hsl(120, 100%, 20%);
   --dropdown-text-color: hsl(120, 100%, 20%);
+  --dropdown-text-color-hover: hsl(120, 100%, 30%);
+  --dropdown-text-color-active: hsl(120, 100%, 15%);
   --label-text-color: #002600;
   --button-background-color: #156415;
   --button-active-background-color: #004700;
   --button-text-color: white;
   --text-color: #002600;
+  --employeeComponent-input-borderColor: #004700;
+  --employeeComponent-input-backgroundColor: hsl(120, 35%, 93%);
+  --employeeComponent-input-color: #004700;
 }
 
 .dark {
@@ -41,7 +46,7 @@
   --employeeData-background-color: rgb(49, 49, 49);
   --employeeData-hover-background-color: hsl(0, 0%, 12%);
   --employeeData-active-background-color: hsl(0, 0%, 5%);
-  --icon-color: grey;
+  --backIcon-color: grey;
   --icon-active-color: hsl(0, 0%, 44%);
   --employeeSection-text-color: black;
   --employeeSection-background-color: grey;
@@ -50,6 +55,12 @@
   --button-background-color: grey;
   --button-active-background-color: rgb(90, 90, 90);
   --button-text-color: rgb(30, 30, 30);
+  --dropdown-text-color: grey;
+  --dropdown-text-color-hover: hsl(0, 0%, 60%);
+  --dropdown-text-color-active: hsl(0, 0%, 40%);
+  --employeeComponent-input-borderColor: grey;
+  --employeeComponent-input-backgroundColor: hsl(0, 0%, 30%);
+  --employeeComponent-input-color: hsl(0, 0%, 80%);
 }
 
 .dashboardMain {
@@ -197,6 +208,7 @@ tbody tr:active {
   border-radius: 0.5rem;
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
   padding: 0.5rem;
+  gap: 1rem;
 }
 
 .backIconAndServiceId {
@@ -205,16 +217,16 @@ tbody tr:active {
   gap: 2rem;
 }
 
-.icon {
-  color: var(--icon-color);
+.backIcon {
+  color: var(--backIcon-color);
   font-size: 1.5rem;
 }
 
-.icon:hover {
+.backIcon:hover {
   opacity: 0.8;
 }
 
-.icon:active {
+.backIcon:active {
   color: var(--icon-active-color);
 }
 
@@ -227,19 +239,21 @@ tbody tr:active {
 .nameAndAge {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1rem;
 }
 
 .name {
   color: var(--text-color);
   font-weight: bold;
-  font-size: 2rem;
+  font-size: 1.8rem;
+  text-align: center;
 }
 
 .age {
   color: var(--text-color);
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
+  text-align: center;
 }
 
 .employeeSections {
@@ -258,13 +272,10 @@ tbody tr:active {
     margin: 0;
   }
 
-  .icon {
+  .arrowDownIcon {
     color: var(--employeeSection-text-color);
+    font-size: 1.5rem;
   }
-}
-
-.employeeSections:hover {
-  opacity: 0.8;
 }
 
 .sectionsDropdown {
@@ -294,11 +305,13 @@ tbody tr:active {
     }
 
     li:hover {
-      color: var(--employeeData-hover-background-color);
+      color: var(--dropdown-text-color-hover);
+      border-bottom: 1px solid var(--dropdown-text-color-hover);
     }
 
     li:active {
-      color: var(--employeeData-active-background-color);
+      color: var(--dropdown-text-color-active);
+      border-bottom: 1px solid var(--dropdown-text-color-active);
     }
   }
 }
@@ -337,16 +350,16 @@ label {
   margin-top: 0.28rem;
   height: calc(2.5rem + 1vh);
   border-radius: 2rem;
-  border: 1px solid var(--userComponent-input-borderColor);
+  border: 1px solid var(--employeeComponent-input-borderColor);
   font-weight: bold;
   padding-left: 1rem;
   font-size: 1.05rem;
-  background-color: var(--userComponent-input-backgroundColor);
-  color: var(--userComponent-input-color);
+  background-color: var(--employeeComponent-input-backgroundColor);
+  color: var(--employeeComponent-input-color);
 }
 
 input::placeholder {
-  color: var(--userComponent-input-color);
+  color: var(--employeeComponent-input-color);
 }
 
 .checkbox {
@@ -394,6 +407,29 @@ input::placeholder {
 
 .displayNone {
   display: none;
+}
+
+@media screen and (max-width: 1150px) {
+  .age {
+    display: none;
+  }
+
+  .name {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .inputs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .inputs {
+    grid-template-columns: 1fr;
+    /* text-align: center; */
+  }
 }
 
 @media screen and (max-width: 800px) {

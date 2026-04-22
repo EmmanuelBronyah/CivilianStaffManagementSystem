@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function EmployeeData(props) {
   const [employeeData, setEmployeeData] = useState([]);
@@ -9,8 +10,10 @@ export default function EmployeeData(props) {
     const fetchEmployeeData = async () => {
       try {
         const res = await api.get("api/employees/staff/dto/");
+        props.setLoading(false);
         setEmployeeData(res.data.results);
       } catch (error) {
+        props.setLoading(false);
         props.setResponse({
           message: getResponseMessages(error.response),
           type: "error",
@@ -41,5 +44,9 @@ export default function EmployeeData(props) {
     );
   });
 
-  return data;
+  if (props.loading) {
+    return <BaseSkeleton width="100%" height="100vh" />;
+  } else {
+    return data;
+  }
 }

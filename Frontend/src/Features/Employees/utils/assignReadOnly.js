@@ -48,6 +48,8 @@ export default function isReadOnly(label, role) {
       return onlyAdminCanEdit(role);
     case "Date of Birth":
       return onlyAdminCanEdit(role);
+    case "Age":
+      return onlyAdminCanEdit(role);
     case "Gender":
       return onlyAdminCanEdit(role);
     case "Hometown":
