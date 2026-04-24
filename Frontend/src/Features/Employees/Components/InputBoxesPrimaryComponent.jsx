@@ -6,6 +6,7 @@ import getResponseMessages from "../../../utils/extractResponseMessage";
 import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 import isReadOnly from "../utils/assignReadOnly";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import ReadOnlyEmployeeData from "./ReadOnlyEmployeeDataComponent";
 
 export default function PrimaryComponentInputBoxes(props) {
   const [units, setUnits] = useState([]);
@@ -316,6 +317,13 @@ export default function PrimaryComponentInputBoxes(props) {
       </div>
     );
   });
+
+  fields.push(
+    <ReadOnlyEmployeeData
+      loading={props.loadingData}
+      formData={props.formData}
+    />,
+  );
 
   return fields;
 }

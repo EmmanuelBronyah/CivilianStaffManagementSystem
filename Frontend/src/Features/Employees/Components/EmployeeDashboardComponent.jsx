@@ -93,6 +93,8 @@ export default function EmployeeDashboard({
             value: res.data.unit,
             label: res.data.unit_display,
           },
+          createdAt: res.data.created_at,
+          updatedAt: res.data.updated_at,
           createdBy: res.data.created_by_display,
           updatedBy: res.data.updated_by_display,
         });

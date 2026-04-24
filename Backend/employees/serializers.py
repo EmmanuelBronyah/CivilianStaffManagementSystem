@@ -366,6 +366,8 @@ class EmployeeReadSerializer(serializers.ModelSerializer):
     blood_group_display = serializers.StringRelatedField(
         source="blood_group", read_only=True
     )
+    created_at = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
+    updated_at = serializers.DateTimeField(format="%Y-%m-%d %I:%M %p", read_only=True)
     created_by_display = serializers.StringRelatedField(
         source="created_by", read_only=True
     )

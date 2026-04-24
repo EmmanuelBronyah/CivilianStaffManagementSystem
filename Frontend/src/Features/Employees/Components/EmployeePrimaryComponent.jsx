@@ -99,7 +99,6 @@ export default function EmployeePrimary(props) {
         `api/employees/staff/${serviceId}/edit/`,
         payload,
       );
-      console.log("Edit Response data -> ", res.data, res.status);
       props.setHeaderData({
         serviceId: res.data.service_id,
         lastName: res.data.last_name,
@@ -156,6 +155,8 @@ export default function EmployeePrimary(props) {
           value: res.data.unit,
           label: res.data.unit_display,
         },
+        createdAt: res.data.created_at,
+        updatedAt: res.data.updated_at,
         createdBy: res.data.created_by_display,
         updatedBy: res.data.updated_by_display,
       });
@@ -176,6 +177,65 @@ export default function EmployeePrimary(props) {
       return;
     }
   };
+
+  const resetData = () => {
+    props.setInitialData({
+      serviceId: props.initialData.serviceId,
+      lastName: props.initialData.lastName,
+      otherNames: props.initialData.otherNames,
+      address: props.initialData.address,
+      appointmentDate: props.initialData.appointmentDate,
+      confirmationDate: props.initialData.confirmationDate,
+      bloodGroup: {
+        value: props.initialData.bloodGroup.value,
+        label: props.initialData.bloodGroup.label,
+      },
+      category: props.initialData.category,
+      disable: props.initialData.disable,
+      dob: props.initialData.dob,
+      age: props.initialData.age,
+      email: props.initialData.email,
+      entryQualification: props.initialData.entryQualification,
+      gender: {
+        value: props.initialData.gender.value,
+        label: props.initialData.gender.label,
+      },
+      grade: {
+        value: props.initialData.grade.value,
+        label: props.initialData.grade.label,
+      },
+      hometown: props.initialData.hometown,
+      maritalStatus: {
+        value: props.initialData.maritalStatus.value,
+        label: props.initialData.maritalStatus.label,
+      },
+      nationality: props.initialData.nationality,
+      probation: props.initialData.probation,
+      region: {
+        value: props.initialData.region.value,
+        label: props.initialData.region.label,
+      },
+      religion: {
+        value: props.initialData.religion.value,
+        label: props.initialData.religion.label,
+      },
+      socialSecurity: props.initialData.socialSecurity,
+      station: props.initialData.station,
+      structure: {
+        value: props.initialData.structure.value,
+        label: props.initialData.structure.label,
+      },
+      unit: {
+        value: props.initialData.unit.value,
+        label: props.initialData.unit.label,
+      },
+      createdAt: props.formData.createdAt,
+      updatedAt: props.formData.updatedAt,
+      createdBy: props.formData.createdBy,
+      updatedBy: props.formData.updatedBy,
+    });
+  };
+
   return (
     <div className={`${style.employeePrimary} ${!theme ? style.dark : ""}`}>
       <div className={style.inputs}>
@@ -212,7 +272,11 @@ export default function EmployeePrimary(props) {
         {loadingData ? (
           <BaseSkeleton height={40} width={140} />
         ) : (
-          <button className={style.cancelButton} disabled={loading}>
+          <button
+            onClick={resetData}
+            className={style.cancelButton}
+            disabled={loading}
+          >
             Cancel
           </button>
         )}

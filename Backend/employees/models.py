@@ -38,6 +38,8 @@ class Employee(models.Model):
     probation = models.CharField(null=True, blank=True)
     entry_qualification = models.CharField(max_length=255, null=True, blank=True)
 
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(
         "api.CustomUser",
         on_delete=models.SET_NULL,
