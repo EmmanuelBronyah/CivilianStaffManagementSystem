@@ -133,6 +133,9 @@ class OccurrenceUpdateSerializer(BaseOccurrenceSerializer):
 
 
 class OccurrenceReadSerializer(serializers.ModelSerializer):
+    service_id = serializers.StringRelatedField(
+        source="employee.service_id", read_only=True
+    )
     grade_display = serializers.StringRelatedField(source="grade", read_only=True)
     level_step_display = serializers.StringRelatedField(
         source="level_step", read_only=True

@@ -6,6 +6,7 @@ import getResponseMessages from "../../../utils/extractResponseMessage";
 import EmployeePrimary from "./EmployeePrimaryComponent";
 import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import EmployeeOccurrence from "./EmployeeOccurrenceComponent";
 
 export default function EmployeeDashboard({
   serviceId,
@@ -214,6 +215,9 @@ export default function EmployeeDashboard({
             setFormData={setFormData}
             setResponse={setResponse}
           />
+        )}
+        {employeeSections === "Occurrence" && (
+          <EmployeeOccurrence serviceId={serviceId} setResponse={setResponse} />
         )}
       </div>
     </>

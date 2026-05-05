@@ -25,6 +25,9 @@ from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from rest_framework.views import APIView
+from employees.services import get_grades
+from employees.serializers import ListGradesSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -123,6 +126,14 @@ class EditOccurrenceAPIView(generics.UpdateAPIView):
                 )
 
 
+class RetrieveOccurrenceAPIView(generics.RetrieveAPIView):
+    queryset = Occurrence.objects.all()
+    lookup_field = "pk"
+    serializer_class = serializers.OccurrenceReadSerializer
+    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+
 class ListEmployeeOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.OccurrenceReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
@@ -133,7 +144,7 @@ class ListEmployeeOccurrenceAPIView(generics.ListAPIView):
         employee = get_object_or_404(Employee, pk=service_id)
         occurrences = (
             employee.occurrences.select_related(
-                "created_by", "updated_by", "grade", "level_step", "event"
+                "employee", "created_by", "updated_by", "grade", "level_step", "event"
             )
             .annotate(
                 serial_number=Cast(
@@ -257,14 +268,14 @@ class CalculateAnnualSalary(generics.RetrieveAPIView):
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
     permission_classes = [IsAdminUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         data = serializer.data
         annual_salary = two_dp(two_dp(data["monthly_salary"]) * two_dp(12))
-        data.update(annual_salary=annual_salary)
+        data.update(annual_salary=str(annual_salary))
         return Response(data)
 
 
@@ -583,3 +594,29 @@ class DeleteIncompleteOccurrenceAPIView(generics.DestroyAPIView):
 
             # Delete associated flags
             delete_flag(instance, incomplete_occurrence_id, self.request.user)
+
+
+class ListOccurrenceFormOptionsData(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        grades = get_grades()
+        level_step = LevelStep.objects.all()
+        event = Event.objects.all()
+        salary_adjustment_percentage = SalaryAdjustmentPercentage.objects.all()
+
+        return Response(
+            {
+                "grades": ListGradesSerializer(grades, many=True).data,
+                "level_step": serializers.LevelStepSerializer(
+                    level_step, many=True
+                ).data,
+                "event": serializers.EventSerializer(event, many=True).data,
+                "salary_adjustment_percentage": serializers.SalaryAdjustmentPercentageSerializer(
+                    salary_adjustment_percentage, many=True
+                ).data,
+            },
+            status=status.HTTP_200_OK,
+        )

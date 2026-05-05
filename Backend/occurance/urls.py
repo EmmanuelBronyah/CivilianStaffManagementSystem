@@ -5,6 +5,11 @@ urlpatterns = [
     # Occurrence
     path("create/", views.CreateOccurrenceAPIView.as_view(), name="create-occurrence"),
     path(
+        "<str:pk>/",
+        views.RetrieveOccurrenceAPIView.as_view(),
+        name="retrieve-occurrence",
+    ),
+    path(
         "<str:pk>/edit/", views.EditOccurrenceAPIView.as_view(), name="edit-occurrence"
     ),
     path(
@@ -16,6 +21,11 @@ urlpatterns = [
         "<str:pk>/delete/",
         views.DeleteOccurrenceAPIView.as_view(),
         name="delete-occurrence",
+    ),
+    path(
+        "data/options/",
+        views.ListOccurrenceFormOptionsData.as_view(),
+        name="list-occurrence-form-options",
     ),
     # Level|Step
     path("level-step/", views.ListLevelStepAPIView.as_view(), name="list-level-step"),

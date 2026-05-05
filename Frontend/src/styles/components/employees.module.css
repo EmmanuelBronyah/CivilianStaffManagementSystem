@@ -29,6 +29,7 @@
   --employeeComponent-input-borderColor: #004700;
   --employeeComponent-input-backgroundColor: hsl(120, 35%, 93%);
   --employeeComponent-input-color: #004700;
+  --editIcon-size: 1.2rem;
 }
 
 .dark {
@@ -410,6 +411,118 @@ input::placeholder {
   display: none;
 }
 
+.listEmployeeOccurrence {
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--main-container-background-color);
+  box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
+}
+
+.occurrencePageButtonAndTableContainer {
+  display: flex;
+  flex-direction: column;
+}
+
+.addOccurrenceButtonContainer {
+  display: flex;
+  place-content: flex-end;
+}
+
+.addOccurrence {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 0.4rem;
+  background-color: var(--two-buttons-background-color);
+  font-weight: bold;
+  color: var(--two-buttons-color);
+  border: 1px solid var(--two-buttons-color);
+  cursor: pointer;
+}
+
+.addOccurrence:hover {
+  opacity: 0.7;
+}
+
+.addOccurrence:active {
+  color: var(--two-buttons-active-color);
+}
+
+.editEmployeeOccurrence {
+  display: grid;
+  grid-template-rows: 3rem 1fr;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  background-color: var(--main-container-background-color);
+  box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
+}
+
+.inputAndButtonsSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.occurrenceInputs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.occurrenceInputs .occurrenceInputContainer {
+  position: relative;
+}
+
+.editOccurrenceButtons {
+  align-self: center;
+  place-self: center;
+  display: flex;
+  gap: 4rem;
+
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    background-color: var(--button-background-color);
+    font-weight: bold;
+    color: var(--button-text-color);
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  button:active {
+    background-color: var(--button-active-background-color);
+    color: var(--button-text-color);
+  }
+
+  .cancelButton {
+    background-color: #d8000c;
+    color: white;
+  }
+
+  .cancelButton:hover {
+    opacity: 0.8;
+  }
+
+  .cancelButton:active {
+    background-color: hsl(357, 100%, 32%);
+  }
+}
+
+.editIcon {
+  position: relative;
+  top: 0.1rem;
+  right: 2rem;
+  font-size: var(--editIcon-size);
+  color: var(--editIcon-color);
+  cursor: pointer;
+}
+
 @media screen and (max-width: 1150px) {
   .age {
     display: none;
@@ -424,17 +537,30 @@ input::placeholder {
   .inputs {
     grid-template-columns: repeat(2, 1fr);
   }
-}
 
-@media screen and (max-width: 600px) {
-  .inputs {
+  .occurrenceInputs {
     grid-template-columns: 1fr;
-    /* text-align: center; */
   }
 }
 
 @media screen and (max-width: 800px) {
   .listEmployeesContainer {
     min-width: 800px;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .inputs {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .editIcon {
+    position: absolute;
+    top: 1.25rem;
+    right: 2rem;
+    font-size: var(--editIcon-size);
+    color: var(--editIcon-color);
   }
 }
