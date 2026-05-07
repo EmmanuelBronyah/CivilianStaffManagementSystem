@@ -5,7 +5,7 @@ import api from "../../../api";
 import ReadOnlyEmployeeData from "./ReadOnlyEmployeeDataComponent";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
-import { MdEdit } from "react-icons/md";
+import { MdEdit, MdEditOff } from "react-icons/md";
 import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 
 export default function OccurrenceInputBoxes(props) {
@@ -13,6 +13,7 @@ export default function OccurrenceInputBoxes(props) {
   const [grades, setGrades] = useState([]);
   const [events, setEvents] = useState([]);
   const [editStatus, setEditStatus] = useState(false);
+
   const [displayPercentageDropdown, setDisplayPercentageDropdown] =
     useState(false);
   const [salaryPercentageAdjustments, setSalaryPercentageAdjustments] =
@@ -22,7 +23,34 @@ export default function OccurrenceInputBoxes(props) {
   useEffect(() => {
     if (!response) return;
     props.setResponse(response);
-  });
+  }, [response]);
+
+  useEffect(() => {
+    if (!displayPercentageDropdown) {
+      // Remove percentageAdjustment key-value pair from the formData if the percentage dropdown is not displayed
+      props.setFormData(({ percentageAdjustment, ...prev }) => prev);
+    }
+  }, [displayPercentageDropdown]);
+
+  useEffect(() => {
+    const selectedEvent = props.formData.event?.label;
+
+    if (selectedEvent !== "Salary Adjustment") return;
+    editStatus
+      ? setDisplayPercentageDropdown(false)
+      : setDisplayPercentageDropdown(true);
+  }, [props.formData.event?.label]);
+
+  useEffect(() => {
+    const showPercentageDropdown = () => {
+      const selectedEvent = props.formData.event?.label;
+      if (selectedEvent !== "Salary Adjustment") return;
+      editStatus
+        ? setDisplayPercentageDropdown(false)
+        : setDisplayPercentageDropdown(true);
+    };
+    showPercentageDropdown();
+  }, [editStatus]);
 
   useEffect(() => {
     const fetchDropdownData = async () => {
@@ -62,8 +90,7 @@ export default function OccurrenceInputBoxes(props) {
     control: (base) => ({
       ...base,
       height: "calc(2.5rem + 1vh)",
-      minHeight: "calc(2.5rem + 1vh)",
-      width: "92.5%",
+      width: "92.8%",
       marginTop: "0.28rem",
       borderRadius: "2rem",
       border: "1px solid var(--employeeComponent-input-borderColor)",
@@ -71,7 +98,7 @@ export default function OccurrenceInputBoxes(props) {
       fontSize: "1.05rem",
       backgroundColor: "var(--employeeComponent-input-backgroundColor)",
       color: "var(--employeeComponent-input-color)",
-      paddingLeft: "0.5rem",
+      paddingLeft: "1rem",
       boxShadow: "none",
 
       display: "flex",
@@ -154,7 +181,19 @@ export default function OccurrenceInputBoxes(props) {
     }
   };
 
-  const assignSalaries = async (levelStep) => {
+  const assignReadOnly = (label) => {
+    if (editStatus && role !== "VIEWER") {
+      return false;
+    }
+
+    return (
+      ["Monthly Salary", "Annual Salary"].includes(label) || role === "VIEWER"
+    );
+  };
+
+  const verifyLevelStepToAssignSalary = async (label, levelStep) => {
+    if (label !== "LevelStep") return;
+
     try {
       const res = await api.get(
         `api/occurrence/level-step/${levelStep}/annual-salary/`,
@@ -174,27 +213,17 @@ export default function OccurrenceInputBoxes(props) {
     }
   };
 
-  const assignReadOnly = (label) => {
-    if (editStatus && role !== "VIEWER") {
-      return false;
-    }
+  const verifyEventToDisplayPercentageDropdown = (label, eventName) => {
+    if (label !== "Event") return;
 
-    return (
-      ["Monthly Salary", "Annual Salary"].includes(label) || role === "VIEWER"
-    );
-  };
-
-  const showPercentageDropdown = (event, label) => {
-    if (event !== "Salary Adjustment") {
+    if (eventName !== "Salary Adjustment") {
       setDisplayPercentageDropdown(false);
       return;
     }
 
-    if (!editStatus) {
-      setDisplayPercentageDropdown(true);
-    } else {
-      setDisplayPercentageDropdown(false);
-    }
+    editStatus
+      ? setDisplayPercentageDropdown(false)
+      : setDisplayPercentageDropdown(true);
   };
 
   const createDropdown = (label) => {
@@ -206,19 +235,14 @@ export default function OccurrenceInputBoxes(props) {
         options={options}
         placeholder={`Select ${label}`}
         value={props.formData[labelKey(label)]}
-        onChange={(selected) =>
-          props.setFormData((prev) => {
-            if (label === "LevelStep") {
-              assignSalaries(selected.value);
-            }
-
-            if (label === "Event") {
-              showPercentageDropdown(selected.label, label);
-            }
-
-            return { ...prev, [labelKey(label)]: selected };
-          })
-        }
+        onChange={(selected) => {
+          verifyLevelStepToAssignSalary(label, selected.value);
+          verifyEventToDisplayPercentageDropdown(label, selected.label);
+          props.setFormData((prev) => ({
+            ...prev,
+            [labelKey(label)]: selected,
+          }));
+        }}
       />
     );
   };
@@ -272,17 +296,30 @@ export default function OccurrenceInputBoxes(props) {
             createDropdown(label)
           )}
           {["Monthly Salary", "Annual Salary"].includes(label) && (
-            <MdEdit
-              className={`${style.editIcon} ${role === "VIEWER" && style.displayNone}`}
-              onClick={() => setEditStatus(true)}
-            />
+            <>
+              <MdEdit
+                className={`${style.editIcon} ${editStatus ? style.displayNone : ""} ${role === "VIEWER" && style.displayNone}`}
+                onClick={() => {
+                  setEditStatus((prev) => !prev);
+                }}
+              />
+              <MdEditOff
+                className={`${style.editIcon} ${editStatus ? "" : style.displayNone} ${role === "VIEWER" && style.displayNone}`}
+                onClick={() => {
+                  setEditStatus((prev) => !prev);
+                }}
+              />
+            </>
           )}
         </div>
       </div>
     );
   });
 
-  fields.push(<ReadOnlyEmployeeData formData={props.formData} />);
-
-  return <div className={style.occurrenceInputs}>{fields}</div>;
+  return (
+    <div className={style.occurrenceInputs}>
+      {fields}
+      <ReadOnlyEmployeeData formData={props.formData} />
+    </div>
+  );
 }

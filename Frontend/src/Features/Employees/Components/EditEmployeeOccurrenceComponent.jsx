@@ -4,6 +4,8 @@ import OccurrenceInputBoxes from "./OccurrenceInputBoxesComponent";
 import api from "../../../api";
 import { useState, useEffect } from "react";
 import getResponseMessages from "../../../utils/extractResponseMessage";
+import { MdDelete } from "react-icons/md";
+import askToDelete from "../../../utils/askToDelete";
 
 export default function EditEmployeeOccurrence(props) {
   const [initialData, setInitialData] = useState({});
@@ -55,7 +57,91 @@ export default function EditEmployeeOccurrence(props) {
   }, []);
 
   const updateOccurrence = async () => {
-    console.log("form data -> ", formData);
+    const payload = {
+      grade: formData.grade.value,
+      authority: formData.authority,
+      level_step: formData.levelStep.value,
+      monthly_salary: formData.monthlySalary,
+      annual_salary: formData.annualSalary,
+      event: formData.event.value,
+      percentage_adjustment: formData?.percentageAdjustment?.label || null,
+      wef_date: formData.wefDate,
+      reason: formData.reason,
+    };
+
+    try {
+      const res = await api.patch(
+        `api/occurrence/${props.occurrenceId}/edit/`,
+        payload,
+      );
+      setFormData({
+        grade: {
+          value: res.data.grade,
+          label: res.data.grade_display,
+        },
+        authority: res.data.authority,
+        levelStep: {
+          value: res.data.level_step,
+          label: res.data.level_step_display,
+        },
+        monthlySalary: res.data.monthly_salary,
+        annualSalary: res.data.annual_salary,
+        event: {
+          value: res.data.event,
+          label: res.data.event_display,
+        },
+        wefDate: res.data.wef_date,
+        reason: res.data.reason,
+        createdAt: res.data.date_added,
+        createdBy: res.data.created_by_display,
+        updatedAt: res.data.date_modified,
+        updatedBy: res.data.updated_by_display,
+      });
+      props.setResponse({
+        message: "Occurrence updated",
+        id: Date.now(),
+      });
+    } catch (error) {
+      props.setResponse({
+        message: getResponseMessages(error.response),
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
+  };
+
+  const discardChanges = () => {
+    const updatedInitialData = {
+      ...initialData,
+      createdAt: formData.createdAt,
+      createdBy: formData.createdBy,
+      updatedAt: formData.updatedAt,
+      updatedBy: formData.updatedBy,
+    };
+
+    setFormData(updatedInitialData);
+  };
+
+  const initiateDeletion = async () => {
+    const result = await askToDelete(theme);
+    if (!result.isConfirmed) return;
+
+    try {
+      const res = await api.delete(
+        `api/occurrence/${props.occurrenceId}/delete/`,
+      );
+      if (res.status === 204) {
+        props.setCurrentOccurrencePage("List Occurrence");
+      }
+    } catch (error) {
+      props.setResponse({
+        message: getResponseMessages(error.response),
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
   };
 
   return (
@@ -79,8 +165,14 @@ export default function EditEmployeeOccurrence(props) {
           setResponse={props.setResponse}
         />
         <div className={style.editOccurrenceButtons}>
-          <button onClick={updateOccurrence}>Save Changes</button>
-          <button className={style.cancelButton}>Cancel</button>
+          <div className={style.emptyDiv}></div>
+          <div className={style.updateCancelButtons}>
+            <button onClick={updateOccurrence}>Save Changes</button>
+            <button className={style.cancelButton} onClick={discardChanges}>
+              Cancel
+            </button>
+          </div>
+          <MdDelete className={style.trashIcon} onClick={initiateDeletion} />
         </div>
       </div>
     </div>

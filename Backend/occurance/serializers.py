@@ -9,7 +9,6 @@ from .models import (
 import logging
 from .utils import two_dp
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -83,7 +82,9 @@ class BaseOccurrenceSerializer(serializers.ModelSerializer):
 
 
 class OccurrenceWriteSerializer(BaseOccurrenceSerializer):
-    percentage_adjustment = serializers.IntegerField(write_only=True, required=False)
+    percentage_adjustment = serializers.IntegerField(
+        write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model = Occurrence
@@ -93,22 +94,23 @@ class OccurrenceWriteSerializer(BaseOccurrenceSerializer):
         event = attrs.get("event", None)
         event = event.event_name
 
-        level_step = attrs.get("level_step", None)
-        monthly_salary = level_step.monthly_salary
-        monthly_salary = two_dp(monthly_salary)
+        monthly_salary = two_dp(attrs.get("monthly_salary", None))
+        annual_salary = two_dp(attrs.get("annual_salary", None))
 
         if event != "Salary Adjustment":
-            # Remove percentage_adjustment key
-            attrs.pop("percentage_adjustment")
-
             attrs["monthly_salary"] = str(monthly_salary)
-
-            annual_salary = two_dp(two_dp(12) * monthly_salary)
             attrs["annual_salary"] = str(annual_salary)
+            return attrs
 
         else:
-            percentage_adjustment = attrs.pop("percentage_adjustment")
-            percentage_adjustment = two_dp(two_dp(percentage_adjustment) / two_dp(100))
+            percentage = attrs.get("percentage_adjustment", None)
+
+            if not percentage:
+                attrs["monthly_salary"] = str(monthly_salary)
+                attrs["annual_salary"] = str(annual_salary)
+                return attrs
+
+            percentage_adjustment = two_dp(two_dp(percentage) / two_dp(100))
 
             monthly_salary = two_dp(
                 (two_dp(monthly_salary * percentage_adjustment)) + monthly_salary
@@ -121,12 +123,13 @@ class OccurrenceWriteSerializer(BaseOccurrenceSerializer):
         return attrs
 
     def validate(self, attrs):
+        print("attrs -> ", attrs)
         attrs = self.assign_annual_salary(attrs)
 
         return attrs
 
 
-class OccurrenceUpdateSerializer(BaseOccurrenceSerializer):
+class OccurrenceUpdateSerializer(OccurrenceWriteSerializer):
 
     class Meta(BaseOccurrenceSerializer.Meta):
         pass

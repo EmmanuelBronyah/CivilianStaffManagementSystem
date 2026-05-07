@@ -475,10 +475,11 @@ input::placeholder {
 }
 
 .editOccurrenceButtons {
-  align-self: center;
-  place-self: center;
+  /* align-self: center;
+  place-self: center; */
   display: flex;
-  gap: 4rem;
+  justify-content: center;
+  justify-content: space-between;
 
   button {
     padding: 0.5rem 1.8rem;
@@ -512,12 +513,32 @@ input::placeholder {
   .cancelButton:active {
     background-color: hsl(357, 100%, 32%);
   }
+
+  .trashIcon {
+    color: hsl(357, 100%, 32%);
+    font-size: 2rem;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .trashIcon:hover {
+    color: hsl(357, 100%, 42%);
+  }
+
+  .trashIcon:active {
+    color: hsl(357, 100%, 22%);
+  }
+}
+
+.updateCancelButtons {
+  display: flex;
+  gap: 4rem;
 }
 
 .editIcon {
-  position: relative;
-  top: 0.1rem;
-  right: 2rem;
+  position: absolute;
+  top: 1.2rem;
+  right: 4rem;
   font-size: var(--editIcon-size);
   color: var(--editIcon-color);
   cursor: pointer;
@@ -549,6 +570,12 @@ input::placeholder {
   }
 }
 
+@media screen and (max-width: 700px) {
+  .emptyDiv {
+    display: none;
+  }
+}
+
 @media screen and (max-width: 600px) {
   .inputs {
     grid-template-columns: 1fr;
@@ -562,5 +589,9 @@ input::placeholder {
     right: 2rem;
     font-size: var(--editIcon-size);
     color: var(--editIcon-color);
+  }
+
+  .updateCancelButtons {
+    gap: 1rem;
   }
 }
