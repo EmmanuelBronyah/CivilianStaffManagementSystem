@@ -12,7 +12,6 @@ export default function AddUserInputBoxes({
   formData,
   setFormData,
   setResponse,
-  initialData,
 }) {
   const [divisions, setDivisions] = useState([]);
   const [grades, setGrades] = useState([]);
@@ -21,6 +20,10 @@ export default function AddUserInputBoxes({
     { id: 2, name: "STANDARD USER" },
     { id: 3, name: "VIEWER" },
   ];
+
+  // useEffect(() => {
+  //   console.log("formdata -> ", formData);
+  // }, [formData]);
 
   useEffect(() => {
     const fetchDivisionsAndGrades = async () => {
@@ -214,11 +217,12 @@ export default function AddUserInputBoxes({
     );
   });
 
-  if (userPage === "Update User") {
-    fields.push(
-      <ReadOnlyUserData loading={loading} initialData={initialData} />,
-    );
-  }
-
-  return <div className={style.addUserInputs}>{fields}</div>;
+  return (
+    <div className={style.addUserInputs}>
+      {fields}
+      {userPage === "Update User" && (
+        <ReadOnlyUserData loading={loading} formData={formData} />
+      )}
+    </div>
+  );
 }

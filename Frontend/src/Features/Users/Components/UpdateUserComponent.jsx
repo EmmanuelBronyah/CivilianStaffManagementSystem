@@ -13,20 +13,7 @@ import manageUserAccessProcess from "../../../utils/manageUserAccess";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function UpdateUser({ userPage, setUserPage, userId }) {
-  const [initialData, setInitialData] = useState({
-    fullName: "",
-    username: "",
-    email: "",
-    oldPassword: "",
-    newPassword: "",
-    role: "",
-    grade: "",
-    division: "",
-    createdAt: "",
-    updatedAt: "",
-    createdBy: "",
-    updatedBy: "",
-  });
+  const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
   const [active, setActive] = useState(true);
   const [visible, setVisible] = useState(false);
@@ -95,7 +82,6 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
           type: "error",
           id: Date.now(),
         });
-        return;
       }
     };
 
@@ -148,12 +134,28 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
       try {
         const res = await api.patch(`api/users/update/${userId}/`, payload);
         if (res.status === 200) {
-          setLoading(false);
+          setFormData({
+            fullName: res.data.fullname,
+            username: res.data.username,
+            email: res.data.email,
+            role: dropdownRoleValue(res.data.role),
+            grade: { value: res.data.grade, label: res.data.grade_display },
+            division: {
+              value: res.data.division,
+              label: res.data.division_display,
+            },
+            createdAt: res.data.created_at,
+            updatedAt: res.data.updated_at,
+            createdBy: res.data.created_by_display,
+            updatedBy: res.data.updated_by_display,
+          });
+          console.log("formdata -> ", formData);
+
           setResponse({
             message: "User Account updated",
             id: Date.now(),
           });
-          return;
+          setLoading(false);
         }
       } catch (error) {
         setLoading(false);
@@ -162,14 +164,20 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
           type: "error",
           id: Date.now(),
         });
-        return;
       }
     }
   };
 
   const resetData = () => {
-    setFormData(initialData);
-    return;
+    const updatedInitialData = {
+      ...initialData,
+      createdAt: formData.createdAt,
+      createdBy: formData.createdBy,
+      updatedAt: formData.updatedAt,
+      updatedBy: formData.updatedBy,
+    };
+
+    setFormData(updatedInitialData);
   };
 
   const initiateDeactivateUserProcess = async () => {

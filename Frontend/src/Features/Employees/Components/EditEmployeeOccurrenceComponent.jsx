@@ -6,10 +6,14 @@ import { useState, useEffect } from "react";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import { MdDelete } from "react-icons/md";
 import askToDelete from "../../../utils/askToDelete";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import ClipLoader from "react-spinners/ClipLoader";
 
 export default function EditEmployeeOccurrence(props) {
   const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
+  const [loadingData, setLoadingData] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const { theme } = useTheme();
 
@@ -44,6 +48,7 @@ export default function EditEmployeeOccurrence(props) {
           updatedAt: res.data.date_modified,
           updatedBy: res.data.updated_by_display,
         });
+        setLoadingData(false);
       } catch (error) {
         props.setResponse({
           message: getResponseMessages(error.response),
@@ -57,6 +62,8 @@ export default function EditEmployeeOccurrence(props) {
   }, []);
 
   const updateOccurrence = async () => {
+    setLoading(true);
+
     const payload = {
       grade: formData.grade.value,
       authority: formData.authority,
@@ -101,12 +108,14 @@ export default function EditEmployeeOccurrence(props) {
         message: "Occurrence updated",
         id: Date.now(),
       });
+      setLoading(false);
     } catch (error) {
       props.setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
       });
+      setLoading(false);
       return;
     }
   };
@@ -150,12 +159,16 @@ export default function EditEmployeeOccurrence(props) {
     >
       <div className={style.occurrencePageButtonAndTableContainer}>
         <div className={style.addOccurrenceButtonContainer}>
-          <button
-            className={style.addOccurrence}
-            onClick={() => props.setCurrentOccurrencePage("List Occurrence")}
-          >
-            All Occurrences
-          </button>
+          {loadingData ? (
+            <BaseSkeleton width={170} height={39} />
+          ) : (
+            <button
+              className={style.addOccurrence}
+              onClick={() => props.setCurrentOccurrencePage("List Occurrence")}
+            >
+              All Occurrences
+            </button>
+          )}
         </div>
       </div>
       <div className={style.inputAndButtonsSection}>
@@ -163,16 +176,39 @@ export default function EditEmployeeOccurrence(props) {
           formData={formData}
           setFormData={setFormData}
           setResponse={props.setResponse}
+          loadingData={loadingData}
+          setLoadingData={setLoadingData}
         />
         <div className={style.editOccurrenceButtons}>
           <div className={style.emptyDiv}></div>
           <div className={style.updateCancelButtons}>
-            <button onClick={updateOccurrence}>Save Changes</button>
-            <button className={style.cancelButton} onClick={discardChanges}>
-              Cancel
-            </button>
+            {loadingData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button onClick={updateOccurrence}>
+                {loading ? (
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            )}
+            {loadingData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button className={style.cancelButton} onClick={discardChanges}>
+                Cancel
+              </button>
+            )}
           </div>
-          <MdDelete className={style.trashIcon} onClick={initiateDeletion} />
+          {loadingData ? (
+            <BaseSkeleton width={40} />
+          ) : (
+            <MdDelete className={style.trashIcon} onClick={initiateDeletion} />
+          )}
         </div>
       </div>
     </div>

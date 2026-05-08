@@ -91,7 +91,7 @@ class RetrieveAllUsersView(generics.ListAPIView):
     queryset = CustomUser.objects.select_related(
         "created_by", "updated_by", "grade", "division"
     )
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
 
@@ -228,14 +228,14 @@ class RetrieveDivisionAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListDivisionsAPIView(generics.ListAPIView):
     queryset = models.Divisions.objects.all()
     serializer_class = serializers.DivisionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListUsersPerDivision(APIView):

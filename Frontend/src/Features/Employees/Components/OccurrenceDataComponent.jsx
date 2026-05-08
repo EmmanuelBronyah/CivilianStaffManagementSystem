@@ -1,24 +1,21 @@
-import style from "../../../styles/components/employees.module.css";
-import { useTheme } from "../../../context/ThemeContext";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import { useEffect, useState } from "react";
 
-export default function OccurrenceData({
-  serviceId,
-  setResponse,
-  editOccurrence,
-}) {
+export default function OccurrenceData(props) {
   const [occurrenceData, setOccurrenceData] = useState([]);
 
   useEffect(() => {
     const fetchOccurrenceData = async () => {
       try {
-        const res = await api.get(`api/occurrence/${serviceId}/employee/`);
+        const res = await api.get(
+          `api/occurrence/${props.serviceId}/employee/`,
+        );
         setOccurrenceData(res.data);
+        props.setLoading(false);
       } catch (error) {
-        setResponse({
+        props.setResponse({
           message: getResponseMessages(error.response),
           type: "error",
           id: Date.now(),
@@ -30,7 +27,7 @@ export default function OccurrenceData({
 
   const data = occurrenceData.map((data) => {
     return (
-      <tr key={data.id} onClick={() => editOccurrence(data.id)}>
+      <tr key={data.id} onClick={() => props.editOccurrence(data.id)}>
         <td title={data.service_id}>{data.service_id}</td>
         <td title={data.grade_display}>{data.grade_display}</td>
         <td title={data.authority}>{data.authority}</td>
@@ -44,5 +41,9 @@ export default function OccurrenceData({
     );
   });
 
-  return data;
+  if (props.loading) {
+    return <BaseSkeleton width="100%" height="100vh" />;
+  } else {
+    return data;
+  }
 }

@@ -318,12 +318,13 @@ export default function PrimaryComponentInputBoxes(props) {
     );
   });
 
-  fields.push(
-    <ReadOnlyEmployeeData
-      loading={props.loadingData}
-      formData={props.formData}
-    />,
+  return (
+    <>
+      {fields}
+      <ReadOnlyEmployeeData
+        loading={props.loadingData}
+        formData={props.formData}
+      />
+    </>
   );
-
-  return fields;
 }

@@ -107,7 +107,7 @@ class EditCourseAPIView(generics.UpdateAPIView):
 
 class ListEmployeeCoursesAPIView(generics.ListAPIView):
     serializer_class = serializers.CoursesReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -121,7 +121,7 @@ class RetrieveCourseAPIView(generics.RetrieveAPIView):
     queryset = Courses.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.CoursesReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -187,7 +187,7 @@ class RetrieveIncompleteCourseRecordsAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListIncompleteCourseRecordsAPIView(generics.ListAPIView):
@@ -196,13 +196,13 @@ class ListIncompleteCourseRecordsAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
 class ListEmployeeIncompleteCourseRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):

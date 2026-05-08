@@ -91,7 +91,7 @@ class EditIdentityAPIView(generics.UpdateAPIView):
 class RetrieveEmployeeIdentityAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.IdentityReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_object(self):

@@ -13,14 +13,13 @@ from rest_framework import status
 from employees.models import Employee
 from employees.permissions import IsAdminUserOrStandardUser
 
-
 logger = logging.getLogger(__name__)
 
 
 class ListEmployeeRecordsAPIView(generics.GenericAPIView):
     serializer_class = EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
     def post(self, request, *args, **kwargs):

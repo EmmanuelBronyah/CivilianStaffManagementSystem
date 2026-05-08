@@ -15,7 +15,6 @@ from rest_framework.exceptions import ValidationError
 from django.contrib.postgres.search import SearchQuery, SearchRank
 from django.db.models import F
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -75,7 +74,7 @@ class RetrieveFlagAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = FlagReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListFlagsAPIView(generics.ListAPIView):
@@ -84,7 +83,7 @@ class ListFlagsAPIView(generics.ListAPIView):
     )
     serializer_class = FlagReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
@@ -228,14 +227,14 @@ class RetrieveFlagTypeAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = FlagTypeSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListFlagTypeAPIView(generics.ListAPIView):
     queryset = FlagType.objects.all()
     serializer_class = FlagTypeSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 

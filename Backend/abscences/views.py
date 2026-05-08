@@ -107,7 +107,7 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
 
 class ListEmployeeAbsencesAPIView(generics.ListAPIView):
     serializer_class = serializers.AbsencesReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -121,7 +121,7 @@ class RetrieveAbsencesAPIView(generics.RetrieveAPIView):
     queryset = Absences.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.AbsencesReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 

@@ -107,7 +107,7 @@ class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
 
 class ListEmployeePreviousGovernmentServiceAPIView(generics.ListAPIView):
     serializer_class = serializers.PreviousGovernmentServiceReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -125,7 +125,7 @@ class RetrievePreviousGovernmentServiceAPIView(generics.RetrieveAPIView):
     queryset = PreviousGovernmentService.objects.all()
     serializer_class = serializers.PreviousGovernmentServiceReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -197,7 +197,7 @@ class RetrieveIncompletePreviousGovernmentServiceRecordsAPIView(
     lookup_field = "pk"
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListIncompletePreviousGovernmentServiceRecordsAPIView(generics.ListAPIView):
@@ -206,7 +206,7 @@ class ListIncompletePreviousGovernmentServiceRecordsAPIView(generics.ListAPIView
     )
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
@@ -214,7 +214,7 @@ class ListEmployeeIncompletePreviousGovernmentServiceRecordsAPIView(
     generics.ListAPIView
 ):
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):

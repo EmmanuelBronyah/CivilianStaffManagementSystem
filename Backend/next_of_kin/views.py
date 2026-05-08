@@ -93,7 +93,7 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
 
 class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -107,7 +107,7 @@ class RetrieveNextOfKinAPIView(generics.RetrieveAPIView):
     queryset = EmergencyOrNextOfKin.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 

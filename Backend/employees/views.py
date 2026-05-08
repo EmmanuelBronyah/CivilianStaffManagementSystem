@@ -19,7 +19,6 @@ from django.contrib.postgres.search import SearchQuery, SearchRank
 import random
 from . import services
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -86,7 +85,7 @@ class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListEmployeesAPIView(generics.ListAPIView):
@@ -104,7 +103,7 @@ class ListEmployeesAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.EmployeeReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
@@ -183,7 +182,7 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 
 class TotalNumberOfEmployeesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -193,7 +192,7 @@ class TotalNumberOfEmployeesAPIView(APIView):
 
 class ForecastedRetireesAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -264,14 +263,14 @@ class RetrieveCategoryAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.CategorySerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListCategoryAPIView(generics.ListAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditCategoryAPIView(generics.UpdateAPIView):
@@ -354,14 +353,14 @@ class RetrieveGradeAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListGradesAPIView(generics.ListAPIView):
     queryset = models.Grades.objects.select_related("rank", "structure")
     serializer_class = serializers.GradeReadSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
@@ -450,20 +449,20 @@ class RetrieveUnitAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.UnitSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListUnitsAPIView(generics.ListAPIView):
     queryset = models.Units.objects.all()
     serializer_class = serializers.UnitSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = StandardResultsSetPagination
 
 
 class TotalEmployeesPerUnitAPIView(APIView):
     http_method_names = ["get"]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
@@ -562,14 +561,14 @@ class RetrieveGenderAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.GenderSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListGendersAPIView(generics.ListAPIView):
     queryset = models.Gender.objects.all()
     serializer_class = serializers.GenderSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditGenderAPIView(generics.UpdateAPIView):
@@ -619,7 +618,7 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
 class TotalMaleAndFemaleAPIView(APIView):
     http_method_names = ["get"]
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
     def get(self, request, *args, **kwargs):
         genders = models.Gender.objects.annotate(total_employees=Count("employee"))
@@ -656,14 +655,14 @@ class RetrieveMaritalStatusAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.MaritalStatusSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListMaritalStatusAPIView(generics.ListAPIView):
     queryset = models.MaritalStatus.objects.all()
     serializer_class = serializers.MaritalStatusSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditMaritalStatusAPIView(generics.UpdateAPIView):
@@ -736,14 +735,14 @@ class RetrieveRegionAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.RegionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListRegionsAPIView(generics.ListAPIView):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditRegionAPIView(generics.UpdateAPIView):
@@ -816,14 +815,14 @@ class RetrieveReligionAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.ReligionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListReligionsAPIView(generics.ListAPIView):
     queryset = models.Religion.objects.all()
     serializer_class = serializers.ReligionSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditReligionAPIView(generics.UpdateAPIView):
@@ -896,14 +895,14 @@ class RetrieveStructureAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.StructureSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListStructuresAPIView(generics.ListAPIView):
     queryset = models.Structure.objects.all()
     serializer_class = serializers.StructureSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditStructureAPIView(generics.UpdateAPIView):
@@ -976,14 +975,14 @@ class RetrieveBloodGroupAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.BloodGroupSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListBloodGroupsAPIView(generics.ListAPIView):
     queryset = models.BloodGroup.objects.all()
     serializer_class = serializers.BloodGroupSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditBloodGroupAPIView(generics.UpdateAPIView):
@@ -1056,14 +1055,14 @@ class RetrieveDocumentFileAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.DocumentFileSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListDocumentFileAPIView(generics.ListAPIView):
     queryset = models.DocumentFile.objects.all()
     serializer_class = serializers.DocumentFileSerializer
     permission_classes = [IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class EditDocumentFileAPIView(generics.UpdateAPIView):
@@ -1151,7 +1150,7 @@ class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
@@ -1160,7 +1159,7 @@ class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 

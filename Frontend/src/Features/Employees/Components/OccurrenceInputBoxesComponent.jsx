@@ -277,34 +277,52 @@ export default function OccurrenceInputBoxes(props) {
 
     return (
       <div key={label}>
-        <label>{label}</label>
+        {props.loadingData ? (
+          <BaseSkeleton height={35} width={150} />
+        ) : (
+          <label>{label}</label>
+        )}
         <div className={style.occurrenceInputContainer}>
           {state === "input" ? (
-            <input
-              readOnly={assignReadOnly(label)}
-              className={style.primaryPageInputs}
-              type={type}
-              value={props.formData[labelKey(label)]}
-              onChange={(e) =>
-                props.setFormData((prev) => ({
-                  ...prev,
-                  [labelKey(label)]: e.target.value,
-                }))
-              }
-            />
+            props.loadingData ? (
+              <BaseSkeleton height={45} />
+            ) : (
+              <input
+                readOnly={assignReadOnly(label)}
+                className={style.primaryPageInputs}
+                type={type}
+                value={props.formData[labelKey(label)]}
+                onChange={(e) => {
+                  props.setFormData((prev) => ({
+                    ...prev,
+                    [labelKey(label)]: e.target.value,
+                  }));
+                }}
+              />
+            )
+          ) : props.loadingData ? (
+            <BaseSkeleton height={45} />
           ) : (
             createDropdown(label)
           )}
           {["Monthly Salary", "Annual Salary"].includes(label) && (
             <>
               <MdEdit
-                className={`${style.editIcon} ${editStatus ? style.displayNone : ""} ${role === "VIEWER" && style.displayNone}`}
+                className={`${style.editIcon}
+                 ${editStatus || props.loadingData ? style.displayNone : ""}
+                 ${role === "VIEWER" && style.displayNone}
+                `}
                 onClick={() => {
                   setEditStatus((prev) => !prev);
                 }}
               />
               <MdEditOff
-                className={`${style.editIcon} ${editStatus ? "" : style.displayNone} ${role === "VIEWER" && style.displayNone}`}
+                className={`
+                  ${style.editIcon} 
+                  ${props.loadingData && style.displayNone}
+                  ${editStatus ? "" : style.displayNone} 
+                  ${role === "VIEWER" && style.displayNone}
+                  `}
                 onClick={() => {
                   setEditStatus((prev) => !prev);
                 }}
@@ -319,7 +337,10 @@ export default function OccurrenceInputBoxes(props) {
   return (
     <div className={style.occurrenceInputs}>
       {fields}
-      <ReadOnlyEmployeeData formData={props.formData} />
+      <ReadOnlyEmployeeData
+        formData={props.formData}
+        loading={props.loadingData}
+      />
     </div>
   );
 }

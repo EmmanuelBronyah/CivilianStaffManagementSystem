@@ -91,7 +91,7 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
 
 class ListEmployeeChildrenAPIView(generics.ListAPIView):
     serializer_class = serializers.ChildrenReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -107,7 +107,7 @@ class RetrieveChildRecordAPIView(generics.RetrieveAPIView):
     queryset = Children.objects.select_related("created_by", "updated_by", "gender")
     serializer_class = serializers.ChildrenReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -175,7 +175,7 @@ class RetrieveInCompleteChildRecordsAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListInCompleteChildRecordsAPIView(generics.ListAPIView):
@@ -184,13 +184,13 @@ class ListInCompleteChildRecordsAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
 class ListEmployeeInCompleteChildRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):

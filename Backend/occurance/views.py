@@ -29,7 +29,6 @@ from rest_framework.views import APIView
 from employees.services import get_grades
 from employees.serializers import ListGradesSerializer
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -131,13 +130,13 @@ class RetrieveOccurrenceAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.OccurrenceReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListEmployeeOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.OccurrenceReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -231,7 +230,7 @@ class ListLevelStepAPIView(generics.ListAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class RetrieveLevelStepAPIView(generics.RetrieveAPIView):
@@ -239,7 +238,7 @@ class RetrieveLevelStepAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class DeleteLevelStepAPIView(generics.DestroyAPIView):
@@ -328,7 +327,7 @@ class ListEventAPIView(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class RetrieveEventAPIView(generics.RetrieveAPIView):
@@ -336,7 +335,7 @@ class RetrieveEventAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.EventSerializer
     lookup_field = "pk"
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class DeleteEventAPIView(generics.DestroyAPIView):
@@ -418,7 +417,7 @@ class ListSalaryAdjustmentPercentageAPIView(generics.ListAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class RetrieveSalaryAdjustmentPercentageAPIView(generics.RetrieveAPIView):
@@ -426,7 +425,7 @@ class RetrieveSalaryAdjustmentPercentageAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
     lookup_field = "pk"
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class DeleteSalaryAdjustmentPercentageAPIView(generics.DestroyAPIView):
@@ -544,13 +543,13 @@ class RetrieveIncompleteOccurrenceAPIView(generics.RetrieveAPIView):
     lookup_field = "pk"
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListEmployeeIncompleteOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -567,7 +566,7 @@ class ListIncompleteOccurrenceAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 

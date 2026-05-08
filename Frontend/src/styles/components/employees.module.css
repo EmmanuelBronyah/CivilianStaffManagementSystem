@@ -145,10 +145,6 @@
   gap: 1rem;
 }
 
-.employeeListContainer {
-  /* border: 2px solid red; */
-}
-
 table {
   width: 100%;
   border-spacing: 0 0.5rem;
@@ -412,8 +408,6 @@ input::placeholder {
 }
 
 .listEmployeeOccurrence {
-  display: grid;
-  grid-template-rows: 3rem 1fr;
   padding: 0.5rem;
   border-radius: 0.5rem;
   background-color: var(--main-container-background-color);
@@ -421,8 +415,8 @@ input::placeholder {
 }
 
 .occurrencePageButtonAndTableContainer {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 2.5rem 1fr;
 }
 
 .addOccurrenceButtonContainer {

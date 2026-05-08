@@ -1,8 +1,8 @@
 import style from "../../../styles/components/userscomponent.module.css";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
-export default function ReadOnlyUserData({ loading, initialData }) {
-  const { createdAt, updatedAt, createdBy, updatedBy } = initialData;
+export default function ReadOnlyUserData({ loading, formData }) {
+  const { createdAt, updatedAt, createdBy, updatedBy } = formData;
 
   const data = [
     ["Created At", createdAt],

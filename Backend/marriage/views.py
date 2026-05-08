@@ -86,7 +86,7 @@ class EditSpouseAPIView(generics.UpdateAPIView):
 
 class ListEmployeeSpouseAPIView(generics.ListAPIView):
     serializer_class = serializers.SpouseReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -100,7 +100,7 @@ class RetrieveSpouseAPIView(generics.RetrieveAPIView):
     queryset = Spouse.objects.select_related("created_by", "updated_by")
     serializer_class = serializers.SpouseReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 

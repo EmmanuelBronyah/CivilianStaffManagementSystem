@@ -104,7 +104,7 @@ class EditServiceWithForcesAPIView(generics.UpdateAPIView):
 
 class ListEmployeeServiceWithForcesAPIView(generics.ListAPIView):
     serializer_class = serializers.ServiceWithForcesReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -122,7 +122,7 @@ class RetrieveServiceWithForcesAPIView(generics.RetrieveAPIView):
     )
     serializer_class = serializers.ServiceWithForcesReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -198,7 +198,7 @@ class EditMilitaryRanksAPIView(generics.UpdateAPIView):
 class ListMilitaryRanksAPIView(generics.ListAPIView):
     queryset = MilitaryRanks.objects.all()
     serializer_class = serializers.MilitaryRanksSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -206,7 +206,7 @@ class RetrieveMilitaryRanksAPIView(generics.RetrieveAPIView):
     queryset = MilitaryRanks.objects.all()
     serializer_class = serializers.MilitaryRanksSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -276,7 +276,7 @@ class RetrieveIncompleteServiceWithForcesRecordsAPIView(generics.RetrieveAPIView
     lookup_field = "pk"
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
@@ -285,13 +285,13 @@ class ListIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
     )
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
 class ListEmployeeIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):

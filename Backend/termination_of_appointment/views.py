@@ -103,7 +103,7 @@ class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
 
 class ListEmployeeTerminationOfAppointmentAPIView(generics.ListAPIView):
     serializer_class = serializers.TerminationOfAppointmentReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
@@ -121,7 +121,7 @@ class RetrieveTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
     )
     serializer_class = serializers.TerminationOfAppointmentReadSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -199,7 +199,7 @@ class EditCausesOfTerminationAPIView(generics.UpdateAPIView):
 class ListCausesOfTerminationAPIView(generics.ListAPIView):
     queryset = models.CausesOfTermination.objects.all()
     serializer_class = serializers.CausesOfTerminationSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -207,7 +207,7 @@ class RetrieveCausesOfTerminationAPIView(generics.RetrieveAPIView):
     queryset = models.CausesOfTermination.objects.all()
     serializer_class = serializers.CausesOfTerminationSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -283,7 +283,7 @@ class EditTerminationStatusAPIView(generics.UpdateAPIView):
 class ListTerminationStatusAPIView(generics.ListAPIView):
     queryset = models.TerminationStatus.objects.all()
     serializer_class = serializers.TerminationStatusSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -291,7 +291,7 @@ class RetrieveTerminationStatusAPIView(generics.RetrieveAPIView):
     queryset = models.TerminationStatus.objects.all()
     serializer_class = serializers.TerminationStatusSerializer
     lookup_field = "pk"
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
@@ -363,7 +363,7 @@ class RetrieveIncompleteTerminationOfAppointmentRecordsAPIView(
     lookup_field = "pk"
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
 
 
 class ListIncompleteTerminationOfAppointmentRecordsAPIView(generics.ListAPIView):
@@ -372,7 +372,7 @@ class ListIncompleteTerminationOfAppointmentRecordsAPIView(generics.ListAPIView)
     )
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
 
@@ -380,7 +380,7 @@ class ListEmployeeIncompleteTerminationOfAppointmentRecordsAPIView(
     generics.ListAPIView
 ):
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):

@@ -13,7 +13,7 @@ from rest_framework.exceptions import ValidationError
 
 
 class ListActivityFeedAPIView(generics.ListAPIView):
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     queryset = models.ActivityFeeds.objects.select_related("creator")
     serializer_class = serializers.ActivityFeedsSerializer
     permission_classes = [IsAuthenticated]
