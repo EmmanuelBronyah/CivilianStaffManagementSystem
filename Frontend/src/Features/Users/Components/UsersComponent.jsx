@@ -4,6 +4,7 @@ import AllUsersComponent from "./AllUsersComponent";
 import style from "../../../styles/components/userscomponent.module.css";
 import { useTheme } from "../../../Context/ThemeContext";
 import UpdateUser from "./UpdateUserComponent";
+import { Outlet } from "react-router-dom";
 
 export default function Users(props) {
   const [userId, setUserId] = useState(null);
@@ -11,7 +12,8 @@ export default function Users(props) {
 
   return (
     <main className={`${style.usersMain} ${!theme ? style.dark : ""}`}>
-      {props.userPage === "All Users" && (
+      <Outlet />
+      {/* {props.userPage === "All Users" && (
         <AllUsersComponent
           setUserPage={props.setUserPage}
           setUserId={setUserId}
@@ -26,7 +28,7 @@ export default function Users(props) {
           setUserPage={props.setUserPage}
           userId={userId}
         />
-      )}
+      )} */}
     </main>
   );
 }

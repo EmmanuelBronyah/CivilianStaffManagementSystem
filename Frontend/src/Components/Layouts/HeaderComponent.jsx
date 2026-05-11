@@ -7,6 +7,7 @@ import { useTheme } from "../../context/ThemeContext";
 import BaseSkeleton from "../Common/SkeletonComponent";
 import api from "../../api";
 import { USER_ID } from "../../constants";
+import getResponseMessages from "../../utils/extractResponseMessage";
 
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
@@ -16,6 +17,22 @@ export default function Header(props) {
   const { theme } = useTheme();
 
   useEffect(() => {
+    const getUserInfo = async () => {
+      try {
+        const userId = localStorage.getItem(USER_ID);
+        const res = await api.get(`/api/users/${userId}/`);
+
+        setUserInfo(res.data);
+        setLoadingUserInfo(false);
+      } catch (error) {
+        props.setResponse({
+          message: getResponseMessages(error.response),
+          type: "error",
+          id: Date.now(),
+        });
+      }
+    };
+
     getUserInfo();
   }, []);
 
@@ -30,18 +47,6 @@ export default function Header(props) {
         setPlaceholderText("Name...");
         setDisplayFilterBox(false);
         break;
-    }
-  };
-
-  const getUserInfo = async () => {
-    try {
-      const userId = localStorage.getItem(USER_ID);
-      const res = await api.get(`/api/users/${userId}/`);
-
-      setUserInfo(res.data);
-      setLoadingUserInfo(false);
-    } catch (error) {
-      console.log(error);
     }
   };
 

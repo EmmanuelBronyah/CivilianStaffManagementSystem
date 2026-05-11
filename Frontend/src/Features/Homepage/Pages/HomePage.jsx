@@ -9,15 +9,31 @@ import Employees from "../../Employees/Components/EmployeeComponent";
 import style from "../../../styles/pages/homepage.module.css";
 import { useState } from "react";
 import { useTheme } from "../../../Context/ThemeContext";
+import Notification from "../../../Components/Common/NotificationComponent";
+import { Outlet } from "react-router-dom";
 
 function HomePage() {
-  const [activePage, setActivePage] = useState("Employees");
+  const [activePage, setActivePage] = useState("Dashboard");
   const [userPage, setUserPage] = useState("All Users");
   const [open, setOpen] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const [response, setResponse] = useState(null);
 
   const { theme } = useTheme();
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!response) return;
+
+    setVisible(true);
+
+    const timer = setTimeout(() => {
+      setVisible(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [response]);
 
   useEffect(() => {
     localStorage.removeItem(TEMP_TOKEN);
@@ -39,8 +55,13 @@ function HomePage() {
           setOpen={setOpen}
         />
         <div className={style.headerMainContainer}>
-          <Header activePage={activePage} setOpen={setOpen} />
-          {activePage === "Dashboard" && (
+          <Header
+            activePage={activePage}
+            setOpen={setOpen}
+            setResponse={setResponse}
+          />
+          <Outlet />
+          {/* {activePage === "Dashboard" && (
             <Dashboard
               setActivePage={setActivePage}
               setUserPage={setUserPage}
@@ -49,9 +70,10 @@ function HomePage() {
           {activePage === "Users" && (
             <Users userPage={userPage} setUserPage={setUserPage} />
           )}
-          {activePage === "Employees" && <Employees />}
+          {activePage === "Employees" && <Employees />} */}
         </div>
       </div>
+      <Notification isVisible={visible} response={response} />
     </div>
   );
 }

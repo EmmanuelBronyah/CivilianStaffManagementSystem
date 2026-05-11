@@ -29,7 +29,7 @@ export default function LogoutUser({ route }) {
   };
 
   const cancelLogout = () => {
-    navigate("/homepage");
+    navigate("/home");
   };
 
   return (

@@ -149,7 +149,6 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
             createdBy: res.data.created_by_display,
             updatedBy: res.data.updated_by_display,
           });
-          console.log("formdata -> ", formData);
 
           setResponse({
             message: "User Account updated",

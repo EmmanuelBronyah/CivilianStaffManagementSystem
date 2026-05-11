@@ -300,9 +300,6 @@ export default function Dashboard(props) {
             </div>
           )}
         </div>
-        {/* <div className={style.genderPensionFeedsContainer}>
-        
-      </div> */}
       </main>
       <Notification isVisible={visible} response={response} />
     </>

@@ -9,6 +9,7 @@ import ClipLoader from "react-spinners/ClipLoader";
 import verifyAdminProcess, {
   showErrorModal,
 } from "../../../utils/askAdminIdentity";
+import { Link } from "react-router-dom";
 
 export default function AddUsersComponent({ setUserPage }) {
   const initialFormData = {
@@ -118,7 +119,9 @@ export default function AddUsersComponent({ setUserPage }) {
         className={`${style.addUserComponentContainer} ${!theme ? style.dark : ""}`}
       >
         <div className={style.allUsersButtonContainer}>
-          <button onClick={() => setUserPage("All Users")}>All Users</button>
+          <Link to="/home/users/all">
+            <button>All Users</button>
+          </Link>
         </div>
         <div className={style.addUserContainer}>
           <div className={style.addUserTitle}>

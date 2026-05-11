@@ -8,6 +8,11 @@ import ProtectedRoute from "./Features/Auth/Components/ProtectedRoute";
 import SplashScreen from "./Components/Common/SplashScreen";
 import HomePage from "./Features/Homepage/Pages/HomePage";
 import ProtectOtpRoute from "./Features/Auth/Components/OtpProtectedRouteComponent";
+import Dashboard from "./Features/Dashboard/Components/DashboardComponent";
+import Users from "./Features/Users/Components/UsersComponent";
+import Employees from "./Features/Employees/Components/EmployeeComponent";
+import AllUsersComponent from "./Features/Users/Components/AllUsersComponent";
+import AddUsersComponent from "./Features/Users/Components/AddUsersComponent";
 
 function App() {
   return (
@@ -34,13 +39,20 @@ function App() {
           }
         />
         <Route
-          path="/homepage"
+          path="/home"
           element={
             <ProtectedRoute>
               <HomePage />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<Dashboard />} />
+          <Route path="users" element={<Users />}>
+            <Route path="all" element={<AllUsersComponent />} />
+            <Route path="add" element={<AddUsersComponent />} />
+          </Route>
+          <Route path="employees" element={<Employees />} />
+        </Route>
         <Route
           path="/auth/logout"
           element={

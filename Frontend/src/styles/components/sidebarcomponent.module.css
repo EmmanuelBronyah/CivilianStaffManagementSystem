@@ -120,7 +120,9 @@ nav button:hover {
 }
 
 .active {
-  background-color: var(--logo-color);
+  button {
+    background-color: var(--logo-color);
+  }
 
   p {
     color: var(--active-color);
@@ -131,8 +133,26 @@ nav button:hover {
   }
 }
 
+.notActive {
+  button {
+    background-color: var(--sideBar-background-color);
+  }
+
+  p {
+    color: var(--text-color);
+  }
+
+  .icon {
+    color: var(--logo-color);
+  }
+}
+
 .hide {
   display: none;
+}
+
+a {
+  text-decoration: none;
 }
 
 @media screen and (max-width: 1050px) {

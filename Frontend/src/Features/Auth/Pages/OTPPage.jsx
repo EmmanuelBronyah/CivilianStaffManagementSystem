@@ -106,7 +106,7 @@ function ResendAndVerifyOTP({ route }) {
         });
 
         setTimeout(() => {
-          navigate("/homepage");
+          navigate("/home");
         }, 4000);
       }
     } catch (error) {

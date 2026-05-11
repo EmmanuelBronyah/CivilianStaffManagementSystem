@@ -6,6 +6,7 @@ import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import UsersPerDivision from "./UsersPerDivisionComponent";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { Link } from "react-router-dom";
 
 export default function AllUsersComponent({ setUserPage, setUserId }) {
   const [visible, setVisible] = useState(false);
@@ -60,7 +61,9 @@ export default function AllUsersComponent({ setUserPage, setUserId }) {
           {loading ? (
             <BaseSkeleton height={37} width={100} />
           ) : (
-            <button onClick={() => setUserPage("New User")}>New User</button>
+            <Link to="/home/users/add">
+              <button>New User</button>
+            </Link>
           )}
         </div>
         <div className={style.divisions}>
