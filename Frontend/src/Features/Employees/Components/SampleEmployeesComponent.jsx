@@ -3,9 +3,11 @@ import { useTheme } from "../../../context/ThemeContext";
 import EmployeeData from "./EmployeeDataComponent";
 import { useState } from "react";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { useOutletContext } from "react-router-dom";
 
-export default function SampleEmployees({ displayEmployeeInfo, setResponse }) {
+export default function SampleEmployees() {
   const [loading, setLoading] = useState(true);
+  const { setResponse } = useOutletContext();
 
   const { theme } = useTheme();
 
@@ -71,7 +73,6 @@ export default function SampleEmployees({ displayEmployeeInfo, setResponse }) {
                 loading={loading}
                 setLoading={setLoading}
                 setResponse={setResponse}
-                displayEmployeeInfo={displayEmployeeInfo}
               />
             </tbody>
           </table>

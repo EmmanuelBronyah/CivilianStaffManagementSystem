@@ -9,10 +9,10 @@ import {
 import style from "../../styles/components/sidebarcomponent.module.css";
 import { NavLink } from "react-router-dom";
 
-export default function SidebarButtons({ activePage, setActivePage }) {
+export default function SidebarButtons() {
   const buttonInfo = [
     ["Dashboard", MdDashboard, "/home"],
-    ["Users", MdAccountBox, "/home/users/all"],
+    ["Users", MdAccountBox, "/home/users"],
     ["Employees", MdBadge, "/home/employees"],
     ["Activity Feeds", MdDynamicFeed, "/home/feeds"],
     ["Flags", MdFlag, "/home/flags"],
@@ -21,20 +21,22 @@ export default function SidebarButtons({ activePage, setActivePage }) {
 
   const buttons = buttonInfo.map(([text, icon, route]) => {
     const Icon = icon;
+    const isDashboard = route === "/home";
     return (
-      <NavLink
-        to={route}
-        className={({ isActive }) => (isActive ? style.active : "")}
-      >
-        <li key={text}>
+      <li key={text}>
+        <NavLink
+          to={route}
+          className={({ isActive }) => (isActive ? style.active : "")}
+          end={isDashboard}
+        >
           <button>
             <span>
               <Icon className={style.icon} />
             </span>
             <p>{text}</p>
           </button>
-        </li>
-      </NavLink>
+        </NavLink>
+      </li>
     );
   });
 

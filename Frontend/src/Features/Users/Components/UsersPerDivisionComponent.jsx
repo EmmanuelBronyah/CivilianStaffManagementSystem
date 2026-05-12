@@ -2,13 +2,9 @@ import style from "../../../styles/components/userscomponent.module.css";
 import image from "../../../assets/images/default.png";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import { MdShield, MdPreview, MdPerson } from "react-icons/md";
+import { NavLink } from "react-router-dom";
 
-export default function UsersPerDivision({
-  loading,
-  usersPerDivision,
-  setUserPage,
-  setUserId,
-}) {
+export default function UsersPerDivision({ loading, usersPerDivision }) {
   const getRoleIcon = (role) => {
     switch (role) {
       case "ADMINISTRATOR":
@@ -56,39 +52,34 @@ export default function UsersPerDivision({
                       grade_name: gradeName,
                     }) => {
                       return (
-                        <div
-                          key={id}
-                          onClick={() => {
-                            setUserId(id);
-                            setUserPage("Update User");
-                          }}
-                          className={style.userInfo}
-                        >
-                          <div className={style.iconContainer}>
-                            {getRoleIcon(role)}
-                          </div>
-                          <div className={style.profilePicture}>
-                            <img
-                              src={image}
-                              alt="Profile Picture"
-                              width={60}
-                              height={60}
-                            />
-                          </div>
-                          <div className={style.infoSection}>
-                            <div className={style.fullName}>
-                              <p>{fullname}</p>
+                        <NavLink to={`/home/users/update/${id}`}>
+                          <div key={id} className={style.userInfo}>
+                            <div className={style.iconContainer}>
+                              {getRoleIcon(role)}
                             </div>
-                            <div className={style.username}>
-                              <i>
-                                <p>@{username}</p>
-                              </i>
+                            <div className={style.profilePicture}>
+                              <img
+                                src={image}
+                                alt="Profile Picture"
+                                width={60}
+                                height={60}
+                              />
                             </div>
-                            <div className={style.grade}>
-                              <p>{gradeName}</p>
+                            <div className={style.infoSection}>
+                              <div className={style.fullName}>
+                                <p>{fullname}</p>
+                              </div>
+                              <div className={style.username}>
+                                <i>
+                                  <p>@{username}</p>
+                                </i>
+                              </div>
+                              <div className={style.grade}>
+                                <p>{gradeName}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
+                        </NavLink>
                       );
                     },
                   )

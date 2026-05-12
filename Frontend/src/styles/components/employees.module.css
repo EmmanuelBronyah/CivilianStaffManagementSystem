@@ -189,6 +189,10 @@ tbody tr:active {
   background-color: var(--employeeData-active-background-color);
 }
 
+a {
+  text-decoration: none;
+}
+
 .employeeDashboard {
   display: grid;
   grid-template-rows: 4rem 1fr;

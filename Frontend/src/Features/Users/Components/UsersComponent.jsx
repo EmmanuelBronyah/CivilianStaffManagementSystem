@@ -1,4 +1,3 @@
-import { useState } from "react";
 import AddUsersComponent from "./AddUsersComponent";
 import AllUsersComponent from "./AllUsersComponent";
 import style from "../../../styles/components/userscomponent.module.css";
@@ -6,29 +5,12 @@ import { useTheme } from "../../../Context/ThemeContext";
 import UpdateUser from "./UpdateUserComponent";
 import { Outlet } from "react-router-dom";
 
-export default function Users(props) {
-  const [userId, setUserId] = useState(null);
+export default function Users() {
   const { theme } = useTheme();
 
   return (
     <main className={`${style.usersMain} ${!theme ? style.dark : ""}`}>
       <Outlet />
-      {/* {props.userPage === "All Users" && (
-        <AllUsersComponent
-          setUserPage={props.setUserPage}
-          setUserId={setUserId}
-        />
-      )}
-      {props.userPage === "New User" && (
-        <AddUsersComponent setUserPage={props.setUserPage} />
-      )}
-      {props.userPage === "Update User" && (
-        <UpdateUser
-          userPage={props.userPage}
-          setUserPage={props.setUserPage}
-          userId={userId}
-        />
-      )} */}
     </main>
   );
 }

@@ -5,10 +5,10 @@ import api from "../../../api";
 import ReadOnlyUserData from "./AddReadOnlyUserData";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
+import { useMatch } from "react-router-dom";
 
 export default function AddUserInputBoxes({
   loading,
-  userPage,
   formData,
   setFormData,
   setResponse,
@@ -20,10 +20,7 @@ export default function AddUserInputBoxes({
     { id: 2, name: "STANDARD USER" },
     { id: 3, name: "VIEWER" },
   ];
-
-  // useEffect(() => {
-  //   console.log("formdata -> ", formData);
-  // }, [formData]);
+  const isUpdatePage = useMatch("/home/users/update/:id");
 
   useEffect(() => {
     const fetchDivisionsAndGrades = async () => {
@@ -163,10 +160,10 @@ export default function AddUserInputBoxes({
         return "username";
       case "Email Address":
         return "email";
-      case userPage === "Update User" ? "Old Password" : "Password":
-        return userPage === "Update User" ? "oldPassword" : "password";
-      case userPage === "Update User" ? "New Password" : "Confirm Password":
-        return userPage === "Update User" ? "newPassword" : "confirmPassword";
+      case isUpdatePage ? "Old Password" : "Password":
+        return isUpdatePage ? "oldPassword" : "password";
+      case isUpdatePage ? "New Password" : "Confirm Password":
+        return isUpdatePage ? "newPassword" : "confirmPassword";
       case "Role":
         return "role";
       case "Grade":
@@ -180,7 +177,7 @@ export default function AddUserInputBoxes({
 
   const fields = labelsAndInputType.map(([label, type, state]) => {
     if (
-      userPage === "Update User" &&
+      isUpdatePage &&
       (label === "Password" || label === "Confirm Password")
     ) {
       return;
@@ -220,7 +217,7 @@ export default function AddUserInputBoxes({
   return (
     <div className={style.addUserInputs}>
       {fields}
-      {userPage === "Update User" && (
+      {isUpdatePage && (
         <ReadOnlyUserData loading={loading} formData={formData} />
       )}
     </div>

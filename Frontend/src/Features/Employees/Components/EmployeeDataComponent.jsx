@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../../api";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { NavLink } from "react-router-dom";
 
 export default function EmployeeData(props) {
   const [employeeData, setEmployeeData] = useState([]);
@@ -27,11 +28,10 @@ export default function EmployeeData(props) {
 
   const data = employeeData.map((data) => {
     return (
-      <tr
-        key={data.service_id}
-        onClick={() => props.displayEmployeeInfo(data.service_id)}
-      >
-        <td title={data.service_id}>{data.service_id}</td>
+      <tr key={data.service_id}>
+        <NavLink to={`/home/employees/${data.service_id}`}>
+          <td title={data.service_id}>{data.service_id}</td>
+        </NavLink>
         <td title={`${data.last_name} ${data.other_names}`}>
           {data.last_name} {data.other_names}
         </td>

@@ -14,7 +14,6 @@ import { Outlet } from "react-router-dom";
 
 function HomePage() {
   const [activePage, setActivePage] = useState("Dashboard");
-  const [userPage, setUserPage] = useState("All Users");
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
@@ -61,16 +60,6 @@ function HomePage() {
             setResponse={setResponse}
           />
           <Outlet />
-          {/* {activePage === "Dashboard" && (
-            <Dashboard
-              setActivePage={setActivePage}
-              setUserPage={setUserPage}
-            />
-          )}
-          {activePage === "Users" && (
-            <Users userPage={userPage} setUserPage={setUserPage} />
-          )}
-          {activePage === "Employees" && <Employees />} */}
         </div>
       </div>
       <Notification isVisible={visible} response={response} />

@@ -11,8 +11,11 @@ import verifyAdminProcess, {
 import ClipLoader from "react-spinners/ClipLoader";
 import manageUserAccessProcess from "../../../utils/manageUserAccess";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 
-export default function UpdateUser({ userPage, setUserPage, userId }) {
+export default function UpdateUser() {
   const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
   const [active, setActive] = useState(true);
@@ -20,6 +23,8 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
   const [loadingUserData, setLoadingUserData] = useState(true);
+  const navigate = useNavigate();
+  const { id: userId } = useParams();
 
   const { theme } = useTheme();
 
@@ -220,7 +225,7 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
       "Are you sure you want to permanently delete this user's account?",
     );
     if (result === "DELETED") {
-      setUserPage("All Users");
+      navigate("/home/users/all");
     }
   };
 
@@ -246,9 +251,9 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
           {loadingUserData ? (
             <BaseSkeleton height={37} width={100} />
           ) : (
-            <button disabled={loading} onClick={() => setUserPage("All Users")}>
-              All Users
-            </button>
+            <NavLink to="/home/users/all">
+              <button disabled={loading}>All Users</button>
+            </NavLink>
           )}
         </div>
         <div className={style.updateUserContainer}>
@@ -274,7 +279,6 @@ export default function UpdateUser({ userPage, setUserPage, userId }) {
           </div>
           <AddUserInputBoxes
             loading={loadingUserData}
-            userPage={userPage}
             formData={formData}
             setFormData={setFormData}
             initialData={initialData}

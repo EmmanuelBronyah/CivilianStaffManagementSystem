@@ -13,6 +13,11 @@ import Users from "./Features/Users/Components/UsersComponent";
 import Employees from "./Features/Employees/Components/EmployeeComponent";
 import AllUsersComponent from "./Features/Users/Components/AllUsersComponent";
 import AddUsersComponent from "./Features/Users/Components/AddUsersComponent";
+import UpdateUser from "./Features/Users/Components/UpdateUserComponent";
+import SampleEmployees from "./Features/Employees/Components/SampleEmployeesComponent";
+import EmployeeDashboard from "./Features/Employees/Components/EmployeeDashboardComponent";
+import EmployeeOccurrence from "./Features/Employees/Components/EmployeeOccurrenceComponent";
+import EmployeePrimary from "./Features/Employees/Components/EmployeePrimaryComponent";
 
 function App() {
   return (
@@ -48,10 +53,18 @@ function App() {
         >
           <Route index element={<Dashboard />} />
           <Route path="users" element={<Users />}>
+            <Route index element={<AllUsersComponent />} />
             <Route path="all" element={<AllUsersComponent />} />
             <Route path="add" element={<AddUsersComponent />} />
+            <Route path="update/:id" element={<UpdateUser />} />
           </Route>
-          <Route path="employees" element={<Employees />} />
+          <Route path="employees" element={<Employees />}>
+            <Route index element={<SampleEmployees />} />
+            <Route path=":serviceId" element={<EmployeeDashboard />}>
+              <Route index element={<EmployeePrimary />} />
+              <Route path="/occurrence" element={<EmployeeOccurrence />} />
+            </Route>
+          </Route>
         </Route>
         <Route
           path="/auth/logout"

@@ -6,9 +6,9 @@ import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import UsersPerDivision from "./UsersPerDivisionComponent";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
-export default function AllUsersComponent({ setUserPage, setUserId }) {
+export default function AllUsersComponent() {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,17 +61,15 @@ export default function AllUsersComponent({ setUserPage, setUserId }) {
           {loading ? (
             <BaseSkeleton height={37} width={100} />
           ) : (
-            <Link to="/home/users/add">
+            <NavLink to="/home/users/add">
               <button>New User</button>
-            </Link>
+            </NavLink>
           )}
         </div>
         <div className={style.divisions}>
           <UsersPerDivision
             loading={loading}
             usersPerDivision={usersPerDivision}
-            setUserPage={setUserPage}
-            setUserId={setUserId}
           />
         </div>
       </div>

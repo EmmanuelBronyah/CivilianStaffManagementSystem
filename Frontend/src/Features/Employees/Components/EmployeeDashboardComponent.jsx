@@ -7,12 +7,10 @@ import EmployeePrimary from "./EmployeePrimaryComponent";
 import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import EmployeeOccurrence from "./EmployeeOccurrenceComponent";
+import { useParams } from "react-router-dom";
+import { Outlet, useOutletContext } from "react-router-dom";
 
-export default function EmployeeDashboard({
-  serviceId,
-  setEmployeePage,
-  setResponse,
-}) {
+export default function EmployeeDashboard() {
   const [headerData, setHeaderData] = useState({
     serviceId: "",
     lastName: "",
@@ -26,6 +24,8 @@ export default function EmployeeDashboard({
   const [formData, setFormData] = useState({});
 
   const [loading, setLoading] = useState(true);
+  const { serviceId } = useParams();
+  const { setResponse } = useOutletContext();
 
   const { theme } = useTheme();
 
@@ -117,10 +117,7 @@ export default function EmployeeDashboard({
       <div className={`${style.employeeDashboard} ${!theme ? style.dark : ""}`}>
         <div className={`${style.employeeHeader} ${!theme ? style.dark : ""}`}>
           <div className={style.backIconAndServiceId}>
-            <MdArrowBack
-              className={style.backIcon}
-              onClick={() => setEmployeePage("Sample Employees")}
-            />
+            <MdArrowBack className={style.backIcon} />
             {loading ? (
               <BaseSkeleton width={100} height={34} />
             ) : (
@@ -157,7 +154,9 @@ export default function EmployeeDashboard({
               >
                 <ul>
                   <li onClick={() => setEmployeeSections("Primary")}>
-                    Primary
+                    <NavLink to={`/home/employees/${serviceId}`}>
+                      Primary
+                    </NavLink>
                   </li>
                   <li onClick={() => setEmployeeSections("Occurrence")}>
                     Occurrence
@@ -206,7 +205,8 @@ export default function EmployeeDashboard({
             </div>
           )}
         </div>
-        {employeeSections === "Primary" && (
+        <Outlet />
+        {/* {employeeSections === "Primary" && (
           <EmployeePrimary
             setHeaderData={setHeaderData}
             initialData={initialData}
@@ -218,7 +218,7 @@ export default function EmployeeDashboard({
         )}
         {employeeSections === "Occurrence" && (
           <EmployeeOccurrence serviceId={serviceId} setResponse={setResponse} />
-        )}
+        )} */}
       </div>
     </>
   );
