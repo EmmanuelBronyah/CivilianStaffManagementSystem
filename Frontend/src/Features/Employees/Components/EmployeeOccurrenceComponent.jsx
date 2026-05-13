@@ -1,33 +1,9 @@
-import { useRef, useState } from "react";
 import ListEmployeeOccurrence from "./ListEmployeeOccurrenceComponent";
 import EditEmployeeOccurrence from "./EditEmployeeOccurrenceComponent";
+import { Outlet, useOutletContext } from "react-router-dom";
 
-export default function EmployeeOccurrence(props) {
-  const [currentOccurrencePage, setCurrentOccurrencePage] =
-    useState("List Occurrence");
-  const occurrenceId = useRef("");
+export default function EmployeeOccurrence() {
+  const { setResponse } = useOutletContext();
 
-  const editOccurrence = (id) => {
-    occurrenceId.current = id;
-    setCurrentOccurrencePage("Edit Occurrence");
-  };
-
-  return (
-    <>
-      {currentOccurrencePage === "List Occurrence" && (
-        <ListEmployeeOccurrence
-          serviceId={props.serviceId}
-          setResponse={props.setResponse}
-          editOccurrence={editOccurrence}
-        />
-      )}
-      {currentOccurrencePage === "Edit Occurrence" && (
-        <EditEmployeeOccurrence
-          occurrenceId={occurrenceId.current}
-          setResponse={props.setResponse}
-          setCurrentOccurrencePage={setCurrentOccurrencePage}
-        />
-      )}
-    </>
-  );
+  return <Outlet context={{ setResponse }} />;
 }

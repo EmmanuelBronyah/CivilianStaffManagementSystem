@@ -8,12 +8,16 @@ import { MdDelete } from "react-icons/md";
 import askToDelete from "../../../utils/askToDelete";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import ClipLoader from "react-spinners/ClipLoader";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
-export default function EditEmployeeOccurrence(props) {
+export default function EditEmployeeOccurrence() {
   const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const { setResponse } = useOutletContext();
+  const { serviceId, occurrenceId } = useParams();
 
   const { theme } = useTheme();
 
@@ -24,7 +28,7 @@ export default function EditEmployeeOccurrence(props) {
   useEffect(() => {
     const fetchOccurrence = async () => {
       try {
-        const res = await api.get(`api/occurrence/${props.occurrenceId}/`);
+        const res = await api.get(`api/occurrence/${occurrenceId}/`);
         setInitialData({
           grade: {
             value: res.data.grade,
@@ -50,7 +54,17 @@ export default function EditEmployeeOccurrence(props) {
         });
         setLoadingData(false);
       } catch (error) {
-        props.setResponse({
+        if (error.response.status === 404) {
+          setResponse({
+            message: "Occurrence not found",
+            type: "error",
+            id: Date.now(),
+          });
+          navigate(`/home/employees/${serviceId}/occurrence`);
+          return;
+        }
+
+        setResponse({
           message: getResponseMessages(error.response),
           type: "error",
           id: Date.now(),
@@ -78,7 +92,7 @@ export default function EditEmployeeOccurrence(props) {
 
     try {
       const res = await api.patch(
-        `api/occurrence/${props.occurrenceId}/edit/`,
+        `api/occurrence/${occurrenceId}/edit/`,
         payload,
       );
       setFormData({
@@ -104,13 +118,13 @@ export default function EditEmployeeOccurrence(props) {
         updatedAt: res.data.date_modified,
         updatedBy: res.data.updated_by_display,
       });
-      props.setResponse({
+      setResponse({
         message: "Occurrence updated",
         id: Date.now(),
       });
       setLoading(false);
     } catch (error) {
-      props.setResponse({
+      setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
@@ -137,14 +151,12 @@ export default function EditEmployeeOccurrence(props) {
     if (!result.isConfirmed) return;
 
     try {
-      const res = await api.delete(
-        `api/occurrence/${props.occurrenceId}/delete/`,
-      );
+      const res = await api.delete(`api/occurrence/${occurrenceId}/delete/`);
       if (res.status === 204) {
-        props.setCurrentOccurrencePage("List Occurrence");
+        navigate(`/home/employees/${serviceId}/occurrence`);
       }
     } catch (error) {
-      props.setResponse({
+      setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
@@ -164,7 +176,9 @@ export default function EditEmployeeOccurrence(props) {
           ) : (
             <button
               className={style.addOccurrence}
-              onClick={() => props.setCurrentOccurrencePage("List Occurrence")}
+              onClick={() =>
+                navigate(`/home/employees/${serviceId}/occurrence`)
+              }
             >
               All Occurrences
             </button>
@@ -175,7 +189,7 @@ export default function EditEmployeeOccurrence(props) {
         <OccurrenceInputBoxes
           formData={formData}
           setFormData={setFormData}
-          setResponse={props.setResponse}
+          setResponse={setResponse}
           loadingData={loadingData}
           setLoadingData={setLoadingData}
         />

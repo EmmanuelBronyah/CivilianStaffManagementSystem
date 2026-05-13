@@ -3,10 +3,12 @@ import { useTheme } from "../../../context/ThemeContext";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import OccurrenceData from "./OccurrenceDataComponent";
 import { useState } from "react";
+import { useOutletContext } from "react-router-dom";
 
-export default function ListEmployeeOccurrence(props) {
+export default function ListEmployeeOccurrence() {
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
+  const { setResponse } = useOutletContext();
 
   return (
     <div
@@ -43,9 +45,7 @@ export default function ListEmployeeOccurrence(props) {
 
             <tbody>
               <OccurrenceData
-                serviceId={props.serviceId}
-                setResponse={props.setResponse}
-                editOccurrence={props.editOccurrence}
+                setResponse={setResponse}
                 loading={loading}
                 setLoading={setLoading}
               />

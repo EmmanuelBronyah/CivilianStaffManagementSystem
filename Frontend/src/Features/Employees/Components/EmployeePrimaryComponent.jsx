@@ -7,16 +7,25 @@ import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { useOutletContext } from "react-router-dom";
 
-export default function EmployeePrimary(props) {
+export default function EmployeePrimary() {
   const { role, response } = useFetchUserRole();
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
+  const {
+    setHeaderData,
+    initialData,
+    setInitialData,
+    formData,
+    setFormData,
+    setResponse,
+  } = useOutletContext();
 
   useEffect(() => {
     if (!response) return;
-    props.setResponse(response);
+    setResponse(response);
   });
 
   const FIELD_MAP = {
@@ -75,7 +84,7 @@ export default function EmployeePrimary(props) {
   const updateEmployee = async () => {
     setLoading(true);
     try {
-      const changedFields = getChangedFields(props.initialData, props.formData);
+      const changedFields = getChangedFields(initialData, formData);
 
       const payload = {};
 
@@ -93,19 +102,19 @@ export default function EmployeePrimary(props) {
         payload[backendKey] = value;
       }
 
-      const serviceId = props.initialData.serviceId;
+      const serviceId = initialData.serviceId;
 
       const res = await api.patch(
         `api/employees/staff/${serviceId}/edit/`,
         payload,
       );
-      props.setHeaderData({
+      setHeaderData({
         serviceId: res.data.service_id,
         lastName: res.data.last_name,
         otherNames: res.data.other_names,
         age: res.data.age,
       });
-      props.setInitialData({
+      setInitialData({
         serviceId: res.data.service_id,
         lastName: res.data.last_name,
         otherNames: res.data.other_names,
@@ -161,15 +170,15 @@ export default function EmployeePrimary(props) {
         updatedBy: res.data.updated_by_display,
       });
       setLoading(false);
-      props.setResponse({
+      setResponse({
         message: "Employee changes saved",
         id: Date.now(),
       });
       return;
     } catch (error) {
-      props.setInitialData(props.initialData);
+      setInitialData(initialData);
       setLoading(false);
-      props.setResponse({
+      setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
@@ -179,60 +188,60 @@ export default function EmployeePrimary(props) {
   };
 
   const resetData = () => {
-    props.setInitialData({
-      serviceId: props.initialData.serviceId,
-      lastName: props.initialData.lastName,
-      otherNames: props.initialData.otherNames,
-      address: props.initialData.address,
-      appointmentDate: props.initialData.appointmentDate,
-      confirmationDate: props.initialData.confirmationDate,
+    setInitialData({
+      serviceId: initialData.serviceId,
+      lastName: initialData.lastName,
+      otherNames: initialData.otherNames,
+      address: initialData.address,
+      appointmentDate: initialData.appointmentDate,
+      confirmationDate: initialData.confirmationDate,
       bloodGroup: {
-        value: props.initialData.bloodGroup.value,
-        label: props.initialData.bloodGroup.label,
+        value: initialData.bloodGroup.value,
+        label: initialData.bloodGroup.label,
       },
-      category: props.initialData.category,
-      disable: props.initialData.disable,
-      dob: props.initialData.dob,
-      age: props.initialData.age,
-      email: props.initialData.email,
-      entryQualification: props.initialData.entryQualification,
+      category: initialData.category,
+      disable: initialData.disable,
+      dob: initialData.dob,
+      age: initialData.age,
+      email: initialData.email,
+      entryQualification: initialData.entryQualification,
       gender: {
-        value: props.initialData.gender.value,
-        label: props.initialData.gender.label,
+        value: initialData.gender.value,
+        label: initialData.gender.label,
       },
       grade: {
-        value: props.initialData.grade.value,
-        label: props.initialData.grade.label,
+        value: initialData.grade.value,
+        label: initialData.grade.label,
       },
-      hometown: props.initialData.hometown,
+      hometown: initialData.hometown,
       maritalStatus: {
-        value: props.initialData.maritalStatus.value,
-        label: props.initialData.maritalStatus.label,
+        value: initialData.maritalStatus.value,
+        label: initialData.maritalStatus.label,
       },
-      nationality: props.initialData.nationality,
-      probation: props.initialData.probation,
+      nationality: initialData.nationality,
+      probation: initialData.probation,
       region: {
-        value: props.initialData.region.value,
-        label: props.initialData.region.label,
+        value: initialData.region.value,
+        label: initialData.region.label,
       },
       religion: {
-        value: props.initialData.religion.value,
-        label: props.initialData.religion.label,
+        value: initialData.religion.value,
+        label: initialData.religion.label,
       },
-      socialSecurity: props.initialData.socialSecurity,
-      station: props.initialData.station,
+      socialSecurity: initialData.socialSecurity,
+      station: initialData.station,
       structure: {
-        value: props.initialData.structure.value,
-        label: props.initialData.structure.label,
+        value: initialData.structure.value,
+        label: initialData.structure.label,
       },
       unit: {
-        value: props.initialData.unit.value,
-        label: props.initialData.unit.label,
+        value: initialData.unit.value,
+        label: initialData.unit.label,
       },
-      createdAt: props.formData.createdAt,
-      updatedAt: props.formData.updatedAt,
-      createdBy: props.formData.createdBy,
-      updatedBy: props.formData.updatedBy,
+      createdAt: formData.createdAt,
+      updatedAt: formData.updatedAt,
+      createdBy: formData.createdBy,
+      updatedBy: formData.updatedBy,
     });
   };
 
@@ -242,9 +251,9 @@ export default function EmployeePrimary(props) {
         <PrimaryComponentInputBoxes
           loadingData={loadingData}
           setLoadingData={setLoadingData}
-          formData={props.formData}
-          setFormData={props.setFormData}
-          setResponse={props.setResponse}
+          formData={formData}
+          setFormData={setFormData}
+          setResponse={setResponse}
         />
       </div>
       <div

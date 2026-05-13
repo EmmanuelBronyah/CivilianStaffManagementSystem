@@ -11,8 +11,9 @@ import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import ActivityFeeds from "../../Dashboard/Components/ActivityFeedsComponent";
 import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
+import { useNavigate } from "react-router-dom";
 
-export default function Dashboard(props) {
+export default function Dashboard() {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);
   const [relatedEmployeeData, setRelatedEmployeeData] = useState(null);
   const [genderStat, setGenderStat] = useState(null);
@@ -27,6 +28,7 @@ export default function Dashboard(props) {
   const reconnectRef = useRef(true);
   const socketTimerRef = useRef(null);
   const retriesRef = useRef(0);
+  const navigate = useNavigate();
 
   const { theme } = useTheme();
 
@@ -172,12 +174,7 @@ export default function Dashboard(props) {
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={38} width={130} />
                 ) : (
-                  <button
-                    onClick={() => {
-                      props.setActivePage("Users");
-                      props.setUserPage("New User");
-                    }}
-                  >
+                  <button onClick={() => navigate(`/home/users/add`)}>
                     New User
                   </button>
                 )}
@@ -187,8 +184,6 @@ export default function Dashboard(props) {
               <UserInfo
                 totalUsersPerRole={totalUsersPerRole}
                 loading={loadingDashboardStat}
-                setActivePage={props.setActivePage}
-                setUserPage={props.setUserPage}
               />
             </div>
           </div>

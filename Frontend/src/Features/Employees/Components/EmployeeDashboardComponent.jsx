@@ -8,7 +8,7 @@ import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import EmployeeOccurrence from "./EmployeeOccurrenceComponent";
 import { useParams } from "react-router-dom";
-import { Outlet, useOutletContext } from "react-router-dom";
+import { Outlet, useOutletContext, useNavigate } from "react-router-dom";
 
 export default function EmployeeDashboard() {
   const [headerData, setHeaderData] = useState({
@@ -26,6 +26,7 @@ export default function EmployeeDashboard() {
   const [loading, setLoading] = useState(true);
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const navigate = useNavigate();
 
   const { theme } = useTheme();
 
@@ -117,7 +118,10 @@ export default function EmployeeDashboard() {
       <div className={`${style.employeeDashboard} ${!theme ? style.dark : ""}`}>
         <div className={`${style.employeeHeader} ${!theme ? style.dark : ""}`}>
           <div className={style.backIconAndServiceId}>
-            <MdArrowBack className={style.backIcon} />
+            <MdArrowBack
+              className={style.backIcon}
+              onClick={() => navigate(`/home/employees`)}
+            />
             {loading ? (
               <BaseSkeleton width={100} height={34} />
             ) : (
@@ -153,50 +157,97 @@ export default function EmployeeDashboard() {
                 data-show-dropdown={showDropdown}
               >
                 <ul>
-                  <li onClick={() => setEmployeeSections("Primary")}>
-                    <NavLink to={`/home/employees/${serviceId}`}>
-                      Primary
-                    </NavLink>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Primary");
+                      navigate(`/home/employees/${serviceId}`);
+                    }}
+                  >
+                    Primary
                   </li>
-                  <li onClick={() => setEmployeeSections("Occurrence")}>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Occurrence");
+                      navigate(`/home/employees/${serviceId}/occurrence`);
+                    }}
+                  >
                     Occurrence
                   </li>
-                  <li onClick={() => setEmployeeSections("Primary")}>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Children");
+                      navigate(`/home/employees/${serviceId}/children`);
+                    }}
+                  >
                     Children
                   </li>
-                  <li onClick={() => setEmployeeSections("Children")}>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Courses");
+                      navigate(`/home/employees/${serviceId}/courses`);
+                    }}
+                  >
                     Courses
                   </li>
-                  <li onClick={() => setEmployeeSections("Absences")}>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Absences");
+                      navigate(`/home/employees/${serviceId}/absences`);
+                    }}
+                  >
                     Absences
                   </li>
                   <li
-                    onClick={() =>
-                      setEmployeeSections("Emergency | Next of Kin")
-                    }
+                    onClick={() => {
+                      setEmployeeSections("Emergency | Next of Kin");
+                      navigate(`/home/employees/${serviceId}/nextOfKin`);
+                    }}
                   >
                     Emergency | Next of Kin
                   </li>
-                  <li onClick={() => setEmployeeSections("Spouse")}>Spouse</li>
                   <li
-                    onClick={() =>
-                      setEmployeeSections("Termination of Appointment")
-                    }
+                    onClick={() => {
+                      setEmployeeSections("Spouse");
+                      navigate(`/home/employees/${serviceId}/spouse`);
+                    }}
+                  >
+                    Spouse
+                  </li>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Termination of Appointment");
+                      navigate(
+                        `/home/employees/${serviceId}/terminationOfAppointment`,
+                      );
+                    }}
                   >
                     Termination of Appointment
                   </li>
-                  <li onClick={() => setEmployeeSections("Identity")}>
+                  <li
+                    onClick={() => {
+                      setEmployeeSections("Identity");
+                      navigate(`/home/employees/${serviceId}/identity`);
+                    }}
+                  >
                     Identity
                   </li>
                   <li
-                    onClick={() => setEmployeeSections("Service With Forces")}
+                    onClick={() => {
+                      setEmployeeSections("Service With Forces");
+                      navigate(
+                        `/home/employees/${serviceId}/serviceWithForces`,
+                      );
+                    }}
                   >
                     Service With Forces
                   </li>
                   <li
-                    onClick={() =>
-                      setEmployeeSections("Previous Government Services")
-                    }
+                    onClick={() => {
+                      setEmployeeSections("Previous Government Services");
+                      navigate(
+                        `/home/employees/${serviceId}/previousGovernmentServices`,
+                      );
+                    }}
                   >
                     Previous Government Services
                   </li>
@@ -205,20 +256,16 @@ export default function EmployeeDashboard() {
             </div>
           )}
         </div>
-        <Outlet />
-        {/* {employeeSections === "Primary" && (
-          <EmployeePrimary
-            setHeaderData={setHeaderData}
-            initialData={initialData}
-            setInitialData={setInitialData}
-            formData={formData}
-            setFormData={setFormData}
-            setResponse={setResponse}
-          />
-        )}
-        {employeeSections === "Occurrence" && (
-          <EmployeeOccurrence serviceId={serviceId} setResponse={setResponse} />
-        )} */}
+        <Outlet
+          context={{
+            setHeaderData,
+            initialData,
+            setInitialData,
+            formData,
+            setFormData,
+            setResponse,
+          }}
+        />
       </div>
     </>
   );

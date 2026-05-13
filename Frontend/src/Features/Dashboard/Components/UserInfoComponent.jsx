@@ -1,13 +1,11 @@
 import { MdShield, MdPreview, MdPerson } from "react-icons/md";
 import style from "../../../styles/components/dashboardcomponent.module.css";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import { useNavigate } from "react-router-dom";
 
-export default function UserInfo({
-  totalUsersPerRole,
-  loading,
-  setActivePage,
-  setUserPage,
-}) {
+export default function UserInfo({ totalUsersPerRole, loading }) {
+  const navigate = useNavigate();
+
   if (totalUsersPerRole === null) {
     return (
       <>
@@ -37,10 +35,7 @@ export default function UserInfo({
       <div
         key={role}
         className={style.userInfoContainer}
-        onClick={() => {
-          setActivePage("Users");
-          setUserPage("All Users");
-        }}
+        onClick={() => navigate(`/home/users/all`)}
       >
         <div className={style.userIcon}>{icon}</div>
         <div className={style.totalUsersContainer}>

@@ -18,6 +18,8 @@ import SampleEmployees from "./Features/Employees/Components/SampleEmployeesComp
 import EmployeeDashboard from "./Features/Employees/Components/EmployeeDashboardComponent";
 import EmployeeOccurrence from "./Features/Employees/Components/EmployeeOccurrenceComponent";
 import EmployeePrimary from "./Features/Employees/Components/EmployeePrimaryComponent";
+import ListEmployeeOccurrence from "./Features/Employees/Components/ListEmployeeOccurrenceComponent";
+import EditEmployeeOccurrence from "./Features/Employees/Components/EditEmployeeOccurrenceComponent";
 
 function App() {
   return (
@@ -62,7 +64,13 @@ function App() {
             <Route index element={<SampleEmployees />} />
             <Route path=":serviceId" element={<EmployeeDashboard />}>
               <Route index element={<EmployeePrimary />} />
-              <Route path="/occurrence" element={<EmployeeOccurrence />} />
+              <Route path="occurrence" element={<EmployeeOccurrence />}>
+                <Route index element={<ListEmployeeOccurrence />} />
+                <Route
+                  path="edit/:occurrenceId"
+                  element={<EditEmployeeOccurrence />}
+                />
+              </Route>
             </Route>
           </Route>
         </Route>
