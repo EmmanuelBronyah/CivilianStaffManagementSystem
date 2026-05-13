@@ -29,6 +29,10 @@ import EmployeeCourses from "./Features/Employees/Components/Courses/EmployeeCou
 import ListCourses from "./Features/Employees/Components/Courses/ListCoursesComponent";
 import EditCourses from "./Features/Employees/Components/Courses/EditCoursesComponent";
 import AddCourses from "./Features/Employees/Components/Courses/AddCoursesComponent";
+import EmployeeAbsences from "./Features/Employees/Components/Absences/EmployeeAbsencesComponent";
+import ListAbsences from "./Features/Employees/Components/Absences/ListAbsencesComponent";
+import EditAbsences from "./Features/Employees/Components/Absences/EditAbsencesComponent";
+import AddAbsences from "./Features/Employees/Components/Absences/AddAbsencesComponent";
 
 function App() {
   return (
@@ -96,6 +100,12 @@ function App() {
                 <Route index element={<ListCourses />} />
                 <Route path="add/" element={<AddCourses />} />
                 <Route path="edit/:courseId" element={<EditCourses />} />
+              </Route>
+              {/* ABSENCES */}
+              <Route path="absences" element={<EmployeeAbsences />}>
+                <Route index element={<ListAbsences />} />
+                <Route path="add/" element={<AddAbsences />} />
+                <Route path="edit/:absencesId" element={<EditAbsences />} />
               </Route>
             </Route>
           </Route>
