@@ -72,7 +72,7 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
     def perform_update(self, serializer):
         with transaction.atomic():
             previous_child_record = self.get_object()
-            self.child_record_update = serializer.save()
+            self.child_record_update = serializer.save(updated_by=self.request.user)
             logger.debug(f"Child Record({previous_child_record}) updated.")
 
             changes = child_record_changes(

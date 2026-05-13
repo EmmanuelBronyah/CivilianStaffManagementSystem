@@ -3,8 +3,8 @@ import style from "../styles/components/userscomponent.module.css";
 
 const askToDelete = async (theme) => {
   const result = await Swal.fire({
-    title: "Confirm Occurrence Deletion",
-    text: "Are you sure you want to delete this occurrence?",
+    title: "Confirm Deletion",
+    text: "Are you sure you want to delete this record?",
     showCancelButton: true,
     cancelButtonText: "No",
     confirmButtonText: "Yes",

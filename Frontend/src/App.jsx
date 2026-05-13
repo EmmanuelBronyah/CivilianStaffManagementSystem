@@ -21,6 +21,10 @@ import EmployeePrimary from "./Features/Employees/Components/Primary/EmployeePri
 import ListOccurrence from "./Features/Employees/Components/Occurrence/ListOccurrenceComponent";
 import EditOccurrence from "./Features/Employees/Components/Occurrence/EditOccurrenceComponent";
 import AddOccurrence from "./Features/Employees/Components/Occurrence/AddOccurrenceComponent";
+import EmployeeChildren from "./Features/Employees/Components/Children/EmployeeChildrenComponent";
+import ListChildren from "./Features/Employees/Components/Children/ListChildrenComponent";
+import EditChildren from "./Features/Employees/Components/Children/EditChildrenComponent";
+import AddChildren from "./Features/Employees/Components/Children/AddChildrenComponent";
 
 function App() {
   return (
@@ -69,6 +73,11 @@ function App() {
                 <Route index element={<ListOccurrence />} />
                 <Route path="add/" element={<AddOccurrence />} />
                 <Route path="edit/:occurrenceId" element={<EditOccurrence />} />
+              </Route>
+              <Route path="children" element={<EmployeeChildren />}>
+                <Route index element={<ListChildren />} />
+                <Route path="add/" element={<AddChildren />} />
+                <Route path="edit/:childId" element={<EditChildren />} />
               </Route>
             </Route>
           </Route>
