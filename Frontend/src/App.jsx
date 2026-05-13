@@ -10,16 +10,17 @@ import HomePage from "./Features/Homepage/Pages/HomePage";
 import ProtectOtpRoute from "./Features/Auth/Components/OtpProtectedRouteComponent";
 import Dashboard from "./Features/Dashboard/Components/DashboardComponent";
 import Users from "./Features/Users/Components/UsersComponent";
-import Employees from "./Features/Employees/Components/EmployeeComponent";
+import Employees from "./Features/Employees/Components/EmployeeCore/EmployeeComponent";
 import AllUsersComponent from "./Features/Users/Components/AllUsersComponent";
 import AddUsersComponent from "./Features/Users/Components/AddUsersComponent";
 import UpdateUser from "./Features/Users/Components/UpdateUserComponent";
-import SampleEmployees from "./Features/Employees/Components/SampleEmployeesComponent";
-import EmployeeDashboard from "./Features/Employees/Components/EmployeeDashboardComponent";
-import EmployeeOccurrence from "./Features/Employees/Components/EmployeeOccurrenceComponent";
-import EmployeePrimary from "./Features/Employees/Components/EmployeePrimaryComponent";
-import ListEmployeeOccurrence from "./Features/Employees/Components/ListEmployeeOccurrenceComponent";
-import EditEmployeeOccurrence from "./Features/Employees/Components/EditEmployeeOccurrenceComponent";
+import SampleEmployees from "./Features/Employees/Components/EmployeeCore/SampleEmployeesComponent";
+import EmployeeDashboard from "./Features/Employees/Components/EmployeeCore/EmployeeDashboardComponent";
+import EmployeeOccurrence from "./Features/Employees/Components/Occurrence/EmployeeOccurrenceComponent";
+import EmployeePrimary from "./Features/Employees/Components/Primary/EmployeePrimaryComponent";
+import ListOccurrence from "./Features/Employees/Components/Occurrence/ListOccurrenceComponent";
+import EditOccurrence from "./Features/Employees/Components/Occurrence/EditOccurrenceComponent";
+import AddOccurrence from "./Features/Employees/Components/Occurrence/AddOccurrenceComponent";
 
 function App() {
   return (
@@ -65,11 +66,9 @@ function App() {
             <Route path=":serviceId" element={<EmployeeDashboard />}>
               <Route index element={<EmployeePrimary />} />
               <Route path="occurrence" element={<EmployeeOccurrence />}>
-                <Route index element={<ListEmployeeOccurrence />} />
-                <Route
-                  path="edit/:occurrenceId"
-                  element={<EditEmployeeOccurrence />}
-                />
+                <Route index element={<ListOccurrence />} />
+                <Route path="add/" element={<AddOccurrence />} />
+                <Route path="edit/:occurrenceId" element={<EditOccurrence />} />
               </Route>
             </Route>
           </Route>

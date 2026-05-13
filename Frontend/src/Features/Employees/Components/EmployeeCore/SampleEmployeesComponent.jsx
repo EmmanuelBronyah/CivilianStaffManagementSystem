@@ -1,8 +1,8 @@
-import style from "../../../styles/components/employees.module.css";
-import { useTheme } from "../../../context/ThemeContext";
+import style from "../../../../styles/components/employees.module.css";
+import { useTheme } from "../../../../context/ThemeContext";
 import EmployeeData from "./EmployeeDataComponent";
 import { useState } from "react";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useOutletContext } from "react-router-dom";
 
 export default function SampleEmployees() {

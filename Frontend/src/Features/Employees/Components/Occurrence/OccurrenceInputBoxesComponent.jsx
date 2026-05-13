@@ -1,18 +1,22 @@
-import style from "../../../styles/components/employees.module.css";
+import style from "../../../../styles/components/employees.module.css";
 import Select from "react-select";
 import { useEffect, useState } from "react";
-import api from "../../../api";
-import ReadOnlyEmployeeData from "./ReadOnlyEmployeeDataComponent";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
-import getResponseMessages from "../../../utils/extractResponseMessage";
+import api from "../../../../api";
+import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { MdEdit, MdEditOff } from "react-icons/md";
-import useFetchUserRole from "../../hooks/fetchUserRoleHook";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useMatch } from "react-router-dom";
 
 export default function OccurrenceInputBoxes(props) {
   const [levelStep, setLevelStep] = useState([]);
   const [grades, setGrades] = useState([]);
   const [events, setEvents] = useState([]);
   const [editStatus, setEditStatus] = useState(false);
+  const isEditPage = useMatch(
+    "/home/employees/:serviceId/occurrence/edit/:occurrenceId",
+  );
 
   const [displayPercentageDropdown, setDisplayPercentageDropdown] =
     useState(false);
@@ -337,10 +341,12 @@ export default function OccurrenceInputBoxes(props) {
   return (
     <div className={style.occurrenceInputs}>
       {fields}
-      <ReadOnlyEmployeeData
-        formData={props.formData}
-        loading={props.loadingData}
-      />
+      {isEditPage && (
+        <ReadOnlyEmployeeData
+          formData={props.formData}
+          loading={props.loadingData}
+        />
+      )}
     </div>
   );
 }

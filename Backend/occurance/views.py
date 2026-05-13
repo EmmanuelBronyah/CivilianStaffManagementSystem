@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 # * OCCURRENCE
 class CreateOccurrenceAPIView(generics.CreateAPIView):
     queryset = Occurrence.objects.all()
-    serializer_class = serializers.OccurrenceWriteSerializer
+    serializer_class = serializers.OccurrenceUpdateSerializer
     permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 

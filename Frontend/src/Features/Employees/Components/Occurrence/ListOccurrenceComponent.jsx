@@ -1,14 +1,16 @@
-import style from "../../../styles/components/employees.module.css";
-import { useTheme } from "../../../context/ThemeContext";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import style from "../../../../styles/components/employees.module.css";
+import { useTheme } from "../../../../context/ThemeContext";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import OccurrenceData from "./OccurrenceDataComponent";
 import { useState } from "react";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
-export default function ListEmployeeOccurrence() {
+export default function ListOccurrence() {
   const [loading, setLoading] = useState(true);
   const { theme } = useTheme();
   const { setResponse } = useOutletContext();
+  const navigate = useNavigate();
+  const { serviceId } = useParams();
 
   return (
     <div
@@ -19,7 +21,14 @@ export default function ListEmployeeOccurrence() {
           {loading ? (
             <BaseSkeleton width={170} height={39} />
           ) : (
-            <button className={style.addOccurrence}>Add Occurrence</button>
+            <button
+              className={style.addOccurrence}
+              onClick={() =>
+                navigate(`/home/employees/${serviceId}/occurrence/add`)
+              }
+            >
+              Add Occurrence
+            </button>
           )}
         </div>
 

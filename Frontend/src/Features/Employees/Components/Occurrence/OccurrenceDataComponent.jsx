@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
-import api from "../../../api";
-import getResponseMessages from "../../../utils/extractResponseMessage";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
+import api from "../../../../api";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { useEffect, useState } from "react";
 
 export default function OccurrenceData(props) {

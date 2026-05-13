@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import api from "../../../api";
-import getResponseMessages from "../../../utils/extractResponseMessage";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import api from "../../../../api";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { NavLink, useNavigate } from "react-router-dom";
 
 export default function EmployeeData(props) {

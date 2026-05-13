@@ -1,16 +1,16 @@
-import style from "../../../styles/components/employees.module.css";
-import { useTheme } from "../../../context/ThemeContext";
+import style from "../../../../styles/components/employees.module.css";
+import { useTheme } from "../../../../context/ThemeContext";
 import OccurrenceInputBoxes from "./OccurrenceInputBoxesComponent";
-import api from "../../../api";
+import api from "../../../../api";
 import { useState, useEffect } from "react";
-import getResponseMessages from "../../../utils/extractResponseMessage";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { MdDelete } from "react-icons/md";
-import askToDelete from "../../../utils/askToDelete";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import askToDelete from "../../../../utils/askToDelete";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
-export default function EditEmployeeOccurrence() {
+export default function EditOccurrence() {
   const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
   const [loadingData, setLoadingData] = useState(true);

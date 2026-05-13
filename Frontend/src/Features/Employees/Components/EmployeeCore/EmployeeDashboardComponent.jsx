@@ -1,12 +1,11 @@
-import style from "../../../styles/components/employees.module.css";
+import style from "../../../../styles/components/employees.module.css";
 import { useState, useEffect } from "react";
-import { useTheme } from "../../../context/ThemeContext";
-import api from "../../../api";
-import getResponseMessages from "../../../utils/extractResponseMessage";
-import EmployeePrimary from "./EmployeePrimaryComponent";
+import { useTheme } from "../../../../context/ThemeContext";
+import api from "../../../../api";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { MdArrowBack, MdKeyboardArrowDown } from "react-icons/md";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
-import EmployeeOccurrence from "./EmployeeOccurrenceComponent";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
+import EmployeeOccurrence from "../Occurrence/EmployeeOccurrenceComponent";
 import { useParams } from "react-router-dom";
 import { Outlet, useOutletContext, useNavigate } from "react-router-dom";
 

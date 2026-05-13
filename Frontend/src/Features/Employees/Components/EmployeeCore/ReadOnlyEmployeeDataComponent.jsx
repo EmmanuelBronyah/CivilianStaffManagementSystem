@@ -1,5 +1,5 @@
-import style from "../../../styles/components/employees.module.css";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import style from "../../../../styles/components/employees.module.css";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function ReadOnlyEmployeeData({ loading, formData }) {
   const { createdAt, updatedAt, createdBy, updatedBy } = formData;

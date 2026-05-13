@@ -123,9 +123,9 @@ class OccurrenceWriteSerializer(BaseOccurrenceSerializer):
         return attrs
 
     def validate(self, attrs):
-        print("attrs -> ", attrs)
         attrs = self.assign_annual_salary(attrs)
 
+        attrs.pop("percentage_adjustment")
         return attrs
 
 

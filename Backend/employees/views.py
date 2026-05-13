@@ -18,6 +18,7 @@ from .models import Employee
 from django.contrib.postgres.search import SearchQuery, SearchRank
 import random
 from . import services
+import random
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +117,12 @@ class ListEmployeesDTO(generics.ListAPIView):
     permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = StandardResultsSetPagination
+
+    def get_queryset(self):
+        ids = list(Employee.objects.values_list("service_id", flat=True))
+        sample_size = min(len(ids), 100)
+        random_ids = random.sample(ids, sample_size)
+        return Employee.objects.filter(service_id__in=random_ids)
 
 
 class EditEmployeeAPIView(generics.UpdateAPIView):

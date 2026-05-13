@@ -473,8 +473,6 @@ input::placeholder {
 }
 
 .editOccurrenceButtons {
-  /* align-self: center;
-  place-self: center; */
   display: flex;
   justify-content: center;
   justify-content: space-between;
@@ -528,7 +526,46 @@ input::placeholder {
   }
 }
 
-.updateCancelButtons {
+.addOccurrenceButtons {
+  display: flex;
+  justify-content: center;
+
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    background-color: var(--button-background-color);
+    font-weight: bold;
+    color: var(--button-text-color);
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  button:active {
+    background-color: var(--button-active-background-color);
+    color: var(--button-text-color);
+  }
+
+  .cancelButton {
+    background-color: #d8000c;
+    color: white;
+  }
+
+  .cancelButton:hover {
+    opacity: 0.8;
+  }
+
+  .cancelButton:active {
+    background-color: hsl(357, 100%, 32%);
+  }
+}
+
+.updateCancelButtons,
+.addCancelButtons {
   display: flex;
   gap: 4rem;
 }

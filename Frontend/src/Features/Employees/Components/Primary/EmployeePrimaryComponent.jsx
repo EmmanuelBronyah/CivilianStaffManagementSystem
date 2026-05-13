@@ -1,12 +1,12 @@
-import style from "../../../styles/components/employees.module.css";
-import { useTheme } from "../../../context/ThemeContext";
+import style from "../../../../styles/components/employees.module.css";
+import { useTheme } from "../../../../context/ThemeContext";
 import PrimaryComponentInputBoxes from "./InputBoxesPrimaryComponent";
 import { useEffect, useState } from "react";
-import api from "../../../api";
-import useFetchUserRole from "../../hooks/fetchUserRoleHook";
-import getResponseMessages from "../../../utils/extractResponseMessage";
+import api from "../../../../api";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
-import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useOutletContext } from "react-router-dom";
 
 export default function EmployeePrimary() {
