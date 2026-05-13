@@ -25,6 +25,10 @@ import EmployeeChildren from "./Features/Employees/Components/Children/EmployeeC
 import ListChildren from "./Features/Employees/Components/Children/ListChildrenComponent";
 import EditChildren from "./Features/Employees/Components/Children/EditChildrenComponent";
 import AddChildren from "./Features/Employees/Components/Children/AddChildrenComponent";
+import EmployeeCourses from "./Features/Employees/Components/Courses/EmployeeCoursesComponent";
+import ListCourses from "./Features/Employees/Components/Courses/ListCoursesComponent";
+import EditCourses from "./Features/Employees/Components/Courses/EditCoursesComponent";
+import AddCourses from "./Features/Employees/Components/Courses/AddCoursesComponent";
 
 function App() {
   return (
@@ -58,26 +62,40 @@ function App() {
             </ProtectedRoute>
           }
         >
+          {/* DASHBOARD */}
           <Route index element={<Dashboard />} />
+
+          {/* USERS */}
           <Route path="users" element={<Users />}>
             <Route index element={<AllUsersComponent />} />
             <Route path="all" element={<AllUsersComponent />} />
             <Route path="add" element={<AddUsersComponent />} />
             <Route path="update/:id" element={<UpdateUser />} />
           </Route>
+
+          {/* EMPLOYEES */}
           <Route path="employees" element={<Employees />}>
             <Route index element={<SampleEmployees />} />
             <Route path=":serviceId" element={<EmployeeDashboard />}>
+              {/* PRIMARY */}
               <Route index element={<EmployeePrimary />} />
+              {/* OCCURRENCE */}
               <Route path="occurrence" element={<EmployeeOccurrence />}>
                 <Route index element={<ListOccurrence />} />
                 <Route path="add/" element={<AddOccurrence />} />
                 <Route path="edit/:occurrenceId" element={<EditOccurrence />} />
               </Route>
+              {/* CHILDREN */}
               <Route path="children" element={<EmployeeChildren />}>
                 <Route index element={<ListChildren />} />
                 <Route path="add/" element={<AddChildren />} />
                 <Route path="edit/:childId" element={<EditChildren />} />
+              </Route>
+              {/* COURSES */}
+              <Route path="courses" element={<EmployeeCourses />}>
+                <Route index element={<ListCourses />} />
+                <Route path="add/" element={<AddCourses />} />
+                <Route path="edit/:courseId" element={<EditCourses />} />
               </Route>
             </Route>
           </Route>

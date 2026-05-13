@@ -5,6 +5,7 @@ export default function getResponseMessages(response) {
 
   if (data) {
     const keyValuePairs = Object.entries(data);
+    console.log(keyValuePairs);
 
     if (keyValuePairs) {
       for (const [key, value] of Object.entries(data)) {
@@ -12,7 +13,11 @@ export default function getResponseMessages(response) {
           messages.push(`${value}`);
         } else {
           const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-          messages.push(`${capitalizedKey}: ${value}`);
+          if (capitalizedKey === "Non_field_errors") {
+            messages.push(`${value}`);
+          } else {
+            messages.push(`${capitalizedKey}: ${value}`);
+          }
         }
       }
     } else {
@@ -21,6 +26,7 @@ export default function getResponseMessages(response) {
       }
     }
   }
+
   const firstMessage = messages[0];
   return firstMessage;
 }
