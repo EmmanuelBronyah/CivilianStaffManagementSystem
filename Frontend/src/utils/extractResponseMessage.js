@@ -12,7 +12,9 @@ export default function getResponseMessages(response) {
         if (key === "detail") {
           messages.push(`${value}`);
         } else {
-          const capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+          let capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
+          capitalizedKey = capitalizedKey.replace("_", " ");
+
           if (capitalizedKey === "Non_field_errors") {
             messages.push(`${value}`);
           } else {
@@ -27,6 +29,7 @@ export default function getResponseMessages(response) {
     }
   }
 
-  const firstMessage = messages[0];
+  let firstMessage = messages[0];
+  firstMessage = firstMessage.replaceAll("_", " ");
   return firstMessage;
 }

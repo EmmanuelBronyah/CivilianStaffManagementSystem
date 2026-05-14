@@ -215,9 +215,7 @@ export default function EmployeeDashboard() {
                   <li
                     onClick={() => {
                       setEmployeeSections("Termination of Appointment");
-                      navigate(
-                        `/home/employees/${serviceId}/terminationOfAppointment`,
-                      );
+                      navigate(`/home/employees/${serviceId}/termination`);
                     }}
                   >
                     Termination of Appointment

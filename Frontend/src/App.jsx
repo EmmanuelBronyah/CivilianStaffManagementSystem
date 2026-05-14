@@ -37,6 +37,14 @@ import EmployeeNextOfKin from "./Features/Employees/Components/Next Of Kin/Emplo
 import ListNextOfKin from "./Features/Employees/Components/Next Of Kin/ListNextOfKinComponent";
 import EditNextOfKin from "./Features/Employees/Components/Next Of Kin/EditNextOfKinComponent";
 import AddNextOfKin from "./Features/Employees/Components/Next Of Kin/AddNextOfKinComponent";
+import EmployeeSpouse from "./Features/Employees/Components/Spouse/EmployeeSpouseComponent";
+import ListSpouse from "./Features/Employees/Components/Spouse/ListSpouseComponent";
+import EditSpouse from "./Features/Employees/Components/Spouse/EditSpouseComponent";
+import AddSpouse from "./Features/Employees/Components/Spouse/AddSpouseComponent";
+import EmployeeTermination from "./Features/Employees/Components/Termination Of Appointment/EmployeeTerminationComponent";
+import ListTermination from "./Features/Employees/Components/Termination Of Appointment/ListTerminationComponent";
+import AddTermination from "./Features/Employees/Components/Termination Of Appointment/AddTerminationComponent";
+import EditTermination from "./Features/Employees/Components/Termination Of Appointment/EditTerminationComponent";
 
 function App() {
   return (
@@ -116,6 +124,21 @@ function App() {
                 <Route index element={<ListNextOfKin />} />
                 <Route path="add/" element={<AddNextOfKin />} />
                 <Route path="edit/:nextOfKinId" element={<EditNextOfKin />} />
+              </Route>
+              {/* SPOUSE */}
+              <Route path="spouse" element={<EmployeeSpouse />}>
+                <Route index element={<ListSpouse />} />
+                <Route path="add/" element={<AddSpouse />} />
+                <Route path="edit/:spouseId" element={<EditSpouse />} />
+              </Route>
+              {/* TERMINATION OF APPOINTMENT */}
+              <Route path="termination" element={<EmployeeTermination />}>
+                <Route index element={<ListTermination />} />
+                <Route path="add/" element={<AddTermination />} />
+                <Route
+                  path="edit/:terminationId"
+                  element={<EditTermination />}
+                />
               </Route>
             </Route>
           </Route>

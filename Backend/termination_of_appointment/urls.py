@@ -15,8 +15,8 @@ urlpatterns = [
     ),
     path(
         "<str:pk>/employee/",
-        views.ListEmployeeTerminationOfAppointmentAPIView.as_view(),
-        name="list-employee-termination-of-appointment",
+        views.RetrieveEmployeeTerminationOfAppointmentAPIView.as_view(),
+        name="retrieve-employee-termination-of-appointment",
     ),
     path(
         "<str:pk>/edit/",
@@ -79,6 +79,11 @@ urlpatterns = [
         "status/<str:pk>/delete/",
         views.DeleteTerminationStatusAPIView.as_view(),
         name="delete-termination-status",
+    ),
+    path(
+        "list-causes-and-statuses/",
+        views.ListCauseAndStatusAPIView.as_view(),
+        name="list-causes-and-statuses",
     ),
     # Incomplete Termination of Appointment
     path(

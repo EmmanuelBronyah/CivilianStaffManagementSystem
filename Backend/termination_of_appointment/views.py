@@ -14,6 +14,7 @@ from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -101,18 +102,17 @@ class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
                 )
 
 
-class ListEmployeeTerminationOfAppointmentAPIView(generics.ListAPIView):
+class RetrieveEmployeeTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.TerminationOfAppointmentReadSerializer
     throttle_classes = []
+    lookup_field = "employee__pk"
+    lookup_url_kwarg = "pk"
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
-        service_id = self.kwargs.get("pk")
-        employee = get_object_or_404(Employee, pk=service_id)
-        termination_of_appointment = employee.termination_of_appointment.select_related(
+        return models.TerminationOfAppointment.objects.select_related(
             "cause", "status", "created_by", "updated_by"
         )
-        return termination_of_appointment
 
 
 class RetrieveTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
@@ -314,6 +314,26 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed(The Termination Status({instance.termination_status}) was deleted by {self.request.user}) created."
             )
+
+
+# LIST CAUSES AND STATUS
+class ListCauseAndStatusAPIView(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, *args, **kwargs):
+        causes = models.CausesOfTermination.objects.all()
+        statuses = models.TerminationStatus.objects.all()
+
+        return Response(
+            {
+                "causes": serializers.CausesOfTerminationSerializer(
+                    causes, many=True
+                ).data,
+                "statuses": serializers.TerminationStatusSerializer(
+                    statuses, many=True
+                ).data,
+            }
+        )
 
 
 # INCOMPLETE TERMINATION OF APPOINTMENT

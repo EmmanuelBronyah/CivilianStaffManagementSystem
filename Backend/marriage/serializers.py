@@ -17,6 +17,8 @@ class SpouseWriteSerializer(serializers.ModelSerializer):
             logger.debug(f"{field} is empty")
             return value
 
+        value = value.replace("\n", " ").replace("\r", " ").strip()
+
         import string
 
         VALID_CHARS = (

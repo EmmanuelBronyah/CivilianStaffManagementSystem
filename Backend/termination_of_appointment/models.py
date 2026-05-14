@@ -62,7 +62,7 @@ class TerminationStatus(models.Model):
 
 
 class IncompleteTerminationOfAppointmentRecords(models.Model):
-    employee = models.ForeignKey(
+    employee = models.OneToOneField(
         Employee,
         on_delete=models.CASCADE,
         null=True,
