@@ -58,6 +58,7 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
     permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
+        print("data -> ", request.data)
         partial = kwargs.pop("partial", False)
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=partial)

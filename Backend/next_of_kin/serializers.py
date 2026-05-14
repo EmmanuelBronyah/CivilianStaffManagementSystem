@@ -36,6 +36,8 @@ class EmergencyOrNextOfKinWriteSerializer(serializers.ModelSerializer):
             logger.debug("Address is empty")
             return value
 
+        value = value.replace("\n", " ").replace("\r", " ").strip()
+
         import string
 
         VALID_CHARS = (

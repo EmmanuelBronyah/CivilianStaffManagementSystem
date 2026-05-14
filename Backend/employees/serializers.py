@@ -3,7 +3,6 @@ from . import models
 from api.models import Divisions
 import logging
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -70,7 +69,6 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
 
     @staticmethod
     def validate_other_text_with_digits(field, value):
-        # print("Address value ->", value)
         if not value:
             logger.debug(f"{field} is empty")
             return value

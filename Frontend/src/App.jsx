@@ -33,6 +33,10 @@ import EmployeeAbsences from "./Features/Employees/Components/Absences/EmployeeA
 import ListAbsences from "./Features/Employees/Components/Absences/ListAbsencesComponent";
 import EditAbsences from "./Features/Employees/Components/Absences/EditAbsencesComponent";
 import AddAbsences from "./Features/Employees/Components/Absences/AddAbsencesComponent";
+import EmployeeNextOfKin from "./Features/Employees/Components/Next Of Kin/EmployeeNextOfKinComponent";
+import ListNextOfKin from "./Features/Employees/Components/Next Of Kin/ListNextOfKinComponent";
+import EditNextOfKin from "./Features/Employees/Components/Next Of Kin/EditNextOfKinComponent";
+import AddNextOfKin from "./Features/Employees/Components/Next Of Kin/AddNextOfKinComponent";
 
 function App() {
   return (
@@ -106,6 +110,12 @@ function App() {
                 <Route index element={<ListAbsences />} />
                 <Route path="add/" element={<AddAbsences />} />
                 <Route path="edit/:absencesId" element={<EditAbsences />} />
+              </Route>
+              {/* NEXT OF KIN */}
+              <Route path="nextOfKin" element={<EmployeeNextOfKin />}>
+                <Route index element={<ListNextOfKin />} />
+                <Route path="add/" element={<AddNextOfKin />} />
+                <Route path="edit/:nextOfKinId" element={<EditNextOfKin />} />
               </Route>
             </Route>
           </Route>
