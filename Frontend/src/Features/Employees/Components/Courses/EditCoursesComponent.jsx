@@ -71,8 +71,8 @@ export default function EditCourses() {
     const payload = {
       course_type: formData.courseType,
       place: formData.place,
-      date_commenced: formData.dateCommenced,
-      date_ended: formData.dateEnded,
+      date_commenced: formData.dateCommenced || null,
+      date_ended: formData.dateEnded || null,
       qualification: formData.qualification,
       result: formData.result,
       authority: formData.authority,

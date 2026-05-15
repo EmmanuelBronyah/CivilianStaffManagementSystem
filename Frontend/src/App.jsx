@@ -53,6 +53,10 @@ import ListServiceWithForces from "./Features/Employees/Components/Service With 
 import EmployeeServiceWithForces from "./Features/Employees/Components/Service With Forces/EmployeeServiceWithForcesComponent";
 import AddService from "./Features/Employees/Components/Service With Forces/AddServiceComponent";
 import EditService from "./Features/Employees/Components/Service With Forces/EditServiceWithForcesComponent";
+import EmployeePreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/EmployeePreviousGovernmentServiceComponent";
+import ListPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/ListPreviousGovernmentServiceComponent";
+import AddPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/AddPreviousGovernmentServiceComponent";
+import EditPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/EditPreviousGovernmentServiceComponent";
 
 function App() {
   return (
@@ -169,13 +173,13 @@ function App() {
               {/* PREVIOUS GOVERNMENT SERVICE */}
               <Route
                 path="previousGovernmentService"
-                element={<EmployeeServiceWithForces />}
+                element={<EmployeePreviousGovernmentService />}
               >
-                <Route index element={<ListServiceWithForces />} />
-                <Route path="add/" element={<AddService />} />
+                <Route index element={<ListPreviousGovernmentService />} />
+                <Route path="add/" element={<AddPreviousGovernmentService />} />
                 <Route
-                  path="edit/:serviceWithForcesId"
-                  element={<EditService />}
+                  path="edit/:previousGovernmentServiceId"
+                  element={<EditPreviousGovernmentService />}
                 />
               </Route>
             </Route>

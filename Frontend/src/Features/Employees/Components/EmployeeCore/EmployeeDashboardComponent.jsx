@@ -240,13 +240,13 @@ export default function EmployeeDashboard() {
                   </li>
                   <li
                     onClick={() => {
-                      setEmployeeSections("Previous Government Services");
+                      setEmployeeSections("Previous Government Service");
                       navigate(
-                        `/home/employees/${serviceId}/previousGovernmentServices`,
+                        `/home/employees/${serviceId}/previousGovernmentService`,
                       );
                     }}
                   >
-                    Previous Government Services
+                    Previous Government Service
                   </li>
                 </ul>
               </div>

@@ -23,7 +23,7 @@ export default function AddTermination() {
       cause: formData.cause?.value,
       status: formData.status?.value,
       authority: formData.authority,
-      date: formData.date,
+      date: formData.date || null,
     };
     try {
       const res = await api.post(

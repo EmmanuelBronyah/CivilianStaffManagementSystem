@@ -68,8 +68,8 @@ export default function EditAbsences() {
     const payload = {
       employee: serviceId,
       absence: formData.absence,
-      start_date: formData.startDate,
-      end_date: formData.endDate,
+      start_date: formData.startDate || null,
+      end_date: formData.endDate || null,
       authority: formData.authority,
     };
 

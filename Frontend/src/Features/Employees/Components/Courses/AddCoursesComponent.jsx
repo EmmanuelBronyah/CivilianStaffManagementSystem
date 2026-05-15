@@ -15,15 +15,15 @@ export default function AddCourses() {
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
 
-  const addChild = async () => {
+  const addCourse = async () => {
     setLoading(true);
 
     const payload = {
       employee: serviceId,
       course_type: formData.courseType,
       place: formData.place,
-      date_commenced: formData.dateCommenced,
-      date_ended: formData.dateEnded,
+      date_commenced: formData.dateCommenced || null,
+      date_ended: formData.dateEnded || null,
       qualification: formData.qualification,
       result: formData.result,
       authority: formData.authority,
@@ -77,7 +77,7 @@ export default function AddCourses() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addChild}>
+            <button onClick={addCourse}>
               {loading ? (
                 <ClipLoader
                   size={13}

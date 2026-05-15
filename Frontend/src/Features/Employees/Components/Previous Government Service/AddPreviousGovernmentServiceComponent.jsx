@@ -2,12 +2,12 @@ import style from "../../../../styles/components/employees.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { useState } from "react";
-import AbsencesInputBoxes from "./AbsencesInputBoxesComponent";
+import PreviousGovernmentServiceInputBoxes from "./PreviousGovernmentServiceInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 
-export default function AddAbsences() {
+export default function AddPreviousGovernmentService() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
   const { theme } = useTheme();
@@ -15,27 +15,27 @@ export default function AddAbsences() {
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
 
-  const addAbsences = async () => {
+  const addService = async () => {
     setLoading(true);
 
     const payload = {
       employee: serviceId,
-      absence: formData.absence,
-      start_date: formData.startDate || null,
-      end_date: formData.endDate || null,
-      authority: formData.authority,
+      institution: formData.institution,
+      duration: formData.duration,
+      position: formData.position,
     };
-
     try {
-      const res = await api.post("api/absences/create/", payload);
+      const res = await api.post(
+        "api/previous-government-service/create/",
+        payload,
+      );
       setFormData({
-        absence: res.data.absence,
-        startDate: res.data.start_date,
-        endDate: res.data.end_date,
-        authority: res.data.authority,
+        institution: res.data.institution,
+        duration: res.data.duration,
+        position: res.data.position,
       });
       setResponse({
-        message: "Absences saved",
+        message: "Service saved",
         id: Date.now(),
       });
       setLoading(false);
@@ -57,33 +57,39 @@ export default function AddAbsences() {
         <div className={style.addOccurrenceButtonContainer}>
           <button
             className={style.addOccurrence}
-            onClick={() => navigate(`/home/employees/${serviceId}/absences`)}
+            onClick={() =>
+              navigate(`/home/employees/${serviceId}/previousGovernmentService`)
+            }
           >
-            All Absences
+            All Service Records
           </button>
         </div>
       </div>
       <div className={style.inputAndButtonsSection}>
-        <AbsencesInputBoxes
+        <PreviousGovernmentServiceInputBoxes
           formData={formData}
           setFormData={setFormData}
           setResponse={setResponse}
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addAbsences}>
+            <button onClick={addService}>
               {loading ? (
                 <ClipLoader
                   size={13}
                   color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
                 />
               ) : (
-                "Save Absences"
+                "Save Service"
               )}
             </button>
             <button
               className={style.cancelButton}
-              onClick={() => navigate(`/home/employees/${serviceId}/absences`)}
+              onClick={() =>
+                navigate(
+                  `/home/employees/${serviceId}/previousGovernmentService`,
+                )
+              }
             >
               Cancel
             </button>

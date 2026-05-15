@@ -27,7 +27,7 @@ export default function AddOccurrence() {
       annual_salary: formData.annualSalary,
       event: formData.event.value,
       percentage_adjustment: formData?.percentageAdjustment?.label || null,
-      wef_date: formData.wefDate,
+      wef_date: formData.wefDate || null,
       reason: formData.reason,
     };
     try {

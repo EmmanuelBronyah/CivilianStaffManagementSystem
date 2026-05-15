@@ -35,7 +35,7 @@ export default function AddSpouse() {
         phoneNumber: res.data.phone_number,
         address: res.data.address,
         registrationNumber: res.data.registration_number,
-        marriageDate: res.data.marriage_date,
+        marriageDate: res.data.marriage_date || null,
         marriagePlace: res.data.marriage_place,
       });
       setResponse({

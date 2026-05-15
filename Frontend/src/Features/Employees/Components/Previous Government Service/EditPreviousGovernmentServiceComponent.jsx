@@ -1,6 +1,6 @@
 import style from "../../../../styles/components/employees.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
-import TerminationInputBoxes from "./TerminationInputBoxesComponent";
+import PreviousGovernmentServiceInputBoxes from "./PreviousGovernmentServiceInputBoxesComponent";
 import api from "../../../../api";
 import { useState, useEffect } from "react";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
@@ -10,14 +10,14 @@ import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 
-export default function EditTermination() {
+export default function EditPreviousGovernmentService() {
   const [initialData, setInitialData] = useState({});
   const [formData, setFormData] = useState({});
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { setResponse } = useOutletContext();
-  const { serviceId, terminationId } = useParams();
+  const { serviceId, previousGovernmentServiceId } = useParams();
 
   const { theme } = useTheme();
 
@@ -26,22 +26,15 @@ export default function EditTermination() {
   }, [initialData]);
 
   useEffect(() => {
-    const fetchTermination = async () => {
+    const fetchService = async () => {
       try {
         const res = await api.get(
-          `api/termination-of-appointment/${serviceId}/employee/`,
+          `api/previous-government-service/${previousGovernmentServiceId}/detail/`,
         );
         setInitialData({
-          cause: {
-            value: res.data.cause,
-            label: res.data.cause_display,
-          },
-          status: {
-            value: res.data.status,
-            label: res.data.status_display,
-          },
-          authority: res.data.authority,
-          date: res.data.date,
+          institution: res.data.institution,
+          duration: res.data.duration,
+          position: res.data.position,
           createdAt: res.data.date_added,
           createdBy: res.data.created_by_display,
           updatedAt: res.data.date_modified,
@@ -51,11 +44,11 @@ export default function EditTermination() {
       } catch (error) {
         if (error.response.status === 404) {
           setResponse({
-            message: "Termination record not found",
+            message: "Service record not found",
             type: "error",
             id: Date.now(),
           });
-          navigate(`/home/employees/${serviceId}/termination`);
+          navigate(`/home/employees/${serviceId}/previousGovernmentService`);
           return;
         }
 
@@ -67,43 +60,35 @@ export default function EditTermination() {
         return;
       }
     };
-    fetchTermination();
+    fetchService();
   }, []);
 
-  const updateTermination = async () => {
+  const updateService = async () => {
     setLoading(true);
 
     const payload = {
       employee: serviceId,
-      cause: formData.cause?.value,
-      status: formData.status?.value,
-      authority: formData.authority,
-      date: formData.date || null,
+      institution: formData.institution,
+      duration: formData.duration,
+      position: formData.position,
     };
 
     try {
       const res = await api.patch(
-        `api/termination-of-appointment/${terminationId}/edit/`,
+        `api/previous-government-service/${previousGovernmentServiceId}/edit/`,
         payload,
       );
       setFormData({
-        cause: {
-          value: res.data.cause,
-          label: res.data.cause_display,
-        },
-        status: {
-          value: res.data.status,
-          label: res.data.status_display,
-        },
-        authority: res.data.authority,
-        date: res.data.date,
+        institution: res.data.institution,
+        duration: res.data.duration,
+        position: res.data.position,
         createdAt: res.data.date_added,
         createdBy: res.data.created_by_display,
         updatedAt: res.data.date_modified,
         updatedBy: res.data.updated_by_display,
       });
       setResponse({
-        message: "Termination updated",
+        message: "Service updated",
         id: Date.now(),
       });
       setLoading(false);
@@ -136,10 +121,10 @@ export default function EditTermination() {
 
     try {
       const res = await api.delete(
-        `api/termination-of-appointment/${terminationId}/delete/`,
+        `api/previous-government-service/${previousGovernmentServiceId}/delete/`,
       );
       if (res.status === 204) {
-        navigate(`/home/employees/${serviceId}/termination`);
+        navigate(`/home/employees/${serviceId}/previousGovernmentService`);
       }
     } catch (error) {
       setResponse({
@@ -163,16 +148,18 @@ export default function EditTermination() {
             <button
               className={style.addOccurrence}
               onClick={() =>
-                navigate(`/home/employees/${serviceId}/termination`)
+                navigate(
+                  `/home/employees/${serviceId}/previousGovernmentService`,
+                )
               }
             >
-              All Termination Records
+              All Service Records
             </button>
           )}
         </div>
       </div>
       <div className={style.inputAndButtonsSection}>
-        <TerminationInputBoxes
+        <PreviousGovernmentServiceInputBoxes
           formData={formData}
           setFormData={setFormData}
           setResponse={setResponse}
@@ -185,7 +172,7 @@ export default function EditTermination() {
             {loadingData ? (
               <BaseSkeleton width={120} height={38} />
             ) : (
-              <button onClick={updateTermination}>
+              <button onClick={updateService}>
                 {loading ? (
                   <ClipLoader
                     size={13}
