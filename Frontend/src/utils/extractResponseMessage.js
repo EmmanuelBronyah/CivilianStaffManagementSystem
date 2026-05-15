@@ -13,9 +13,9 @@ export default function getResponseMessages(response) {
           messages.push(`${value}`);
         } else {
           let capitalizedKey = key.charAt(0).toUpperCase() + key.slice(1);
-          capitalizedKey = capitalizedKey.replace("_", " ");
+          capitalizedKey = capitalizedKey.replaceAll("_", " ");
 
-          if (capitalizedKey === "Non_field_errors") {
+          if (capitalizedKey === "Non field errors") {
             messages.push(`${value}`);
           } else {
             messages.push(`${capitalizedKey}: ${value}`);

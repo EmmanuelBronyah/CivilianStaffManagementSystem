@@ -45,6 +45,10 @@ import EmployeeTermination from "./Features/Employees/Components/Termination Of 
 import ListTermination from "./Features/Employees/Components/Termination Of Appointment/ListTerminationComponent";
 import AddTermination from "./Features/Employees/Components/Termination Of Appointment/AddTerminationComponent";
 import EditTermination from "./Features/Employees/Components/Termination Of Appointment/EditTerminationComponent";
+import ListIdentity from "./Features/Employees/Components/Identity/ListIdentityComponent";
+import EmployeeIdentity from "./Features/Employees/Components/Identity/EmployeeIdentityComponent";
+import AddIdentity from "./Features/Employees/Components/Identity/AddIdentityComponent";
+import EditIdentity from "./Features/Employees/Components/Identity/EditIdentityComponent";
 
 function App() {
   return (
@@ -139,6 +143,12 @@ function App() {
                   path="edit/:terminationId"
                   element={<EditTermination />}
                 />
+              </Route>
+              {/* IDENTITY */}
+              <Route path="identity" element={<EmployeeIdentity />}>
+                <Route index element={<ListIdentity />} />
+                <Route path="add/" element={<AddIdentity />} />
+                <Route path="edit/:identityId" element={<EditIdentity />} />
               </Route>
             </Route>
           </Route>
