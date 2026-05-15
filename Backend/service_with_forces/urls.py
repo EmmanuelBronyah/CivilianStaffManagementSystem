@@ -54,6 +54,11 @@ urlpatterns = [
         views.DeleteMilitaryRanksAPIView.as_view(),
         name="delete-military-rank",
     ),
+    path(
+        "list-ranks-and-units/",
+        views.ListMilitaryRanksAndUnits.as_view(),
+        name="list-ranks-and-units",
+    ),
     # Incomplete Service With Forces
     path(
         "incomplete-service-with-forces/create/",

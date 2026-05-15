@@ -49,6 +49,10 @@ import ListIdentity from "./Features/Employees/Components/Identity/ListIdentityC
 import EmployeeIdentity from "./Features/Employees/Components/Identity/EmployeeIdentityComponent";
 import AddIdentity from "./Features/Employees/Components/Identity/AddIdentityComponent";
 import EditIdentity from "./Features/Employees/Components/Identity/EditIdentityComponent";
+import ListServiceWithForces from "./Features/Employees/Components/Service With Forces/ListServiceWithForcesComponent";
+import EmployeeServiceWithForces from "./Features/Employees/Components/Service With Forces/EmployeeServiceWithForcesComponent";
+import AddService from "./Features/Employees/Components/Service With Forces/AddServiceComponent";
+import EditService from "./Features/Employees/Components/Service With Forces/EditServiceWithForcesComponent";
 
 function App() {
   return (
@@ -149,6 +153,30 @@ function App() {
                 <Route index element={<ListIdentity />} />
                 <Route path="add/" element={<AddIdentity />} />
                 <Route path="edit/:identityId" element={<EditIdentity />} />
+              </Route>
+              {/* SERVICE WITH FORCES */}
+              <Route
+                path="serviceWithForces"
+                element={<EmployeeServiceWithForces />}
+              >
+                <Route index element={<ListServiceWithForces />} />
+                <Route path="add/" element={<AddService />} />
+                <Route
+                  path="edit/:serviceWithForcesId"
+                  element={<EditService />}
+                />
+              </Route>
+              {/* PREVIOUS GOVERNMENT SERVICE */}
+              <Route
+                path="previousGovernmentService"
+                element={<EmployeeServiceWithForces />}
+              >
+                <Route index element={<ListServiceWithForces />} />
+                <Route path="add/" element={<AddService />} />
+                <Route
+                  path="edit/:serviceWithForcesId"
+                  element={<EditService />}
+                />
               </Route>
             </Route>
           </Route>

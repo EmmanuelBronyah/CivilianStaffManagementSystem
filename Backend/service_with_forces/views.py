@@ -18,6 +18,9 @@ from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from rest_framework.views import APIView
+from employees.models import Units
+from employees.serializers import ListUnitsSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -229,6 +232,24 @@ class DeleteMilitaryRanksAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed(The Military Rank({instance.rank}) was deleted by {self.request.user}) created."
             )
+
+
+# LIST UNITS AND MILITARY RANKS
+class ListMilitaryRanksAndUnits(APIView):
+    http_method_names = ["get"]
+
+    def get(self, request, *args, **kwargs):
+        units = Units.objects.all()
+        military_ranks = MilitaryRanks.objects.all()
+
+        return Response(
+            {
+                "units": ListUnitsSerializer(units, many=True).data,
+                "military_ranks": serializers.MilitaryRanksSerializer(
+                    military_ranks, many=True
+                ).data,
+            }
+        )
 
 
 # INCOMPLETE SERVICE WITH FORCES
