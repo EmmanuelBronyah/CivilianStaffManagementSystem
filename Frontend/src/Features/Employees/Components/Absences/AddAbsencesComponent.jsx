@@ -6,6 +6,8 @@ import AbsencesInputBoxes from "./AbsencesInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function AddAbsences() {
   const [formData, setFormData] = useState({});
@@ -14,6 +16,12 @@ export default function AddAbsences() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addAbsences = async () => {
     setLoading(true);
@@ -71,7 +79,10 @@ export default function AddAbsences() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addAbsences}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addAbsences}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -82,7 +93,7 @@ export default function AddAbsences() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/absences`)}
             >
               Cancel

@@ -3,15 +3,25 @@ import Select from "react-select";
 import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
+import { useEffect } from "react";
 
 export default function SpouseInputBoxes({
   loadingData,
   formData,
   setFormData,
+  setResponse,
 }) {
   const isUpdatePage = useMatch(
     "/home/employees/:serviceId/spouse/edit/:spouseId",
   );
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const labelsAndInputType = [
     ["Spouse Name", "text"],
@@ -56,6 +66,8 @@ export default function SpouseInputBoxes({
           <input
             type={type}
             value={formData[labelKey(label)]}
+            disabled={adminAndStandardUserCanEdit(role)}
+            readOnly={adminAndStandardUserCanEdit(role)}
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,

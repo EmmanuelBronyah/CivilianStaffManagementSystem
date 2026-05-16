@@ -1,11 +1,12 @@
 import style from "../../../../styles/components/employees.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import IdentityInputBoxes from "./IdentityInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 
 export default function AddIdentity() {
   const [formData, setFormData] = useState({});
@@ -14,6 +15,13 @@ export default function AddIdentity() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addIdentity = async () => {
     setLoading(true);
@@ -76,7 +84,10 @@ export default function AddIdentity() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addIdentity}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addIdentity}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -87,7 +98,7 @@ export default function AddIdentity() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/identity`)}
             >
               Cancel

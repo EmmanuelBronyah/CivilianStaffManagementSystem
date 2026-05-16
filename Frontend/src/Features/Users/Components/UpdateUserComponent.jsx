@@ -14,6 +14,7 @@ import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { useParams } from "react-router-dom";
+import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 
 export default function UpdateUser() {
   const [initialData, setInitialData] = useState({});
@@ -27,6 +28,12 @@ export default function UpdateUser() {
   const { id: userId } = useParams();
 
   const { theme } = useTheme();
+  const { role, errorResponse } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!errorResponse) return;
+    setResponse(errorResponse);
+  });
 
   useEffect(() => {
     if (!response) return;
@@ -269,7 +276,7 @@ export default function UpdateUser() {
                 <BaseSkeleton height={37} width={150} />
               ) : (
                 <button
-                  className={style.restoreButton}
+                  className={`${style.restoreButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
                   disabled={loading}
                   onClick={initiateRestoreUserProcess}
                 >
@@ -288,7 +295,11 @@ export default function UpdateUser() {
               <BaseSkeleton height={37} width={100} />
             ) : (
               <div className={style.addUserButton}>
-                <button disabled={loading} onClick={updateUser}>
+                <button
+                  className={role && role === "VIEWER" ? style.displayNone : ""}
+                  disabled={loading}
+                  onClick={updateUser}
+                >
                   {loading ? (
                     <ClipLoader
                       size={13}
@@ -304,7 +315,11 @@ export default function UpdateUser() {
               <BaseSkeleton height={37} width={100} />
             ) : (
               <div className={style.discardButton}>
-                <button disabled={loading} onClick={resetData}>
+                <button
+                  className={role && role === "VIEWER" ? style.displayNone : ""}
+                  disabled={loading}
+                  onClick={resetData}
+                >
                   Cancel
                 </button>
               </div>
@@ -312,11 +327,18 @@ export default function UpdateUser() {
             {loadingUserData ? (
               <BaseSkeleton height={37} width={150} />
             ) : (
-              <p onClick={initiatePasswordReset}>Reset Password?</p>
+              <p
+                className={role && role === "VIEWER" ? style.displayNone : ""}
+                onClick={initiatePasswordReset}
+              >
+                Reset Password?
+              </p>
             )}
           </div>
         </div>
-        <div className={style.danger}>
+        <div
+          className={`${style.danger} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+        >
           {loadingUserData ? (
             <BaseSkeleton height={42} width={150} />
           ) : (

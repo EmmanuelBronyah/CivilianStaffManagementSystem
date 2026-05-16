@@ -30,6 +30,9 @@
   --employeeComponent-input-backgroundColor: hsl(120, 35%, 93%);
   --employeeComponent-input-color: #004700;
   --editIcon-size: 1.2rem;
+  --userComponent-input-borderColor: #004700;
+  --userComponent-input-backgroundColor: hsl(120, 35%, 93%);
+  --userComponent-input-color: #004700;
 }
 
 .dark {
@@ -62,6 +65,9 @@
   --employeeComponent-input-borderColor: grey;
   --employeeComponent-input-backgroundColor: hsl(0, 0%, 30%);
   --employeeComponent-input-color: hsl(0, 0%, 80%);
+  --userComponent-input-borderColor: grey;
+  --userComponent-input-backgroundColor: hsl(0, 0%, 30%);
+  --userComponent-input-color: hsl(0, 0%, 80%);
 }
 
 .dashboardMain {

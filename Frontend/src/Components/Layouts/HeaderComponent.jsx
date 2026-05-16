@@ -8,12 +8,14 @@ import BaseSkeleton from "../Common/SkeletonComponent";
 import api from "../../api";
 import { USER_ID } from "../../constants";
 import getResponseMessages from "../../utils/extractResponseMessage";
+import { useLocation } from "react-router-dom";
 
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
   const [displayFilterBox, setDisplayFilterBox] = useState(false);
   const [placeholderText, setPlaceholderText] = useState("Service Number...");
+  const location = useLocation();
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -50,11 +52,43 @@ export default function Header(props) {
     }
   };
 
+  const routes = [
+    {
+      path: "/home/users",
+      title: "Users",
+    },
+
+    {
+      path: "/home/employees",
+      title: "Employees",
+    },
+
+    {
+      path: "/home/feeds",
+      title: "Activity Feeds",
+    },
+
+    {
+      path: "/home/settings",
+      title: "Settings",
+    },
+
+    {
+      path: "/home",
+      title: "Dashboard",
+    },
+  ];
+
+  const activeRoute = routes.find((route) =>
+    location.pathname.startsWith(route.path),
+  );
+  const activePage = activeRoute?.title || "Dashboard";
+
   return (
     <header className={!theme ? style.dark : ""}>
       <MdDehaze className={style.icon} onClick={() => props.setOpen(true)} />
       <div className={style.activePageContainer}>
-        <p>{props.activePage}</p>
+        <p>{activePage}</p>
       </div>
       <div className={style.searchBoxContainer}>
         <div className={style.searchBox}>

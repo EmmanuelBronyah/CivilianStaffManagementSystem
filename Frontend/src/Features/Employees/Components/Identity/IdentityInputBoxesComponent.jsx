@@ -4,11 +4,20 @@ import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent"
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { MdEdit, MdEditOff } from "react-icons/md";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
+import { useEffect } from "react";
 
-export default function TerminationInputBoxes(props) {
+export default function IdentityInputBoxes(props) {
   const isEditPage = useMatch(
     "/home/employees/:serviceId/identity/edit/:identityId",
   );
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    props.setResponse(response);
+  });
 
   const labelsAndInputType = [
     ["Voters ID"],
@@ -23,7 +32,7 @@ export default function TerminationInputBoxes(props) {
       case "Voters ID":
         return "votersId";
       case "National ID":
-        return "nationalID";
+        return "nationalId";
       case "GLICO ID":
         return "glicoId";
       case "nhisId":
@@ -51,6 +60,8 @@ export default function TerminationInputBoxes(props) {
               className={style.primaryPageInputs}
               type="text"
               value={props.formData[labelKey(label)]}
+              disabled={adminAndStandardUserCanEdit(role)}
+              readOnly={adminAndStandardUserCanEdit(role)}
               onChange={(e) => {
                 props.setFormData((prev) => ({
                   ...prev,

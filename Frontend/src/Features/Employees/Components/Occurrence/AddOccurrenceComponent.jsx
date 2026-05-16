@@ -1,11 +1,12 @@
 import style from "../../../../styles/components/employees.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import OccurrenceInputBoxes from "./OccurrenceInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 
 export default function AddOccurrence() {
   const [formData, setFormData] = useState({});
@@ -14,6 +15,12 @@ export default function AddOccurrence() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addOccurrence = async () => {
     setLoading(true);
@@ -88,7 +95,10 @@ export default function AddOccurrence() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addOccurrence}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addOccurrence}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -99,7 +109,7 @@ export default function AddOccurrence() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/occurrence`)
               }

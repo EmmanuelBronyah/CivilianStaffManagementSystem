@@ -4,11 +4,20 @@ import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent"
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { MdEdit, MdEditOff } from "react-icons/md";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
+import { useEffect } from "react";
 
 export default function PreviousGovernmentServiceInputBoxes(props) {
   const isEditPage = useMatch(
     "/home/employees/:serviceId/previousGovernmentService/edit/:previousGovernmentServiceId",
   );
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    props.setResponse(response);
+  });
 
   const labelsAndInputType = ["Institution", "Position", "Duration"];
 
@@ -41,6 +50,8 @@ export default function PreviousGovernmentServiceInputBoxes(props) {
               className={style.primaryPageInputs}
               type="text"
               value={props.formData[labelKey(label)]}
+              disabled={adminAndStandardUserCanEdit(role)}
+              readOnly={adminAndStandardUserCanEdit(role)}
               onChange={(e) => {
                 props.setFormData((prev) => ({
                   ...prev,

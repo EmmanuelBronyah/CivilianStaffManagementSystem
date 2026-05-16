@@ -7,6 +7,8 @@ import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { MdEdit, MdEditOff } from "react-icons/md";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
 
 export default function ServiceWithForcesInputBoxes(props) {
   const [units, setUnits] = useState([]);
@@ -14,6 +16,13 @@ export default function ServiceWithForcesInputBoxes(props) {
   const isEditPage = useMatch(
     "/home/employees/:serviceId/serviceWithForces/edit/:serviceWithForcesId",
   );
+
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    props.setResponse(response);
+  });
 
   useEffect(() => {
     const fetchDropdownData = async () => {
@@ -135,6 +144,8 @@ export default function ServiceWithForcesInputBoxes(props) {
         options={options}
         placeholder={`Select ${label}`}
         value={props.formData[labelKey(label)]}
+        disabled={adminAndStandardUserCanEdit(role)}
+        readOnly={adminAndStandardUserCanEdit(role)}
         onChange={(selected) => {
           props.setFormData((prev) => ({
             ...prev,
@@ -177,6 +188,8 @@ export default function ServiceWithForcesInputBoxes(props) {
                 className={style.primaryPageInputs}
                 type={type}
                 value={props.formData[labelKey(label)]}
+                disabled={adminAndStandardUserCanEdit(role)}
+                readOnly={adminAndStandardUserCanEdit(role)}
                 onChange={(e) => {
                   props.setFormData((prev) => ({
                     ...prev,

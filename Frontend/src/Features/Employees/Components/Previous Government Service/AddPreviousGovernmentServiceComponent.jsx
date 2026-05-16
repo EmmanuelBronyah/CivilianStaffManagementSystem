@@ -6,6 +6,8 @@ import PreviousGovernmentServiceInputBoxes from "./PreviousGovernmentServiceInpu
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function AddPreviousGovernmentService() {
   const [formData, setFormData] = useState({});
@@ -14,6 +16,12 @@ export default function AddPreviousGovernmentService() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addService = async () => {
     setLoading(true);
@@ -73,7 +81,10 @@ export default function AddPreviousGovernmentService() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addService}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addService}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -84,7 +95,7 @@ export default function AddPreviousGovernmentService() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(
                   `/home/employees/${serviceId}/previousGovernmentService`,

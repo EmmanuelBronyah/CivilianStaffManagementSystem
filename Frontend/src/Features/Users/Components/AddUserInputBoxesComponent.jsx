@@ -6,6 +6,8 @@ import ReadOnlyUserData from "./AddReadOnlyUserData";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../Employees/utils/assignReadOnly";
 
 export default function AddUserInputBoxes({
   loading,
@@ -21,6 +23,12 @@ export default function AddUserInputBoxes({
     { id: 3, name: "VIEWER" },
   ];
   const isUpdatePage = useMatch("/home/users/update/:id");
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   useEffect(() => {
     const fetchDivisionsAndGrades = async () => {
@@ -145,6 +153,8 @@ export default function AddUserInputBoxes({
         options={options}
         placeholder={`Select ${label}`}
         value={formData[labelKey(label)]}
+        isDisabled={adminAndStandardUserCanEdit(role)}
+        readOnly={adminAndStandardUserCanEdit(role)}
         onChange={(selected) =>
           setFormData((prev) => ({ ...prev, [labelKey(label)]: selected }))
         }
@@ -197,6 +207,8 @@ export default function AddUserInputBoxes({
             <input
               type={type}
               value={formData[labelKey(label)]}
+              disabled={adminAndStandardUserCanEdit(role)}
+              readOnly={adminAndStandardUserCanEdit(role)}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,

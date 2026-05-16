@@ -147,7 +147,8 @@ nav button:hover {
   }
 }
 
-.hide {
+.hide,
+.displayNone {
   display: none;
 }
 

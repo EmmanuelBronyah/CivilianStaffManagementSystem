@@ -9,6 +9,7 @@ import askToDelete from "../../../../utils/askToDelete";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 
 export default function EditOccurrence() {
   const [initialData, setInitialData] = useState({});
@@ -20,6 +21,12 @@ export default function EditOccurrence() {
   const { serviceId, occurrenceId } = useParams();
 
   const { theme } = useTheme();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   useEffect(() => {
     setFormData(initialData);
@@ -199,7 +206,10 @@ export default function EditOccurrence() {
             {loadingData ? (
               <BaseSkeleton width={120} height={38} />
             ) : (
-              <button onClick={updateOccurrence}>
+              <button
+                className={role && role === "VIEWER" ? style.displayNone : ""}
+                onClick={updateOccurrence}
+              >
                 {loading ? (
                   <ClipLoader
                     size={13}
@@ -213,7 +223,10 @@ export default function EditOccurrence() {
             {loadingData ? (
               <BaseSkeleton width={120} height={38} />
             ) : (
-              <button className={style.cancelButton} onClick={discardChanges}>
+              <button
+                className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+                onClick={discardChanges}
+              >
                 Cancel
               </button>
             )}
@@ -221,7 +234,10 @@ export default function EditOccurrence() {
           {loadingData ? (
             <BaseSkeleton width={40} />
           ) : (
-            <MdDelete className={style.trashIcon} onClick={initiateDeletion} />
+            <MdDelete
+              className={`${style.trashIcon} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              onClick={initiateDeletion}
+            />
           )}
         </div>
       </div>

@@ -6,6 +6,8 @@ import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent"
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
 
 export default function ChildrenInputBoxes({
   loadingData,
@@ -17,6 +19,12 @@ export default function ChildrenInputBoxes({
   const isUpdatePage = useMatch(
     "/home/employees/:serviceId/children/edit/:childId",
   );
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   useEffect(() => {
     const fetchGender = async () => {
@@ -130,6 +138,8 @@ export default function ChildrenInputBoxes({
         options={options}
         placeholder={`Select ${label}`}
         value={formData[labelKey(label)]}
+        disabled={adminAndStandardUserCanEdit(role)}
+        readOnly={adminAndStandardUserCanEdit(role)}
         onChange={(selected) =>
           setFormData((prev) => ({ ...prev, [labelKey(label)]: selected }))
         }
@@ -170,6 +180,8 @@ export default function ChildrenInputBoxes({
             <input
               type={type}
               value={formData[labelKey(label)]}
+              disabled={adminAndStandardUserCanEdit(role)}
+              readOnly={adminAndStandardUserCanEdit(role)}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,

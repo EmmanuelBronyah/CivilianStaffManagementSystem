@@ -10,8 +10,9 @@ import verifyAdminProcess, {
   showErrorModal,
 } from "../../../utils/askAdminIdentity";
 import { Link } from "react-router-dom";
+import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 
-export default function AddUsersComponent({ setUserPage }) {
+export default function AddUsersComponent() {
   const initialFormData = {
     fullName: "",
     username: "",
@@ -28,6 +29,12 @@ export default function AddUsersComponent({ setUserPage }) {
   const [loading, setLoading] = useState(false);
 
   const { theme } = useTheme();
+  const { role, errorResponse } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!errorResponse) return;
+    setResponse(errorResponse);
+  });
 
   useEffect(() => {
     if (!response) return;
@@ -134,7 +141,11 @@ export default function AddUsersComponent({ setUserPage }) {
           />
           <div className={style.buttonsContainer}>
             <div className={style.addUserButton}>
-              <button disabled={loading} onClick={registerUser}>
+              <button
+                className={role && role === "VIEWER" ? style.displayNone : ""}
+                disabled={loading}
+                onClick={registerUser}
+              >
                 {loading ? (
                   <ClipLoader
                     size={13}
@@ -146,7 +157,9 @@ export default function AddUsersComponent({ setUserPage }) {
               </button>
             </div>
 
-            <div className={style.discardButton}>
+            <div
+              className={`${style.discardButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+            >
               <button disabled={loading} onClick={clearData}>
                 Discard
               </button>

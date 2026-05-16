@@ -19,10 +19,7 @@ export default function SideBar(props) {
       </div>
       <nav>
         <ul>
-          <SidebarButtons
-            activePage={props.activePage}
-            setActivePage={props.setActivePage}
-          />
+          <SidebarButtons setResponse={props.setResponse} />
         </ul>
       </nav>
     </aside>

@@ -8,8 +8,22 @@ import {
 } from "react-icons/md";
 import style from "../../styles/components/sidebarcomponent.module.css";
 import { NavLink } from "react-router-dom";
+import useFetchUserRole from "../../Features/hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
-export default function SidebarButtons() {
+export default function SidebarButtons(props) {
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    props.setResponse(response);
+  });
+
+  useEffect(() => {
+    if (!response) return;
+    props.setResponse(response);
+  });
+
   const buttonInfo = [
     ["Dashboard", MdDashboard, "/home"],
     ["Users", MdAccountBox, "/home/users"],
@@ -39,6 +53,8 @@ export default function SidebarButtons() {
       </li>
     );
   });
+
+  console.log(buttons);
 
   return buttons;
 }

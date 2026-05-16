@@ -44,12 +44,7 @@ function HomePage() {
   return (
     <div className={`${style.homePage} ${!theme && style.dark}`}>
       <div className={style.wrapper}>
-        <SideBar
-          activePage={activePage}
-          setActivePage={setActivePage}
-          open={open}
-          setOpen={setOpen}
-        />
+        <SideBar open={open} setOpen={setOpen} setResponse={setResponse} />
         <div className={style.headerMainContainer}>
           <Header
             activePage={activePage}

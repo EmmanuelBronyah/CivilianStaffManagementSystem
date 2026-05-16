@@ -12,6 +12,7 @@ import ActivityFeeds from "../../Dashboard/Components/ActivityFeedsComponent";
 import Notification from "../../../Components/Common/NotificationComponent";
 import getResponseMessages from "../../../utils/extractResponseMessage";
 import { useNavigate } from "react-router-dom";
+import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 
 export default function Dashboard() {
   const [totalUsersPerRole, setTotalUsersPerRole] = useState(null);
@@ -31,6 +32,12 @@ export default function Dashboard() {
   const navigate = useNavigate();
 
   const { theme } = useTheme();
+  const { role, errorResponse } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!errorResponse) return;
+    setResponse(errorResponse);
+  });
 
   useEffect(() => {
     const getDashboardStat = async () => {
@@ -174,7 +181,12 @@ export default function Dashboard() {
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={38} width={130} />
                 ) : (
-                  <button onClick={() => navigate(`/home/users/add`)}>
+                  <button
+                    className={
+                      role && role === "VIEWER" ? style.displayNone : ""
+                    }
+                    onClick={() => navigate(`/home/users/add`)}
+                  >
                     New User
                   </button>
                 )}
@@ -200,13 +212,25 @@ export default function Dashboard() {
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={39} width={130} />
                 ) : (
-                  <button>Add Employee</button>
+                  <button
+                    className={
+                      role && role === "VIEWER" ? style.displayNone : ""
+                    }
+                  >
+                    Add Employee
+                  </button>
                 )}
 
                 {loadingDashboardStat ? (
                   <BaseSkeleton height={39} width={130} />
                 ) : (
-                  <button>Generate Report</button>
+                  <button
+                    className={
+                      role && role === "VIEWER" ? style.displayNone : ""
+                    }
+                  >
+                    Generate Report
+                  </button>
                 )}
               </div>
             </div>

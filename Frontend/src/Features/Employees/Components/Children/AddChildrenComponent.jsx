@@ -1,11 +1,12 @@
 import style from "../../../../styles/components/employees.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ChildrenInputBoxes from "./ChildrenInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 
 export default function AddChildren() {
   const [formData, setFormData] = useState({});
@@ -14,6 +15,12 @@ export default function AddChildren() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addChild = async () => {
     setLoading(true);
@@ -76,7 +83,10 @@ export default function AddChildren() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addChild}>
+            <button
+              onClick={addChild}
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -87,7 +97,7 @@ export default function AddChildren() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/children`)}
             >
               Cancel

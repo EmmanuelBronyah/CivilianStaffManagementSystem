@@ -9,13 +9,15 @@ function onlyAdminCanEdit(role) {
   }
 }
 
-function adminAndStandardUserCanEdit(role) {
+export function adminAndStandardUserCanEdit(role) {
   switch (role) {
     case "ADMINISTRATOR":
       return false;
     case "STANDARD USER":
       return false;
     case "VIEWER":
+      return true;
+    default:
       return true;
   }
 }

@@ -443,6 +443,10 @@
   }
 }
 
+.displayNone {
+  display: none;
+}
+
 @media screen and (max-width: 1420px) {
   .employees .employeeUnitSection .totalInactiveEmployeesContainer {
     display: none;

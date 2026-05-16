@@ -13,6 +13,8 @@ export default function IdentityData(props) {
     const fetchIdentityData = async () => {
       try {
         const res = await api.get(`api/identity/${serviceId}/detail/`);
+        console.log(res.data);
+
         setIdentityData([res.data]);
         props.setLoading(false);
       } catch (error) {

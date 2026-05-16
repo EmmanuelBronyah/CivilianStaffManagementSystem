@@ -4,6 +4,8 @@ import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import OccurrenceData from "./OccurrenceDataComponent";
 import { useState } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function ListOccurrence() {
   const [loading, setLoading] = useState(true);
@@ -11,6 +13,12 @@ export default function ListOccurrence() {
   const { setResponse } = useOutletContext();
   const navigate = useNavigate();
   const { serviceId } = useParams();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   return (
     <div
@@ -22,7 +30,7 @@ export default function ListOccurrence() {
             <BaseSkeleton width={170} height={39} />
           ) : (
             <button
-              className={style.addOccurrence}
+              className={`${style.addOccurrence} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/occurrence/add`)
               }

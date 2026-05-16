@@ -6,6 +6,8 @@ import NextOfKinInputBoxes from "./NextOfKinInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function AddNextOfKin() {
   const [formData, setFormData] = useState({});
@@ -14,6 +16,12 @@ export default function AddNextOfKin() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addNextOfKin = async () => {
     setLoading(true);
@@ -75,7 +83,10 @@ export default function AddNextOfKin() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addNextOfKin}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addNextOfKin}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -86,7 +97,7 @@ export default function AddNextOfKin() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/nextOfKin`)}
             >
               Cancel

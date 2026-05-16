@@ -7,6 +7,7 @@ import getResponseMessages from "../../../utils/extractResponseMessage";
 import UsersPerDivision from "./UsersPerDivisionComponent";
 import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 import { NavLink } from "react-router-dom";
+import useFetchUserRole from "../../hooks/fetchUserRoleHook";
 
 export default function AllUsersComponent() {
   const [visible, setVisible] = useState(false);
@@ -15,6 +16,12 @@ export default function AllUsersComponent() {
   const [usersPerDivision, setUsersPerDivision] = useState([]);
 
   const { theme } = useTheme();
+  const { role, errorResponse } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!errorResponse) return;
+    setResponse(errorResponse);
+  });
 
   useEffect(() => {
     if (!response) return;
@@ -62,7 +69,11 @@ export default function AllUsersComponent() {
             <BaseSkeleton height={37} width={100} />
           ) : (
             <NavLink to="/home/users/add">
-              <button>New User</button>
+              <button
+                className={role && role === "VIEWER" ? style.displayNone : ""}
+              >
+                New User
+              </button>
             </NavLink>
           )}
         </div>

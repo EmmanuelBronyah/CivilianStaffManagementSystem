@@ -6,6 +6,8 @@ import SpouseInputBoxes from "./SpouseInputBoxesComponent";
 import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function AddSpouse() {
   const [formData, setFormData] = useState({});
@@ -14,6 +16,12 @@ export default function AddSpouse() {
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const addSpouse = async () => {
     setLoading(true);
@@ -75,7 +83,10 @@ export default function AddSpouse() {
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button onClick={addSpouse}>
+            <button
+              className={role && role === "VIEWER" ? style.displayNone : ""}
+              onClick={addSpouse}
+            >
               {loading ? (
                 <ClipLoader
                   size={13}
@@ -86,7 +97,7 @@ export default function AddSpouse() {
               )}
             </button>
             <button
-              className={style.cancelButton}
+              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/spouse`)}
             >
               Cancel

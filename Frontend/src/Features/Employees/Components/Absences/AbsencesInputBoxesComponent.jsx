@@ -3,15 +3,25 @@ import Select from "react-select";
 import ReadOnlyEmployeeData from "../EmployeeCore/ReadOnlyEmployeeDataComponent";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useMatch } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
+import { adminAndStandardUserCanEdit } from "../../utils/assignReadOnly";
 
 export default function AbsencesInputBoxes({
   loadingData,
   formData,
   setFormData,
+  setResponse,
 }) {
+  const { role, response } = useFetchUserRole();
   const isUpdatePage = useMatch(
     "/home/employees/:serviceId/absences/edit/:absencesId",
   );
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   const labelsAndInputType = [
     ["Absence", "text"],
@@ -50,6 +60,8 @@ export default function AbsencesInputBoxes({
           <input
             type={type}
             value={formData[labelKey(label)]}
+            disabled={adminAndStandardUserCanEdit(role)}
+            readOnly={adminAndStandardUserCanEdit(role)}
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,
