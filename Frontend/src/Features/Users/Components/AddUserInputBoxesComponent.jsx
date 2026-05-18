@@ -153,8 +153,8 @@ export default function AddUserInputBoxes({
         options={options}
         placeholder={`Select ${label}`}
         value={formData[labelKey(label)]}
-        isDisabled={adminAndStandardUserCanEdit(role)}
-        readOnly={adminAndStandardUserCanEdit(role)}
+        isDisabled={role ? adminAndStandardUserCanEdit(role) : true}
+        readOnly={role ? adminAndStandardUserCanEdit(role) : true}
         onChange={(selected) =>
           setFormData((prev) => ({ ...prev, [labelKey(label)]: selected }))
         }
@@ -207,8 +207,8 @@ export default function AddUserInputBoxes({
             <input
               type={type}
               value={formData[labelKey(label)]}
-              disabled={adminAndStandardUserCanEdit(role)}
-              readOnly={adminAndStandardUserCanEdit(role)}
+              disabled={role ? adminAndStandardUserCanEdit(role) : true}
+              readOnly={role ? adminAndStandardUserCanEdit(role) : true}
               onChange={(e) =>
                 setFormData((prev) => ({
                   ...prev,

@@ -88,7 +88,7 @@ export default function AddTermination() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addTermination}
             >
               {loading ? (
@@ -101,7 +101,7 @@ export default function AddTermination() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/termination`)
               }

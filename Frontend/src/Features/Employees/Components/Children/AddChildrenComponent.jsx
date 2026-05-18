@@ -7,6 +7,7 @@ import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function AddChildren() {
   const [formData, setFormData] = useState({});
@@ -81,11 +82,12 @@ export default function AddChildren() {
           setFormData={setFormData}
           setResponse={setResponse}
         />
+
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
               onClick={addChild}
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
             >
               {loading ? (
                 <ClipLoader
@@ -97,7 +99,7 @@ export default function AddChildren() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/children`)}
             >
               Cancel

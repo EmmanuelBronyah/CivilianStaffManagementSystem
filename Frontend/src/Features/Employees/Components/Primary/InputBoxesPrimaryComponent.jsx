@@ -261,7 +261,7 @@ export default function PrimaryComponentInputBoxes(props) {
     const options = createOptions(label);
     return (
       <Select
-        isDisabled={role && isReadOnly(label, role)} // Disable dropdown due to user's role
+        isDisabled={role ? isReadOnly(label, role) : true} // Disable dropdown due to user's role
         styles={customSelectStyles}
         options={options}
         placeholder={`Select ${label}`}
@@ -290,8 +290,8 @@ export default function PrimaryComponentInputBoxes(props) {
               <BaseSkeleton height={40} />
             ) : (
               <input
-                disabled={role && isReadOnly(label, role)} // Disable checkbox due to user's role
-                readOnly={role && isReadOnly(label, role)} // Disable text input due to user's role
+                disabled={role ? isReadOnly(label, role) : true} // Disable checkbox due to user's role
+                readOnly={role ? isReadOnly(label, role) : true} // Disable text input due to user's role
                 className={`${style.primaryPageInputs} ${
                   type === "checkbox" && style.checkbox
                 }`}

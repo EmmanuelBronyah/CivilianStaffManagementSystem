@@ -143,7 +143,7 @@ export default function TerminationInputBoxes(props) {
         options={options}
         placeholder={`Select ${label}`}
         value={props.formData[labelKey(label)]}
-        disabled={adminAndStandardUserCanEdit(role)}
+        isDisabled={role ? adminAndStandardUserCanEdit(role) : true}
         readOnly={adminAndStandardUserCanEdit(role)}
         onChange={(selected) => {
           props.setFormData((prev) => ({
@@ -187,8 +187,8 @@ export default function TerminationInputBoxes(props) {
                 className={style.primaryPageInputs}
                 type={type}
                 value={props.formData[labelKey(label)]}
-                disabled={adminAndStandardUserCanEdit(role)}
-                readOnly={adminAndStandardUserCanEdit(role)}
+                disabled={role ? adminAndStandardUserCanEdit(role) : true}
+                readOnly={role ? adminAndStandardUserCanEdit(role) : true}
                 onChange={(e) => {
                   props.setFormData((prev) => ({
                     ...prev,

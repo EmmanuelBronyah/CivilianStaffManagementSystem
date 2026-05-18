@@ -193,7 +193,7 @@ export default function EditService() {
               <BaseSkeleton width={120} height={38} />
             ) : (
               <button
-                className={role && role === "VIEWER" ? style.displayNone : ""}
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
                 onClick={updateService}
               >
                 {loading ? (
@@ -210,7 +210,7 @@ export default function EditService() {
               <BaseSkeleton width={120} height={38} />
             ) : (
               <button
-                className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+                className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
                 onClick={discardChanges}
               >
                 Cancel
@@ -221,7 +221,7 @@ export default function EditService() {
             <BaseSkeleton width={40} />
           ) : (
             <MdDelete
-              className={`${style.trashIcon} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.trashIcon} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={initiateDeletion}
             />
           )}

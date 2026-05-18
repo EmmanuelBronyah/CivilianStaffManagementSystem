@@ -84,7 +84,7 @@ export default function AddNextOfKin() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addNextOfKin}
             >
               {loading ? (
@@ -97,7 +97,7 @@ export default function AddNextOfKin() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/nextOfKin`)}
             >
               Cancel

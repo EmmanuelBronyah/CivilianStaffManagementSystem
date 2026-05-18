@@ -66,8 +66,8 @@ export default function SpouseInputBoxes({
           <input
             type={type}
             value={formData[labelKey(label)]}
-            disabled={adminAndStandardUserCanEdit(role)}
-            readOnly={adminAndStandardUserCanEdit(role)}
+            disabled={role ? adminAndStandardUserCanEdit(role) : true}
+            readOnly={role ? adminAndStandardUserCanEdit(role) : true}
             onChange={(e) =>
               setFormData((prev) => ({
                 ...prev,

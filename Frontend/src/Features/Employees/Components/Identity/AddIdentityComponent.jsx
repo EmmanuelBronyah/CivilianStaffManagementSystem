@@ -85,7 +85,7 @@ export default function AddIdentity() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addIdentity}
             >
               {loading ? (
@@ -98,7 +98,7 @@ export default function AddIdentity() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/identity`)}
             >
               Cancel

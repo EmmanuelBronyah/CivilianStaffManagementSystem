@@ -144,8 +144,8 @@ export default function ServiceWithForcesInputBoxes(props) {
         options={options}
         placeholder={`Select ${label}`}
         value={props.formData[labelKey(label)]}
-        disabled={adminAndStandardUserCanEdit(role)}
-        readOnly={adminAndStandardUserCanEdit(role)}
+        isDisabled={role ? adminAndStandardUserCanEdit(role) : true}
+        readOnly={role ? adminAndStandardUserCanEdit(role) : true}
         onChange={(selected) => {
           props.setFormData((prev) => ({
             ...prev,
@@ -188,8 +188,8 @@ export default function ServiceWithForcesInputBoxes(props) {
                 className={style.primaryPageInputs}
                 type={type}
                 value={props.formData[labelKey(label)]}
-                disabled={adminAndStandardUserCanEdit(role)}
-                readOnly={adminAndStandardUserCanEdit(role)}
+                disabled={role ? adminAndStandardUserCanEdit(role) : true}
+                readOnly={role ? adminAndStandardUserCanEdit(role) : true}
                 onChange={(e) => {
                   props.setFormData((prev) => ({
                     ...prev,

@@ -256,40 +256,44 @@ export default function EmployeePrimary() {
           setResponse={setResponse}
         />
       </div>
-      <div
-        className={`${style.buttons} ${role && role === "VIEWER" && style.displayNone}`}
-      >
-        {loadingData ? (
-          <BaseSkeleton height={40} width={140} />
-        ) : (
-          <button
-            disabled={loading}
-            className={style.saveButton}
-            onClick={updateEmployee}
-          >
-            {loading ? (
-              <ClipLoader
-                size={13}
-                color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-              />
-            ) : (
-              "Save Changes"
-            )}
-          </button>
-        )}
+      {!role ? (
+        <BaseSkeleton height={38} />
+      ) : (
+        <div
+          className={`${style.buttons} ${role === "VIEWER" && style.displayNone}`}
+        >
+          {loadingData ? (
+            <BaseSkeleton height={40} width={140} />
+          ) : (
+            <button
+              disabled={loading}
+              className={style.saveButton}
+              onClick={updateEmployee}
+            >
+              {loading ? (
+                <ClipLoader
+                  size={13}
+                  color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                />
+              ) : (
+                "Save Changes"
+              )}
+            </button>
+          )}
 
-        {loadingData ? (
-          <BaseSkeleton height={40} width={140} />
-        ) : (
-          <button
-            onClick={resetData}
-            className={style.cancelButton}
-            disabled={loading}
-          >
-            Cancel
-          </button>
-        )}
-      </div>
+          {loadingData ? (
+            <BaseSkeleton height={40} width={140} />
+          ) : (
+            <button
+              onClick={resetData}
+              className={style.cancelButton}
+              disabled={loading}
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }

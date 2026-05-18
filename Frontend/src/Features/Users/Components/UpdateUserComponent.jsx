@@ -276,7 +276,7 @@ export default function UpdateUser() {
                 <BaseSkeleton height={37} width={150} />
               ) : (
                 <button
-                  className={`${style.restoreButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+                  className={`${style.restoreButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
                   disabled={loading}
                   onClick={initiateRestoreUserProcess}
                 >
@@ -296,7 +296,9 @@ export default function UpdateUser() {
             ) : (
               <div className={style.addUserButton}>
                 <button
-                  className={role && role === "VIEWER" ? style.displayNone : ""}
+                  className={
+                    !role || role === "VIEWER" ? style.displayNone : ""
+                  }
                   disabled={loading}
                   onClick={updateUser}
                 >
@@ -316,7 +318,9 @@ export default function UpdateUser() {
             ) : (
               <div className={style.discardButton}>
                 <button
-                  className={role && role === "VIEWER" ? style.displayNone : ""}
+                  className={
+                    !role || role === "VIEWER" ? style.displayNone : ""
+                  }
                   disabled={loading}
                   onClick={resetData}
                 >
@@ -328,7 +332,7 @@ export default function UpdateUser() {
               <BaseSkeleton height={37} width={150} />
             ) : (
               <p
-                className={role && role === "VIEWER" ? style.displayNone : ""}
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
                 onClick={initiatePasswordReset}
               >
                 Reset Password?
@@ -337,7 +341,7 @@ export default function UpdateUser() {
           </div>
         </div>
         <div
-          className={`${style.danger} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+          className={`${style.danger} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
         >
           {loadingUserData ? (
             <BaseSkeleton height={42} width={150} />

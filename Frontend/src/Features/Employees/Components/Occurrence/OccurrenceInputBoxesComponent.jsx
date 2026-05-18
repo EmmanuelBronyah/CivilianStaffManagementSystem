@@ -186,6 +186,7 @@ export default function OccurrenceInputBoxes(props) {
   };
 
   const assignReadOnly = (label) => {
+    if (!role) return true;
     if (editStatus && role !== "VIEWER") {
       return false;
     }
@@ -314,7 +315,7 @@ export default function OccurrenceInputBoxes(props) {
               <MdEdit
                 className={`${style.editIcon}
                  ${editStatus || props.loadingData ? style.displayNone : ""}
-                 ${role === "VIEWER" && style.displayNone}
+                 ${!role || (role === "VIEWER" && style.displayNone)}
                 `}
                 onClick={() => {
                   setEditStatus((prev) => !prev);
@@ -325,7 +326,7 @@ export default function OccurrenceInputBoxes(props) {
                   ${style.editIcon} 
                   ${props.loadingData && style.displayNone}
                   ${editStatus ? "" : style.displayNone} 
-                  ${role === "VIEWER" && style.displayNone}
+                  ${!role || (role === "VIEWER" && style.displayNone)}
                   `}
                 onClick={() => {
                   setEditStatus((prev) => !prev);

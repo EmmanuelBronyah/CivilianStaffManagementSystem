@@ -217,7 +217,7 @@ export default function Dashboard() {
                       role && role === "VIEWER" ? style.displayNone : ""
                     }
                   >
-                    Add Employee
+                    New Employee
                   </button>
                 )}
 

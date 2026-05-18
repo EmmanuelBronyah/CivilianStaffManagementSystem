@@ -87,7 +87,7 @@ export default function AddService() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addService}
             >
               {loading ? (
@@ -100,7 +100,7 @@ export default function AddService() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/serviceWithForces`)
               }

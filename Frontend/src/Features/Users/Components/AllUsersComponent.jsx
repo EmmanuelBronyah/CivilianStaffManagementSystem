@@ -70,7 +70,7 @@ export default function AllUsersComponent() {
           ) : (
             <NavLink to="/home/users/add">
               <button
-                className={role && role === "VIEWER" ? style.displayNone : ""}
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
               >
                 New User
               </button>

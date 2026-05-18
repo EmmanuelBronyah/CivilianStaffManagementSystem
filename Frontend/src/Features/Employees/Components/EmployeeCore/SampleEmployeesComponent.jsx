@@ -4,12 +4,20 @@ import EmployeeData from "./EmployeeDataComponent";
 import { useState } from "react";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useOutletContext } from "react-router-dom";
+import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import { useEffect } from "react";
 
 export default function SampleEmployees() {
   const [loading, setLoading] = useState(true);
   const { setResponse } = useOutletContext();
+  const { role, response } = useFetchUserRole();
 
   const { theme } = useTheme();
+
+  useEffect(() => {
+    if (!response) return;
+    setResponse(response);
+  });
 
   return (
     <>
@@ -24,7 +32,9 @@ export default function SampleEmployees() {
               <p className={style.employeesTitle}>Sample Employees</p>
             )}
 
-            <div className={style.twoButtonsContainer}>
+            <div
+              className={`${style.twoButtonsContainer} ${!role || (role === "VIEWER" && style.displayNone)}`}
+            >
               {loading ? (
                 <BaseSkeleton width={120} height={36} />
               ) : (
@@ -45,7 +55,9 @@ export default function SampleEmployees() {
           {loading ? (
             <BaseSkeleton width={150} height={36} />
           ) : (
-            <button className={style.applyOccurrenceButton}>
+            <button
+              className={`${style.applyOccurrenceButton} ${!role || (role === "VIEWER" && style.displayNone)}`}
+            >
               Apply Occurrence
             </button>
           )}

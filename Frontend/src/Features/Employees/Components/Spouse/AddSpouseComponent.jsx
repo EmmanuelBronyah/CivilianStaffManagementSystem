@@ -84,7 +84,7 @@ export default function AddSpouse() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addSpouse}
             >
               {loading ? (
@@ -97,7 +97,7 @@ export default function AddSpouse() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/spouse`)}
             >
               Cancel

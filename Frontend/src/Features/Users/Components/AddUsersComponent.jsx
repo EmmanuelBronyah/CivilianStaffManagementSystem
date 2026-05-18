@@ -142,7 +142,7 @@ export default function AddUsersComponent() {
           <div className={style.buttonsContainer}>
             <div className={style.addUserButton}>
               <button
-                className={role && role === "VIEWER" ? style.displayNone : ""}
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
                 disabled={loading}
                 onClick={registerUser}
               >
@@ -158,7 +158,7 @@ export default function AddUsersComponent() {
             </div>
 
             <div
-              className={`${style.discardButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.discardButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
             >
               <button disabled={loading} onClick={clearData}>
                 Discard

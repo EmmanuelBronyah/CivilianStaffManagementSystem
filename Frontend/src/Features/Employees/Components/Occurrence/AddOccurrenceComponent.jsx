@@ -96,7 +96,7 @@ export default function AddOccurrence() {
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
             <button
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
               onClick={addOccurrence}
             >
               {loading ? (
@@ -109,7 +109,7 @@ export default function AddOccurrence() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/occurrence`)
               }

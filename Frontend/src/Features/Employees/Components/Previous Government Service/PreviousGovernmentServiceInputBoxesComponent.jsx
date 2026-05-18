@@ -50,8 +50,8 @@ export default function PreviousGovernmentServiceInputBoxes(props) {
               className={style.primaryPageInputs}
               type="text"
               value={props.formData[labelKey(label)]}
-              disabled={adminAndStandardUserCanEdit(role)}
-              readOnly={adminAndStandardUserCanEdit(role)}
+              disabled={role ? adminAndStandardUserCanEdit(role) : true}
+              readOnly={role ? adminAndStandardUserCanEdit(role) : true}
               onChange={(e) => {
                 props.setFormData((prev) => ({
                   ...prev,

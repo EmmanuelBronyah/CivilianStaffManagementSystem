@@ -8,22 +8,8 @@ import {
 } from "react-icons/md";
 import style from "../../styles/components/sidebarcomponent.module.css";
 import { NavLink } from "react-router-dom";
-import useFetchUserRole from "../../Features/hooks/fetchUserRoleHook";
-import { useEffect } from "react";
 
 export default function SidebarButtons(props) {
-  const { role, response } = useFetchUserRole();
-
-  useEffect(() => {
-    if (!response) return;
-    props.setResponse(response);
-  });
-
-  useEffect(() => {
-    if (!response) return;
-    props.setResponse(response);
-  });
-
   const buttonInfo = [
     ["Dashboard", MdDashboard, "/home"],
     ["Users", MdAccountBox, "/home/users"],
@@ -36,7 +22,11 @@ export default function SidebarButtons(props) {
   const buttons = buttonInfo.map(([text, icon, route]) => {
     const Icon = icon;
     const isDashboard = route === "/home";
-    return (
+
+    return props.role === "VIEWER" &&
+      ["Users", "Activity Feeds", "Flags", "Settings"].includes(text) ? (
+      <></>
+    ) : (
       <li key={text}>
         <NavLink
           to={route}
@@ -53,8 +43,6 @@ export default function SidebarButtons(props) {
       </li>
     );
   });
-
-  console.log(buttons);
 
   return buttons;
 }

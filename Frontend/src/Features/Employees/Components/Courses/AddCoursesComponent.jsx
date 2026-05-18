@@ -87,7 +87,7 @@ export default function AddCourses() {
           <div className={style.addCancelButtons}>
             <button
               onClick={addCourse}
-              className={role && role === "VIEWER" ? style.displayNone : ""}
+              className={!role || role === "VIEWER" ? style.displayNone : ""}
             >
               {loading ? (
                 <ClipLoader
@@ -99,7 +99,7 @@ export default function AddCourses() {
               )}
             </button>
             <button
-              className={`${style.cancelButton} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() => navigate(`/home/employees/${serviceId}/courses`)}
             >
               Cancel

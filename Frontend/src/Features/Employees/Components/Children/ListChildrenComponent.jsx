@@ -31,7 +31,7 @@ export default function ListChildren() {
             <BaseSkeleton width={170} height={39} />
           ) : (
             <button
-              className={`${style.addOccurrence} ${role && role === "VIEWER" ? style.displayNone : ""}`}
+              className={`${style.addOccurrence} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
               onClick={() =>
                 navigate(`/home/employees/${serviceId}/children/add`)
               }
