@@ -320,7 +320,6 @@ class BaseEmployeeSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, attrs):
-        # print("ATTRIBUTES -> ", attrs)
         self.warnings = []
 
         attrs = self.assign_dob_and_age(attrs)

@@ -35,8 +35,8 @@ def employee_record_changes(previous, current):
         ("Email", previous.email, current.email),
         (
             "Marital Status",
-            previous.marital_status.marital_status_name,
-            current.marital_status.marital_status_name,
+            getattr(previous.marital_status, "marital_status_name", None),
+            getattr(current.marital_status, "marital_status_name", None),
         ),
         (
             "Unit",

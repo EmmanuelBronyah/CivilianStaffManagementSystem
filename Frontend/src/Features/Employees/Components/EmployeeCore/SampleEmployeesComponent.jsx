@@ -6,11 +6,13 @@ import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 import { useOutletContext } from "react-router-dom";
 import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function SampleEmployees() {
   const [loading, setLoading] = useState(true);
   const { setResponse } = useOutletContext();
   const { role, response } = useFetchUserRole();
+  const navigate = useNavigate();
 
   const { theme } = useTheme();
 
@@ -38,7 +40,10 @@ export default function SampleEmployees() {
               {loading ? (
                 <BaseSkeleton width={120} height={36} />
               ) : (
-                <button className={style.newEmployeeButton}>
+                <button
+                  className={style.newEmployeeButton}
+                  onClick={() => navigate("/home/employees/add")}
+                >
                   New Employee
                 </button>
               )}

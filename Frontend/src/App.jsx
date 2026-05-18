@@ -57,6 +57,7 @@ import EmployeePreviousGovernmentService from "./Features/Employees/Components/P
 import ListPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/ListPreviousGovernmentServiceComponent";
 import AddPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/AddPreviousGovernmentServiceComponent";
 import EditPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/EditPreviousGovernmentServiceComponent";
+import AddEmployee from "./Features/Employees/Components/AddEmployee/AddEmployeeComponent";
 
 function App() {
   return (
@@ -103,6 +104,7 @@ function App() {
 
           {/* EMPLOYEES */}
           <Route path="employees" element={<Employees />}>
+            <Route path="add/" element={<AddEmployee />} />
             <Route index element={<SampleEmployees />} />
             <Route path=":serviceId" element={<EmployeeDashboard />}>
               {/* PRIMARY */}

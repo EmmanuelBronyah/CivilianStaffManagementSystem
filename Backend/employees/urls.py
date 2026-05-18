@@ -1,7 +1,6 @@
 from django.urls import path
 from . import views
 
-
 urlpatterns = [
     # ----- EMPLOYEES -----
     path("staff/", views.ListEmployeesAPIView.as_view(), name="list-all-employees"),
@@ -326,5 +325,10 @@ urlpatterns = [
         "divisions-grades/",
         views.ListDivisionsAndGradesAPIView.as_view(),
         name="list-divisions-grades",
+    ),
+    path(
+        "options/add/",
+        views.AddEmployeeDropdownDataAPIView.as_view(),
+        name="add-employee-options",
     ),
 ]

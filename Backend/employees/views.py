@@ -119,10 +119,11 @@ class ListEmployeesDTO(generics.ListAPIView):
     pagination_class = StandardResultsSetPagination
 
     def get_queryset(self):
-        ids = list(Employee.objects.values_list("service_id", flat=True))
-        sample_size = min(len(ids), 100)
-        random_ids = random.sample(ids, sample_size)
-        return Employee.objects.filter(service_id__in=random_ids)
+        # ids = list(Employee.objects.values_list("service_id", flat=True))
+        # sample_size = min(len(ids), 100)
+        # random_ids = random.sample(ids, sample_size)
+        # return Employee.objects.filter(service_id__in=random_ids)
+        return Employee.objects.order_by("-created_at")
 
 
 class EditEmployeeAPIView(generics.UpdateAPIView):
@@ -1329,6 +1330,28 @@ class ListOptionsAPIView(APIView):
                 "blood_group": serializers.ListBloodGroupSerializer(
                     blood_group, many=True
                 ).data,
+                "gender": serializers.ListGenderSerializer(gender, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+
+# * STRUCTURE, UNITS, GENDER
+class AddEmployeeDropdownDataAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        structure = services.get_structure()
+        grades = services.get_grades()
+        gender = services.get_gender()
+        units = services.get_units()
+
+        return Response(
+            {
+                "grades": serializers.ListGradesSerializer(grades, many=True).data,
+                "units": serializers.ListUnitsSerializer(units, many=True).data,
                 "gender": serializers.ListGenderSerializer(gender, many=True).data,
             },
             status=status.HTTP_200_OK,

@@ -104,6 +104,8 @@ export default function EmployeePrimary() {
 
       const serviceId = initialData.serviceId;
 
+      console.log("Payload -> ", payload);
+
       const res = await api.patch(
         `api/employees/staff/${serviceId}/edit/`,
         payload,
