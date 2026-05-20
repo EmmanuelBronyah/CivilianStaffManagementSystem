@@ -43,12 +43,17 @@ def send_employees_dashboard_update():
     send_update(data)
 
 
+from django.db.models import F
+from django.contrib.postgres.search import SearchVector
+
+
 @receiver(post_save, sender=Employee)
-def update_employee_search_vector(sender, instance, created, **kwargs):
-    # Update Employee Search Vector field to ensure Employee last name and other names field can be searched
+def update_employee_search_vector(sender, instance, **kwargs):
     sender.objects.filter(pk=instance.pk).update(
-        search_vector=SearchVector("last_name", weight="A", config="english")
-        + SearchVector("other_names", weight="A", config="english")
+        search_vector=(
+            SearchVector(F("last_name"), config="english")
+            + SearchVector(F("other_names"), config="english")
+        )
     )
 
 

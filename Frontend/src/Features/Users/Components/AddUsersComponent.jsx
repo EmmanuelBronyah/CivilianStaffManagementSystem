@@ -11,6 +11,7 @@ import verifyAdminProcess, {
 } from "../../../utils/askAdminIdentity";
 import { Link } from "react-router-dom";
 import useFetchUserRole from "../../hooks/fetchUserRoleHook";
+import BaseSkeleton from "../../../Components/Common/SkeletonComponent";
 
 export default function AddUsersComponent() {
   const initialFormData = {
@@ -27,6 +28,7 @@ export default function AddUsersComponent() {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
   const { theme } = useTheme();
   const { role, errorResponse } = useFetchUserRole();
@@ -138,31 +140,43 @@ export default function AddUsersComponent() {
             formData={formData}
             setFormData={setFormData}
             setResponse={setResponse}
+            loading={loadingData}
+            setLoading={setLoadingData}
           />
           <div className={style.buttonsContainer}>
             <div className={style.addUserButton}>
-              <button
-                className={!role || role === "VIEWER" ? style.displayNone : ""}
-                disabled={loading}
-                onClick={registerUser}
-              >
-                {loading ? (
-                  <ClipLoader
-                    size={13}
-                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                  />
-                ) : (
-                  "Save"
-                )}
-              </button>
+              {loadingData ? (
+                <BaseSkeleton height={40} width={110} />
+              ) : (
+                <button
+                  className={
+                    !role || role === "VIEWER" ? style.displayNone : ""
+                  }
+                  disabled={loading}
+                  onClick={registerUser}
+                >
+                  {loading ? (
+                    <ClipLoader
+                      size={13}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Save"
+                  )}
+                </button>
+              )}
             </div>
 
             <div
               className={`${style.discardButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
             >
-              <button disabled={loading} onClick={clearData}>
-                Discard
-              </button>
+              {loadingData ? (
+                <BaseSkeleton height={40} width={110} />
+              ) : (
+                <button disabled={loading} onClick={clearData}>
+                  Discard
+                </button>
+              )}
             </div>
           </div>
         </div>

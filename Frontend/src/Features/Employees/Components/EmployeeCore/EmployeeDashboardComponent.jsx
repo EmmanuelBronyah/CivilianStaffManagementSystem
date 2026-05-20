@@ -106,12 +106,20 @@ export default function EmployeeDashboard() {
         });
       } catch (error) {
         setLoading(false);
+        if (error.response?.status === 404) {
+          setResponse({
+            message: "Employee record not found",
+            type: "error",
+            id: Date.now(),
+          });
+          navigate(`/home/employees`);
+          return;
+        }
         setResponse({
           message: getResponseMessages(error.response),
           type: "error",
           id: Date.now(),
         });
-        return;
       }
     };
     fetchEmployee();

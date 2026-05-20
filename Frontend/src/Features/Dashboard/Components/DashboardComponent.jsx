@@ -216,6 +216,7 @@ export default function Dashboard() {
                     className={
                       role && role === "VIEWER" ? style.displayNone : ""
                     }
+                    onClick={() => navigate("/home/employees/add")}
                   >
                     New Employee
                   </button>

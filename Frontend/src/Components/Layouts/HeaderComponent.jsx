@@ -15,6 +15,7 @@ export default function Header(props) {
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
   const [displayFilterBox, setDisplayFilterBox] = useState(false);
   const [placeholderText, setPlaceholderText] = useState("Service Number...");
+  const [query, setQuery] = useState("");
   const location = useLocation();
   const { theme } = useTheme();
 
@@ -84,6 +85,21 @@ export default function Header(props) {
   );
   const activePage = activeRoute?.title || "Dashboard";
 
+  const searchEmployee = async () => {
+    const queryParams =
+      placeholderText === "Service Number..."
+        ? { service_id: query }
+        : { name: query };
+    try {
+      const res = await api.get("api/employees/staff/search/", {
+        params: queryParams,
+      });
+      console.log("Response data -> ", res.data);
+    } catch (error) {
+      console.log("Error -> ", error.response);
+    }
+  };
+
   return (
     <header className={!theme ? style.dark : ""}>
       <MdDehaze className={style.icon} onClick={() => props.setOpen(true)} />
@@ -92,7 +108,17 @@ export default function Header(props) {
       </div>
       <div className={style.searchBoxContainer}>
         <div className={style.searchBox}>
-          <input type="text" placeholder={placeholderText} />
+          <input
+            type="text"
+            placeholder={placeholderText}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                searchEmployee();
+              }
+            }}
+          />
 
           <MdSearch className={style.searchIcon} />
 

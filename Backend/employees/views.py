@@ -15,7 +15,7 @@ from . import utils
 from flags.services import create_flag, delete_flag
 from django.db import transaction
 from .models import Employee
-from django.contrib.postgres.search import SearchQuery, SearchRank
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 import random
 from . import services
 import random
@@ -216,26 +216,30 @@ class SearchEmployeeAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         service_id = self.request.query_params.get("service_id")
-        last_name = self.request.query_params.get("last_name")
-        other_names = self.request.query_params.get("other_names")
-
+        name = self.request.query_params.get("name")
         qs = Employee.objects.all()
 
-        if last_name:
-            search_query = SearchQuery(last_name, config="english")
-
-            qs = (
-                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
-                .filter(search_vector=search_query, rank__gte=0.1)
-                .order_by("-rank")
+        if name:
+            search_query = SearchQuery(
+                name,
+                config="english",
             )
-
-        if other_names:
-            search_query = SearchQuery(other_names, config="english")
-
             qs = (
-                qs.annotate(rank=SearchRank(F("search_vector"), search_query))
-                .filter(search_vector=search_query, rank__gte=0.1)
+                qs.annotate(
+                    search=SearchVector(
+                        "last_name",
+                        "other_names",
+                    )
+                )
+                .annotate(
+                    rank=SearchRank(
+                        F("search"),
+                        search_query,
+                    )
+                )
+                .filter(
+                    rank__gte=0.1,
+                )
                 .order_by("-rank")
             )
 

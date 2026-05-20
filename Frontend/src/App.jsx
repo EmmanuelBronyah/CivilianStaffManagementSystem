@@ -58,6 +58,7 @@ import ListPreviousGovernmentService from "./Features/Employees/Components/Previ
 import AddPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/AddPreviousGovernmentServiceComponent";
 import EditPreviousGovernmentService from "./Features/Employees/Components/Previous Government Service/EditPreviousGovernmentServiceComponent";
 import AddEmployee from "./Features/Employees/Components/AddEmployee/AddEmployeeComponent";
+import ApplyOccurrence from "./Features/Employees/Components/Occurrence/ApplyOccurrenceComponent";
 
 function App() {
   return (
@@ -106,6 +107,7 @@ function App() {
           <Route path="employees" element={<Employees />}>
             <Route path="add/" element={<AddEmployee />} />
             <Route index element={<SampleEmployees />} />
+            <Route path="apply/occurrence" element={<ApplyOccurrence />} />
             <Route path=":serviceId" element={<EmployeeDashboard />}>
               {/* PRIMARY */}
               <Route index element={<EmployeePrimary />} />

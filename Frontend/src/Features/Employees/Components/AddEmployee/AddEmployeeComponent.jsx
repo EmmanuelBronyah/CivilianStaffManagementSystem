@@ -9,9 +9,20 @@ import ClipLoader from "react-spinners/ClipLoader";
 import { Link } from "react-router-dom";
 import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 import { useOutletContext } from "react-router-dom";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function AddEmployee() {
-  const initialFormData = {};
+  const initialFormData = {
+    serviceId: "",
+    lastName: "",
+    otherNames: "",
+    ssnitNumber: "",
+    gender: "",
+    dob: "",
+    appointmentDate: "",
+    unit: "",
+    grade: "",
+  };
   const [formData, setFormData] = useState(initialFormData);
   const { setResponse } = useOutletContext();
   const [loading, setLoading] = useState(false);
@@ -26,20 +37,20 @@ export default function AddEmployee() {
   });
 
   const registerEmployee = async () => {
+    setLoading(true);
     const payload = {
       service_id: formData.serviceId,
       last_name: formData.lastName,
       other_names: formData.otherNames,
       social_security: formData.ssnitNumber,
-      unit: formData.unit.value,
-      grade: formData.grade.value,
-      gender: formData.gender.value,
+      unit: formData.unit?.value,
+      grade: formData.grade?.value,
+      gender: formData.gender?.value,
       appointment_date: formData.appointmentDate,
     };
     try {
       const res = await api.post("api/employees/staff/create/", payload);
-      console.log("Response -> ", res.data);
-
+      setLoading(false);
       setFormData({
         serviceId: res.data.service_id,
         lastName: res.data.last_name,
@@ -56,12 +67,18 @@ export default function AddEmployee() {
         id: Date.now(),
       });
     } catch (error) {
+      setLoading(false);
       setResponse({
         message: getResponseMessages(error.response),
         type: "error",
         id: Date.now(),
       });
     }
+  };
+
+  const clearData = () => {
+    setFormData(initialFormData);
+    return;
   };
 
   return (
@@ -87,28 +104,38 @@ export default function AddEmployee() {
           />
           <div className={style.buttonsContainer}>
             <div className={style.addUserButton}>
-              <button
-                className={!role || role === "VIEWER" ? style.displayNone : ""}
-                disabled={loading}
-                onClick={registerEmployee}
-              >
-                {loading ? (
-                  <ClipLoader
-                    size={13}
-                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                  />
-                ) : (
-                  "Save"
-                )}
-              </button>
+              {loadingData ? (
+                <BaseSkeleton height={40} width={110} />
+              ) : (
+                <button
+                  className={
+                    !role || role === "VIEWER" ? style.displayNone : ""
+                  }
+                  disabled={loading}
+                  onClick={registerEmployee}
+                >
+                  {loading ? (
+                    <ClipLoader
+                      size={13}
+                      color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                    />
+                  ) : (
+                    "Save"
+                  )}
+                </button>
+              )}
             </div>
 
             <div
               className={`${style.discardButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
             >
-              <button disabled={loading} /*onClick={clearData}*/>
-                Discard
-              </button>
+              {loadingData ? (
+                <BaseSkeleton height={40} width={110} />
+              ) : (
+                <button disabled={loading} onClick={clearData}>
+                  Discard
+                </button>
+              )}
             </div>
           </div>
         </div>

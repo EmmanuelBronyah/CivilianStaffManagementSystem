@@ -14,6 +14,7 @@ export default function AddUserInputBoxes({
   formData,
   setFormData,
   setResponse,
+  setLoading,
 }) {
   const [divisions, setDivisions] = useState([]);
   const [grades, setGrades] = useState([]);
@@ -34,6 +35,7 @@ export default function AddUserInputBoxes({
     const fetchDivisionsAndGrades = async () => {
       try {
         const res = await api.get("api/employees/divisions-grades/");
+        setLoading(false);
         setDivisions(res.data.divisions || []);
         setGrades(res.data.grades || []);
       } catch (error) {

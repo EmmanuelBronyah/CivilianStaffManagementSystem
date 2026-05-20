@@ -64,7 +64,6 @@ export default function EditAbsences() {
           type: "error",
           id: Date.now(),
         });
-        return;
       }
     };
     fetchAbsences();

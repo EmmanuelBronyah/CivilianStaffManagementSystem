@@ -333,8 +333,8 @@ a {
 .employeePrimary {
   background-color: var(--employeeData-background-color);
   display: grid;
-  grid-template-rows: 1fr 4rem;
-  gap: 1rem;
+  grid-template-rows: 1fr 2.5rem;
+  gap: 3rem;
   padding: 1rem;
   border-radius: 0.5rem;
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
@@ -375,9 +375,8 @@ input::placeholder {
 }
 
 .buttons {
-  place-self: center;
   display: flex;
-  gap: 4rem;
+  justify-content: space-between;
 
   button {
     padding: 0.5rem 1.8rem;
@@ -399,6 +398,11 @@ input::placeholder {
     color: var(--button-text-color);
   }
 
+  .saveCancelButtons {
+    display: flex;
+    gap: 4rem;
+  }
+
   .cancelButton {
     background-color: #d8000c;
     color: white;
@@ -410,6 +414,21 @@ input::placeholder {
 
   .cancelButton:active {
     background-color: hsl(357, 100%, 32%);
+  }
+
+  .trashIcon {
+    color: hsl(357, 100%, 32%);
+    font-size: 2rem;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .trashIcon:hover {
+    color: hsl(357, 100%, 42%);
+  }
+
+  .trashIcon:active {
+    color: hsl(357, 100%, 22%);
   }
 }
 

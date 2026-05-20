@@ -7,13 +7,20 @@ import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
-import { useOutletContext } from "react-router-dom";
+import { useOutletContext, useParams } from "react-router-dom";
+import { MdDelete } from "react-icons/md";
+import verifyAdminProcess from "../../../../utils/askAdminIdentity";
+import { showErrorModal } from "../../../../utils/askAdminIdentity";
+import askToDelete from "../../../../utils/askToDelete";
+import { useNavigate } from "react-router-dom";
 
 export default function EmployeePrimary() {
   const { role, response } = useFetchUserRole();
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loadingDeletion, setLoadingDeletion] = useState(false);
   const { theme } = useTheme();
+  const { serviceId } = useParams();
   const {
     setHeaderData,
     initialData,
@@ -22,6 +29,7 @@ export default function EmployeePrimary() {
     setFormData,
     setResponse,
   } = useOutletContext();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!response) return;
@@ -103,8 +111,6 @@ export default function EmployeePrimary() {
       }
 
       const serviceId = initialData.serviceId;
-
-      console.log("Payload -> ", payload);
 
       const res = await api.patch(
         `api/employees/staff/${serviceId}/edit/`,
@@ -247,6 +253,46 @@ export default function EmployeePrimary() {
     });
   };
 
+  const initiateDeletion = async () => {
+    const result = await askToDelete(theme);
+    if (!result.isConfirmed) return;
+
+    const status = await verifyAdminProcess(
+      theme,
+      setLoadingDeletion,
+      setResponse,
+    );
+
+    if (status === 401) {
+      await showErrorModal(theme);
+      return;
+    } else if (status === 200) {
+      try {
+        const res = await api.delete(
+          `api/employees/staff/${serviceId}/delete/`,
+        );
+        if (res.status === 204) {
+          setLoading(false);
+          setResponse({
+            message: "Employee record deleted",
+            id: Date.now(),
+          });
+          setTimeout(() => {
+            navigate("/home/employees");
+          }, 3000);
+        }
+      } catch (error) {
+        setLoading(false);
+        setResponse({
+          message: getResponseMessages(error.response),
+          type: "error",
+          id: Date.now(),
+        });
+        return;
+      }
+    }
+  };
+
   return (
     <div className={`${style.employeePrimary} ${!theme ? style.dark : ""}`}>
       <div className={style.inputs}>
@@ -264,35 +310,49 @@ export default function EmployeePrimary() {
         <div
           className={`${style.buttons} ${role === "VIEWER" && style.displayNone}`}
         >
-          {loadingData ? (
-            <BaseSkeleton height={40} width={140} />
-          ) : (
-            <button
-              disabled={loading}
-              className={style.saveButton}
-              onClick={updateEmployee}
-            >
-              {loading ? (
-                <ClipLoader
-                  size={13}
-                  color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                />
-              ) : (
-                "Save Changes"
-              )}
-            </button>
-          )}
+          <div className={style.emptyDiv}></div>
+          <div className={style.saveCancelButtons}>
+            {loadingData ? (
+              <BaseSkeleton height={40} width={140} />
+            ) : (
+              <button
+                disabled={loading || loadingDeletion}
+                className={style.saveButton}
+                onClick={updateEmployee}
+              >
+                {loading ? (
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
+                ) : (
+                  "Save Changes"
+                )}
+              </button>
+            )}
+
+            {loadingData ? (
+              <BaseSkeleton height={40} width={140} />
+            ) : (
+              <button
+                onClick={resetData}
+                className={style.cancelButton}
+                disabled={loading || loadingDeletion}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
 
           {loadingData ? (
-            <BaseSkeleton height={40} width={140} />
+            <BaseSkeleton width={40} />
+          ) : loadingDeletion ? (
+            <ClipLoader size={30} color="#a30008" />
           ) : (
-            <button
-              onClick={resetData}
-              className={style.cancelButton}
-              disabled={loading}
-            >
-              Cancel
-            </button>
+            <MdDelete
+              className={`${style.trashIcon} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
+              onClick={initiateDeletion}
+            />
           )}
         </div>
       )}
