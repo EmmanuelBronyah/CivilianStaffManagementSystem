@@ -20,7 +20,7 @@ class CreateNextOfKinAPIView(generics.CreateAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     queryset = EmergencyOrNextOfKin.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -55,7 +55,7 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         print("data -> ", request.data)
@@ -95,7 +95,7 @@ class EditNextOfKinAPIView(generics.UpdateAPIView):
 class ListEmployeeNextOfKinAPIView(generics.ListAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -109,7 +109,7 @@ class RetrieveNextOfKinAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteNextOfKinAPIView(generics.DestroyAPIView):
@@ -117,7 +117,7 @@ class DeleteNextOfKinAPIView(generics.DestroyAPIView):
     serializer_class = serializers.EmergencyOrNextOfKinWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():

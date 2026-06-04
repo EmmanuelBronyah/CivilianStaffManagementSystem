@@ -37,7 +37,7 @@ class CreateUserView(generics.CreateAPIView):
     serializer_class = serializers.RetrieveCreateUserSerializer
     queryset = CustomUser.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -72,13 +72,13 @@ class RetrieveUserView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class RetrieveUserRoleView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         user_id = kwargs.get("pk")
@@ -92,7 +92,7 @@ class RetrieveAllUsersView(generics.ListAPIView):
         "created_by", "updated_by", "grade", "division"
     )
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class UpdateUserView(generics.UpdateAPIView):
@@ -100,7 +100,7 @@ class UpdateUserView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -133,7 +133,7 @@ class DeactivateUserView(generics.DestroyAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def delete(self, request, *args, **kwargs):
         with transaction.atomic():
@@ -160,7 +160,7 @@ class RestoreUserAccountView(generics.UpdateAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def update(self, request, *args, **kwargs):
         with transaction.atomic():
@@ -185,7 +185,7 @@ class DeleteUserView(generics.DestroyAPIView):
     queryset = CustomUser.objects.all()
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -206,7 +206,7 @@ class DeleteUserView(generics.DestroyAPIView):
 class CreateDivisionAPIView(generics.CreateAPIView):
     queryset = models.Divisions.objects.all()
     serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -227,20 +227,20 @@ class RetrieveDivisionAPIView(generics.RetrieveAPIView):
     queryset = models.Divisions.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListDivisionsAPIView(generics.ListAPIView):
     queryset = models.Divisions.objects.all()
     serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListUsersPerDivision(APIView):
     http_method_names = ["get"]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
     def get(self, request, *args, **kwargs):
@@ -256,7 +256,7 @@ class EditDivisionAPIView(generics.UpdateAPIView):
     queryset = models.Divisions.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -283,7 +283,7 @@ class DeleteDivisionAPIView(generics.DestroyAPIView):
     queryset = models.Divisions.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DivisionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -304,7 +304,7 @@ class DeleteDivisionAPIView(generics.DestroyAPIView):
 class LoginView(APIView):
     http_method_names = ["post"]
     throttle_classes = [CustomAnonRateThrottle, CustomUserRateThrottle]
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.LoginSerializer(data=request.data)
@@ -382,7 +382,7 @@ class LoginView(APIView):
 class VerifyOTPView(APIView):
     http_method_names = ["post"]
     throttle_classes = [CustomAnonRateThrottle, CustomUserRateThrottle]
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.VerifyOTPSerializer(data=request.data)
@@ -447,7 +447,7 @@ class VerifyOTPView(APIView):
 class ResendOTPView(APIView):
     http_method_names = ["post"]
     throttle_classes = [CustomAnonRateThrottle, CustomUserRateThrottle]
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.VerifyOTPSerializer(data=request.data)
@@ -539,7 +539,7 @@ class PasswordResetConfirmRedirectView(RedirectView):
 class LogoutView(APIView):
     http_method_names = ["post"]
     throttle_classes = [CustomAnonRateThrottle, CustomUserRateThrottle]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         serializer = serializers.LogoutSerializer(data=request.data)
@@ -577,7 +577,7 @@ class LogoutView(APIView):
 
 
 class TaskStatusView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     throttle_classes = []
 
     def get(self, request, task_id):
@@ -588,7 +588,7 @@ class TaskStatusView(APIView):
 
 
 class RevokeTaskView(APIView):
-    permission_classes = [AllowAny]
+    # permission_classes = [AllowAny]
     throttle_classes = []
 
     def delete(self, request, task_id):
@@ -616,7 +616,7 @@ class RevokeTaskView(APIView):
 class VerifyAdminIdentityAPIView(APIView):
     http_method_names = ["post"]
     throttle_classes = [CustomUserRateThrottle]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
         data = request.data.get("data")

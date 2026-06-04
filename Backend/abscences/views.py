@@ -20,7 +20,7 @@ class CreateAbsencesAPIView(generics.CreateAPIView):
     serializer_class = serializers.AbsencesWriteSerializer
     queryset = Absences.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         absences_data = request.data
@@ -73,7 +73,7 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
     serializer_class = serializers.AbsencesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -108,7 +108,7 @@ class EditAbsencesAPIView(generics.UpdateAPIView):
 class ListEmployeeAbsencesAPIView(generics.ListAPIView):
     serializer_class = serializers.AbsencesReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -122,7 +122,7 @@ class RetrieveAbsencesAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.AbsencesReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteAbsencesAPIView(generics.DestroyAPIView):
@@ -130,7 +130,7 @@ class DeleteAbsencesAPIView(generics.DestroyAPIView):
     serializer_class = serializers.AbsencesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():

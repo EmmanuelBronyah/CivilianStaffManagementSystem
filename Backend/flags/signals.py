@@ -7,5 +7,5 @@ from .models import Flags
 @receiver(post_save, sender=Flags)
 def update_flags_search_vector(sender, instance, **kwargs):
     sender.objects.filter(pk=instance.pk).update(
-        search_vector=SearchVector("reason", weight="A", config="english")
+        search_vector=SearchVector("reason", weight="A")
     )

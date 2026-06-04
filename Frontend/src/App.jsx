@@ -70,7 +70,7 @@ function App() {
           path="/auth/otp"
           element={
             <ProtectOtpRoute>
-              <ResendAndVerifyOTP route="api/verify-otp-token/" />
+              z<ResendAndVerifyOTP route="api/verify-otp-token/" />
             </ProtectOtpRoute>
           }
         />
@@ -87,9 +87,9 @@ function App() {
         <Route
           path="/home"
           element={
-            <ProtectedRoute>
-              <HomePage />
-            </ProtectedRoute>
+            <HomePage />
+            // <ProtectedRoute>
+            // </ProtectedRoute>
           }
         >
           {/* DASHBOARD */}

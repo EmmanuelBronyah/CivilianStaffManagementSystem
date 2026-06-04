@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class CreateFlagsAPIView(generics.CreateAPIView):
     queryset = Flags.objects.all()
     serializer_class = FlagWriteSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -73,7 +73,7 @@ class RetrieveFlagAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = FlagReadSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -82,7 +82,7 @@ class ListFlagsAPIView(generics.ListAPIView):
         "flag_type", "content_type", "created_by", "updated_by"
     )
     serializer_class = FlagReadSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -91,7 +91,7 @@ class EditFlagsAPIView(generics.UpdateAPIView):
     queryset = Flags.objects.all()
     lookup_field = "pk"
     serializer_class = FlagWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -129,7 +129,7 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
     queryset = Flags.objects.all()
     lookup_field = "pk"
     serializer_class = FlagWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -150,7 +150,7 @@ class DeleteFlagsAPIView(generics.DestroyAPIView):
 class SearchFlagsAPIView(generics.ListAPIView):
     serializer_class = FlagReadSerializer
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = LargeResultsSetPagination
 
     @staticmethod
@@ -175,7 +175,7 @@ class SearchFlagsAPIView(generics.ListAPIView):
         qs = Flags.objects.all()
 
         if reason:
-            search_query = SearchQuery(reason, config="english")
+            search_query = SearchQuery(reason)
 
             qs = (
                 qs.annotate(rank=SearchRank(F("search_vector"), search_query))
@@ -205,7 +205,7 @@ class SearchFlagsAPIView(generics.ListAPIView):
 class CreateFlagTypeAPIView(generics.CreateAPIView):
     queryset = FlagType.objects.all()
     serializer_class = FlagTypeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -226,14 +226,14 @@ class RetrieveFlagTypeAPIView(generics.RetrieveAPIView):
     queryset = FlagType.objects.all()
     lookup_field = "pk"
     serializer_class = FlagTypeSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListFlagTypeAPIView(generics.ListAPIView):
     queryset = FlagType.objects.all()
     serializer_class = FlagTypeSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -242,7 +242,7 @@ class EditFlagTypeAPIView(generics.UpdateAPIView):
     queryset = FlagType.objects.all()
     lookup_field = "pk"
     serializer_class = FlagTypeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -267,7 +267,7 @@ class DeleteFlagTypeAPIView(generics.DestroyAPIView):
     queryset = FlagType.objects.all()
     lookup_field = "pk"
     serializer_class = FlagTypeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

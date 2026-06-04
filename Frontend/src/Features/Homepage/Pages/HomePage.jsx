@@ -10,9 +10,9 @@ import Notification from "../../../Components/Common/NotificationComponent";
 import { Outlet } from "react-router-dom";
 
 function HomePage() {
-  const [activePage, setActivePage] = useState("Dashboard");
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
   const [response, setResponse] = useState(null);
 
   const { theme } = useTheme();
@@ -47,11 +47,12 @@ function HomePage() {
         <SideBar open={open} setOpen={setOpen} setResponse={setResponse} />
         <div className={style.headerMainContainer}>
           <Header
-            activePage={activePage}
             setOpen={setOpen}
             setResponse={setResponse}
+            searchResults={searchResults}
+            setSearchResults={setSearchResults}
           />
-          <Outlet />
+          <Outlet context={{ searchResults, setSearchResults }} />
         </div>
       </div>
       <Notification isVisible={visible} response={response} />

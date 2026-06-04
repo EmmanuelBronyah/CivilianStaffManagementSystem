@@ -36,7 +36,7 @@ logger = logging.getLogger(__name__)
 class CreateOccurrenceAPIView(generics.CreateAPIView):
     queryset = Occurrence.objects.all()
     serializer_class = serializers.OccurrenceUpdateSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -92,7 +92,7 @@ class CreateOccurrenceAPIView(generics.CreateAPIView):
 class EditOccurrenceAPIView(generics.UpdateAPIView):
     queryset = Occurrence.objects.all()
     serializer_class = serializers.OccurrenceUpdateSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -129,13 +129,13 @@ class RetrieveOccurrenceAPIView(generics.RetrieveAPIView):
     queryset = Occurrence.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.OccurrenceReadSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
 class ListEmployeeOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.OccurrenceReadSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
     def get_queryset(self):
@@ -161,7 +161,7 @@ class DeleteOccurrenceAPIView(generics.DestroyAPIView):
     queryset = Occurrence.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.OccurrenceWriteSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -182,7 +182,7 @@ class DeleteOccurrenceAPIView(generics.DestroyAPIView):
 class CreateLevelStepAPIView(generics.CreateAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -205,7 +205,7 @@ class EditLevelStepAPIView(generics.UpdateAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -229,7 +229,7 @@ class EditLevelStepAPIView(generics.UpdateAPIView):
 class ListLevelStepAPIView(generics.ListAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -237,7 +237,7 @@ class RetrieveLevelStepAPIView(generics.RetrieveAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -245,7 +245,7 @@ class DeleteLevelStepAPIView(generics.DestroyAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -266,7 +266,7 @@ class CalculateAnnualSalary(generics.RetrieveAPIView):
     queryset = LevelStep.objects.all()
     serializer_class = serializers.LevelStepSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = []
 
     def retrieve(self, request, *args, **kwargs):
@@ -282,7 +282,7 @@ class CalculateAnnualSalary(generics.RetrieveAPIView):
 class CreateEventAPIView(generics.CreateAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -303,7 +303,7 @@ class EditEventAPIView(generics.UpdateAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -326,7 +326,7 @@ class EditEventAPIView(generics.UpdateAPIView):
 class ListEventAPIView(generics.ListAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -334,7 +334,7 @@ class RetrieveEventAPIView(generics.RetrieveAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -342,7 +342,7 @@ class DeleteEventAPIView(generics.DestroyAPIView):
     queryset = Event.objects.all()
     serializer_class = serializers.EventSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -363,7 +363,7 @@ class DeleteEventAPIView(generics.DestroyAPIView):
 class CreateSalaryAdjustmentPercentageAPIView(generics.CreateAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -388,7 +388,7 @@ class EditSalaryAdjustmentPercentageAPIView(generics.UpdateAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -416,7 +416,7 @@ class EditSalaryAdjustmentPercentageAPIView(generics.UpdateAPIView):
 class ListSalaryAdjustmentPercentageAPIView(generics.ListAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -424,7 +424,7 @@ class RetrieveSalaryAdjustmentPercentageAPIView(generics.RetrieveAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
 
@@ -432,7 +432,7 @@ class DeleteSalaryAdjustmentPercentageAPIView(generics.DestroyAPIView):
     queryset = SalaryAdjustmentPercentage.objects.all()
     serializer_class = serializers.SalaryAdjustmentPercentageSerializer
     lookup_field = "pk"
-    permission_classes = [IsAdminUser, IsAuthenticated]
+    # permission_classes = [IsAdminUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -453,7 +453,7 @@ class DeleteSalaryAdjustmentPercentageAPIView(generics.DestroyAPIView):
 class CreateIncompleteOccurrenceAPIView(generics.CreateAPIView):
     queryset = IncompleteOccurrence.objects.all()
     serializer_class = serializers.IncompleteOccurrenceWriteSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -494,7 +494,7 @@ class CreateIncompleteOccurrenceAPIView(generics.CreateAPIView):
 class EditIncompleteOccurrenceAPIView(generics.UpdateAPIView):
     queryset = IncompleteOccurrence.objects.all()
     serializer_class = serializers.IncompleteOccurrenceUpdateSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -542,13 +542,13 @@ class RetrieveIncompleteOccurrenceAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
 class ListEmployeeIncompleteOccurrenceAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = []
 
     def get_queryset(self):
@@ -565,7 +565,7 @@ class ListIncompleteOccurrenceAPIView(generics.ListAPIView):
         "created_by", "updated_by", "grade", "level_step", "event"
     )
     serializer_class = serializers.IncompleteOccurrenceReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -574,7 +574,7 @@ class DeleteIncompleteOccurrenceAPIView(generics.DestroyAPIView):
     queryset = IncompleteOccurrence.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteOccurrenceWriteSerializer
-    permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
+    # permission_classes = [IsAdminUserOrStandardUser, IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -598,7 +598,7 @@ class DeleteIncompleteOccurrenceAPIView(generics.DestroyAPIView):
 class ListOccurrenceFormOptionsData(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         grades = get_grades()

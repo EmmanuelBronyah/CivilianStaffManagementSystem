@@ -19,7 +19,7 @@ class CreateIdentityAPIView(generics.CreateAPIView):
     serializer_class = serializers.IdentityWriteSerializer
     queryset = Identity.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -54,7 +54,7 @@ class EditIdentityAPIView(generics.UpdateAPIView):
     serializer_class = serializers.IdentityWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -92,7 +92,7 @@ class RetrieveEmployeeIdentityAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.IdentityReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_object(self):
         service_id = self.kwargs.get("pk")
@@ -107,7 +107,7 @@ class DeleteIdentityAPIView(generics.DestroyAPIView):
     serializer_class = serializers.IdentityWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():

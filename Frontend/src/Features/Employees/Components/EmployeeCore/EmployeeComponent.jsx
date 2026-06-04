@@ -3,10 +3,12 @@ import { useTheme } from "../../../../context/ThemeContext";
 import { useState, useEffect } from "react";
 import Notification from "../../../../Components/Common/NotificationComponent";
 import { Outlet } from "react-router-dom";
+import { useOutletContext } from "react-router-dom";
 
 export default function Employees() {
   const [visible, setVisible] = useState(false);
   const [response, setResponse] = useState(null);
+  const { searchResults, setSearchResults } = useOutletContext();
 
   const { theme } = useTheme();
 
@@ -24,7 +26,7 @@ export default function Employees() {
 
   return (
     <main className={`${style.dashboardMain} ${!theme ? style.dark : ""}`}>
-      <Outlet context={{ setResponse }} />
+      <Outlet context={{ setResponse, searchResults, setSearchResults }} />
       <Notification isVisible={visible} response={response} />
     </main>
   );

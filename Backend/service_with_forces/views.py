@@ -30,7 +30,7 @@ class CreateServiceWithForcesAPIView(generics.CreateAPIView):
     serializer_class = serializers.ServiceWithForcesWriteSerializer
     queryset = ServiceWithForces.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -65,7 +65,7 @@ class EditServiceWithForcesAPIView(generics.UpdateAPIView):
     serializer_class = serializers.ServiceWithForcesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -108,7 +108,7 @@ class EditServiceWithForcesAPIView(generics.UpdateAPIView):
 class ListEmployeeServiceWithForcesAPIView(generics.ListAPIView):
     serializer_class = serializers.ServiceWithForcesReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -126,7 +126,7 @@ class RetrieveServiceWithForcesAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.ServiceWithForcesReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteServiceWithForcesAPIView(generics.DestroyAPIView):
@@ -134,7 +134,7 @@ class DeleteServiceWithForcesAPIView(generics.DestroyAPIView):
     serializer_class = serializers.ServiceWithForcesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -155,7 +155,7 @@ class CreateMilitaryRanksAPIView(generics.CreateAPIView):
     serializer_class = serializers.MilitaryRanksSerializer
     queryset = MilitaryRanks.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -176,7 +176,7 @@ class EditMilitaryRanksAPIView(generics.UpdateAPIView):
     serializer_class = serializers.MilitaryRanksSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
         with transaction.atomic():
@@ -202,7 +202,7 @@ class ListMilitaryRanksAPIView(generics.ListAPIView):
     queryset = MilitaryRanks.objects.all()
     serializer_class = serializers.MilitaryRanksSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class RetrieveMilitaryRanksAPIView(generics.RetrieveAPIView):
@@ -210,7 +210,7 @@ class RetrieveMilitaryRanksAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.MilitaryRanksSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteMilitaryRanksAPIView(generics.DestroyAPIView):
@@ -218,7 +218,7 @@ class DeleteMilitaryRanksAPIView(generics.DestroyAPIView):
     serializer_class = serializers.MilitaryRanksSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -256,7 +256,7 @@ class ListMilitaryRanksAndUnits(APIView):
 class CreateIncompleteServiceWithForcesRecordsAPIView(generics.CreateAPIView):
     queryset = IncompleteServiceWithForcesRecords.objects.all()
     serializer_class = serializers.IncompleteServiceWithForcesRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -296,7 +296,7 @@ class RetrieveIncompleteServiceWithForcesRecordsAPIView(generics.RetrieveAPIView
     )
     lookup_field = "pk"
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -305,7 +305,7 @@ class ListIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
         "created_by", "updated_by", "last_unit", "military_rank"
     )
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -313,7 +313,7 @@ class ListIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
 class ListEmployeeIncompleteServiceWithForcesRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteServiceWithForcesReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -330,7 +330,7 @@ class EditIncompleteServiceWithForcesRecordsAPIView(generics.UpdateAPIView):
     queryset = IncompleteServiceWithForcesRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteServiceWithForcesRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -371,7 +371,7 @@ class DeleteIncompleteServiceWithForcesRecordsAPIView(generics.DestroyAPIView):
     queryset = IncompleteServiceWithForcesRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteServiceWithForcesRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

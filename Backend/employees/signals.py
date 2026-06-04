@@ -51,8 +51,8 @@ from django.contrib.postgres.search import SearchVector
 def update_employee_search_vector(sender, instance, **kwargs):
     sender.objects.filter(pk=instance.pk).update(
         search_vector=(
-            SearchVector(F("last_name"), config="english")
-            + SearchVector(F("other_names"), config="english")
+            SearchVector(F("last_name"), weight="A")
+            + SearchVector(F("other_names"), weight="A")
         )
     )
 

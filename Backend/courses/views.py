@@ -22,7 +22,7 @@ class CreateCourseAPIView(generics.CreateAPIView):
     serializer_class = serializers.CoursesWriteSerializer
     queryset = Courses.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         courses_data = request.data
@@ -73,7 +73,7 @@ class EditCourseAPIView(generics.UpdateAPIView):
     serializer_class = serializers.CoursesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -108,7 +108,7 @@ class EditCourseAPIView(generics.UpdateAPIView):
 class ListEmployeeCoursesAPIView(generics.ListAPIView):
     serializer_class = serializers.CoursesReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -122,7 +122,7 @@ class RetrieveCourseAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.CoursesReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteCourseAPIView(generics.DestroyAPIView):
@@ -130,7 +130,7 @@ class DeleteCourseAPIView(generics.DestroyAPIView):
     serializer_class = serializers.CoursesWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -150,7 +150,7 @@ class DeleteCourseAPIView(generics.DestroyAPIView):
 class CreateIncompleteCourseRecordsAPIView(generics.CreateAPIView):
     queryset = IncompleteCourseRecords.objects.all()
     serializer_class = serializers.IncompleteCourseRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -186,7 +186,7 @@ class RetrieveIncompleteCourseRecordsAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -195,7 +195,7 @@ class ListIncompleteCourseRecordsAPIView(generics.ListAPIView):
         "created_by", "updated_by"
     )
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -203,7 +203,7 @@ class ListIncompleteCourseRecordsAPIView(generics.ListAPIView):
 class ListEmployeeIncompleteCourseRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.IncompleteCourseRecordsReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -218,7 +218,7 @@ class EditIncompleteCourseRecordsAPIView(generics.UpdateAPIView):
     queryset = IncompleteCourseRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteCourseRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -252,7 +252,7 @@ class DeleteIncompleteCourseRecordsAPIView(generics.DestroyAPIView):
     queryset = IncompleteCourseRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteCourseRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

@@ -29,8 +29,8 @@ def update_activity_feeds_search_vector(sender, instance, **kwargs):
     instance._search_vector_updated = True
 
     instance.search_vector = SearchVector(
-        Value(instance.activity), weight="A", config="english"
-    ) + SearchVector(Value(instance.creator.username), weight="B", config="english")
+        Value(instance.activity), weight="A"
+    ) + SearchVector(Value(instance.creator.username), weight="B")
 
     instance.save(update_fields=["search_vector"])
 

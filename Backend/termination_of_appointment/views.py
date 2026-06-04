@@ -24,7 +24,7 @@ class CreateTerminationOfAppointmentAPIView(generics.CreateAPIView):
     serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     queryset = models.TerminationOfAppointment.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -61,7 +61,7 @@ class EditTerminationOfAppointmentAPIView(generics.UpdateAPIView):
     serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -107,7 +107,7 @@ class RetrieveEmployeeTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
     throttle_classes = []
     lookup_field = "employee__pk"
     lookup_url_kwarg = "pk"
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         return models.TerminationOfAppointment.objects.select_related(
@@ -122,7 +122,7 @@ class RetrieveTerminationOfAppointmentAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.TerminationOfAppointmentReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteTerminationOfAppointmentAPIView(generics.DestroyAPIView):
@@ -130,7 +130,7 @@ class DeleteTerminationOfAppointmentAPIView(generics.DestroyAPIView):
     serializer_class = serializers.TerminationOfAppointmentWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -151,7 +151,7 @@ class CreateCausesOfTerminationAPIView(generics.CreateAPIView):
     serializer_class = serializers.CausesOfTerminationSerializer
     queryset = models.CausesOfTermination.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -172,7 +172,7 @@ class EditCausesOfTerminationAPIView(generics.UpdateAPIView):
     serializer_class = serializers.CausesOfTerminationSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
         with transaction.atomic():
@@ -200,7 +200,7 @@ class ListCausesOfTerminationAPIView(generics.ListAPIView):
     queryset = models.CausesOfTermination.objects.all()
     serializer_class = serializers.CausesOfTerminationSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class RetrieveCausesOfTerminationAPIView(generics.RetrieveAPIView):
@@ -208,7 +208,7 @@ class RetrieveCausesOfTerminationAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.CausesOfTerminationSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteCausesOfTerminationAPIView(generics.DestroyAPIView):
@@ -216,7 +216,7 @@ class DeleteCausesOfTerminationAPIView(generics.DestroyAPIView):
     serializer_class = serializers.CausesOfTerminationSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -237,7 +237,7 @@ class CreateTerminationStatusAPIView(generics.CreateAPIView):
     serializer_class = serializers.TerminationStatusSerializer
     queryset = models.TerminationStatus.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_create(self, serializer):
         with transaction.atomic():
@@ -258,7 +258,7 @@ class EditTerminationStatusAPIView(generics.UpdateAPIView):
     serializer_class = serializers.TerminationStatusSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_update(self, serializer):
         with transaction.atomic():
@@ -284,7 +284,7 @@ class ListTerminationStatusAPIView(generics.ListAPIView):
     queryset = models.TerminationStatus.objects.all()
     serializer_class = serializers.TerminationStatusSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class RetrieveTerminationStatusAPIView(generics.RetrieveAPIView):
@@ -292,7 +292,7 @@ class RetrieveTerminationStatusAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.TerminationStatusSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
@@ -300,7 +300,7 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
     serializer_class = serializers.TerminationStatusSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -340,7 +340,7 @@ class ListCauseAndStatusAPIView(APIView):
 class CreateIncompleteTerminationOfAppointmentRecordsAPIView(generics.CreateAPIView):
     queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
     serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -382,7 +382,7 @@ class RetrieveIncompleteTerminationOfAppointmentRecordsAPIView(
     )
     lookup_field = "pk"
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -391,7 +391,7 @@ class ListIncompleteTerminationOfAppointmentRecordsAPIView(generics.ListAPIView)
         "created_by", "updated_by", "cause", "status"
     )
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -401,7 +401,7 @@ class ListEmployeeIncompleteTerminationOfAppointmentRecordsAPIView(
 ):
     serializer_class = serializers.IncompleteTerminationOfAppointmentReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -418,7 +418,7 @@ class EditIncompleteTerminationOfAppointmentRecordsAPIView(generics.UpdateAPIVie
     queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -459,7 +459,7 @@ class DeleteIncompleteTerminationOfAppointmentRecordsAPIView(generics.DestroyAPI
     queryset = models.IncompleteTerminationOfAppointmentRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompleteTerminationOfAppointmentWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

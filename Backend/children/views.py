@@ -22,7 +22,7 @@ class CreateChildRecordAPIView(generics.CreateAPIView):
     serializer_class = serializers.ChildrenWriteSerializer
     queryset = Children.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -55,7 +55,7 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
     serializer_class = serializers.ChildrenWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -92,7 +92,7 @@ class EditChildRecordAPIView(generics.UpdateAPIView):
 class ListEmployeeChildrenAPIView(generics.ListAPIView):
     serializer_class = serializers.ChildrenReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -108,7 +108,7 @@ class RetrieveChildRecordAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.ChildrenReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteChildRecordAPIView(generics.DestroyAPIView):
@@ -116,7 +116,7 @@ class DeleteChildRecordAPIView(generics.DestroyAPIView):
     serializer_class = serializers.ChildrenWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -136,7 +136,7 @@ class DeleteChildRecordAPIView(generics.DestroyAPIView):
 class CreateInCompleteChildRecordsAPIView(generics.CreateAPIView):
     queryset = InCompleteChildRecords.objects.all()
     serializer_class = serializers.InCompleteChildRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -174,7 +174,7 @@ class RetrieveInCompleteChildRecordsAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -183,7 +183,7 @@ class ListInCompleteChildRecordsAPIView(generics.ListAPIView):
         "gender", "created_by", "updated_by"
     )
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -191,7 +191,7 @@ class ListInCompleteChildRecordsAPIView(generics.ListAPIView):
 class ListEmployeeInCompleteChildRecordsAPIView(generics.ListAPIView):
     serializer_class = serializers.InCompleteChildRecordsReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -206,7 +206,7 @@ class EditInCompleteChildRecordsAPIView(generics.UpdateAPIView):
     queryset = InCompleteChildRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.InCompleteChildRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -244,7 +244,7 @@ class DeleteInCompleteChildRecordsAPIView(generics.DestroyAPIView):
     queryset = InCompleteChildRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.InCompleteChildRecordsWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

@@ -16,13 +16,13 @@ class ListActivityFeedAPIView(generics.ListAPIView):
     throttle_classes = []
     queryset = models.ActivityFeeds.objects.select_related("creator")
     serializer_class = serializers.ActivityFeedsSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class SearchActivityAPIView(generics.ListAPIView):
     serializer_class = serializers.ActivityFeedsSerializer
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     pagination_class = LargeResultsSetPagination
 
     @staticmethod
@@ -44,7 +44,7 @@ class SearchActivityAPIView(generics.ListAPIView):
         qs = ActivityFeeds.objects.all()
 
         if q:
-            search_query = SearchQuery(q, config="english")
+            search_query = SearchQuery(q)
 
             qs = (
                 qs.annotate(rank=SearchRank(F("search_vector"), search_query))

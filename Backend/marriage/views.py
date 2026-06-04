@@ -20,7 +20,7 @@ class CreateSpouseAPIView(generics.CreateAPIView):
     serializer_class = serializers.SpouseWriteSerializer
     queryset = Spouse.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -54,7 +54,7 @@ class EditSpouseAPIView(generics.UpdateAPIView):
     serializer_class = serializers.SpouseWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -89,7 +89,7 @@ class EditSpouseAPIView(generics.UpdateAPIView):
 class ListEmployeeSpouseAPIView(generics.ListAPIView):
     serializer_class = serializers.SpouseReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -103,7 +103,7 @@ class RetrieveSpouseAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.SpouseReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeleteSpouseAPIView(generics.DestroyAPIView):
@@ -111,7 +111,7 @@ class DeleteSpouseAPIView(generics.DestroyAPIView):
     serializer_class = serializers.SpouseWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():

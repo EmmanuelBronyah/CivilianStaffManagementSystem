@@ -9,20 +9,25 @@ import api from "../../api";
 import { USER_ID } from "../../constants";
 import getResponseMessages from "../../utils/extractResponseMessage";
 import { useLocation } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-  const [displayFilterBox, setDisplayFilterBox] = useState(false);
-  const [placeholderText, setPlaceholderText] = useState("Service Number...");
-  const [query, setQuery] = useState("");
+  const [searchItem, setSearchItem] = useState("");
   const location = useLocation();
+  const navigate = useNavigate();
   const { theme } = useTheme();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const query = searchParams.get("q") || "";
 
   useEffect(() => {
     const getUserInfo = async () => {
       try {
-        const userId = localStorage.getItem(USER_ID);
+        // const userId = localStorage.getItem(USER_ID);
+        const userId = 1;
         const res = await api.get(`/api/users/${userId}/`);
 
         setUserInfo(res.data);
@@ -39,19 +44,17 @@ export default function Header(props) {
     getUserInfo();
   }, []);
 
-  const setPlaceholder = (e) => {
-    const text = e.target.textContent;
-    switch (text) {
-      case "Service Number":
-        setPlaceholderText("Service Number...");
-        setDisplayFilterBox(false);
-        break;
-      case "Name":
-        setPlaceholderText("Name...");
-        setDisplayFilterBox(false);
-        break;
-    }
-  };
+  //   switch (text) {
+  //     case "Service Number":
+  //       setPlaceholderText("Service Number...");
+  //       setDisplayFilterBox(false);
+  //       break;
+  //     case "Name":
+  //       setPlaceholderText("Name...");
+  //       setDisplayFilterBox(false);
+  //       break;
+  //   }
+  // };
 
   const routes = [
     {
@@ -85,19 +88,31 @@ export default function Header(props) {
   );
   const activePage = activeRoute?.title || "Dashboard";
 
-  const searchEmployee = async () => {
-    const queryParams =
-      placeholderText === "Service Number..."
-        ? { service_id: query }
-        : { name: query };
-    try {
-      const res = await api.get("api/employees/staff/search/", {
-        params: queryParams,
-      });
-      console.log("Response data -> ", res.data);
-    } catch (error) {
-      console.log("Error -> ", error.response);
-    }
+  useEffect(() => {
+    const searchEmployee = async () => {
+      try {
+        const res = await api.get(`api/employees/staff/search`, {
+          params: { query: query },
+        });
+        console.log("SEARCH RESULTS -> ", res.data);
+
+        props.setSearchResults(res.data.results);
+      } catch (error) {
+        props.setResponse({
+          message: getResponseMessages(error.response),
+          type: "error",
+          id: Date.now(),
+        });
+      }
+    };
+
+    searchEmployee();
+  }, [query, page]);
+
+  const initiateSearch = () => {
+    navigate(
+      `/home/employees/apply/occurrence?q=${encodeURIComponent(searchItem)}&page=${page}`,
+    );
   };
 
   return (
@@ -110,29 +125,17 @@ export default function Header(props) {
         <div className={style.searchBox}>
           <input
             type="text"
-            placeholder={placeholderText}
+            placeholder={"Search name or service number..."}
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => setSearchItem(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                searchEmployee();
+                initiateSearch();
               }
             }}
           />
 
           <MdSearch className={style.searchIcon} />
-
-          <div className={style.filterWrapper}>
-            <MdFilterAlt
-              className={style.filterIcon}
-              onClick={() => setDisplayFilterBox((prev) => !prev)}
-            />
-
-            <div className={style.filterContainer} data-open={displayFilterBox}>
-              <button onClick={setPlaceholder}>Service Number</button>
-              <button onClick={setPlaceholder}>Name</button>
-            </div>
-          </div>
         </div>
       </div>
       <ThemeToggle className={style.switch} />

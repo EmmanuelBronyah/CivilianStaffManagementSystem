@@ -28,7 +28,7 @@ class CreatePreviousGovernmentServiceAPIView(generics.CreateAPIView):
     serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     queryset = PreviousGovernmentService.objects.all()
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -65,7 +65,7 @@ class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
     serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop("partial", False)
@@ -108,7 +108,7 @@ class EditPreviousGovernmentServiceAPIView(generics.UpdateAPIView):
 class ListEmployeePreviousGovernmentServiceAPIView(generics.ListAPIView):
     serializer_class = serializers.PreviousGovernmentServiceReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -126,7 +126,7 @@ class RetrievePreviousGovernmentServiceAPIView(generics.RetrieveAPIView):
     serializer_class = serializers.PreviousGovernmentServiceReadSerializer
     lookup_field = "pk"
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
 
 class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
@@ -134,7 +134,7 @@ class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
     serializer_class = serializers.PreviousGovernmentServiceWriteSerializer
     lookup_field = "pk"
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def perform_destroy(self, instance):
         with transaction.atomic():
@@ -154,7 +154,7 @@ class DeletePreviousGovernmentServiceAPIView(generics.DestroyAPIView):
 class CreateIncompletePreviousGovernmentServiceRecordsAPIView(generics.CreateAPIView):
     queryset = IncompletePreviousGovernmentServiceRecords.objects.all()
     serializer_class = serializers.IncompletePreviousGovernmentServiceWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -196,7 +196,7 @@ class RetrieveIncompletePreviousGovernmentServiceRecordsAPIView(
     )
     lookup_field = "pk"
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -205,7 +205,7 @@ class ListIncompletePreviousGovernmentServiceRecordsAPIView(generics.ListAPIView
         "created_by", "updated_by"
     )
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -215,7 +215,7 @@ class ListEmployeeIncompletePreviousGovernmentServiceRecordsAPIView(
 ):
     serializer_class = serializers.IncompletePreviousGovernmentServiceReadSerializer
     throttle_classes = []
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
 
     def get_queryset(self):
         service_id = self.kwargs.get("pk")
@@ -232,7 +232,7 @@ class EditIncompletePreviousGovernmentServiceRecordsAPIView(generics.UpdateAPIVi
     queryset = IncompletePreviousGovernmentServiceRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompletePreviousGovernmentServiceWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -272,7 +272,7 @@ class DeleteIncompletePreviousGovernmentServiceRecordsAPIView(generics.DestroyAP
     queryset = IncompletePreviousGovernmentServiceRecords.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.IncompletePreviousGovernmentServiceWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):

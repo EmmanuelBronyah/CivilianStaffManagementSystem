@@ -36,11 +36,17 @@ class StandardResultsSetPagination(pagination.PageNumberPagination):
     max_page_size = 200
 
 
+class SmallResultsSetPagination(pagination.PageNumberPagination):
+    page_size = 20
+    page_size_query_param = "page_size"
+    max_page_size = 40
+
+
 # * EMPLOYEES
 class CreateEmployeeAPIView(generics.CreateAPIView):
     queryset = models.Employee.objects.all()
     serializer_class = serializers.EmployeeCreateSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, RestrictFields]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, RestrictFields]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -85,7 +91,7 @@ class RetrieveEmployeeAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.EmployeeReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -103,7 +109,7 @@ class ListEmployeesAPIView(generics.ListAPIView):
         "updated_by",
     )
     serializer_class = serializers.EmployeeReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -114,7 +120,7 @@ class ListEmployeesDTO(generics.ListAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.EmployeeDTOReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = StandardResultsSetPagination
 
@@ -130,7 +136,7 @@ class EditEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.EmployeeUpdateSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, CanEditEmployee]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser, CanEditEmployee]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -170,7 +176,7 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.Employee.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.EmployeeReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -191,7 +197,7 @@ class DeleteEmployeeAPIView(generics.DestroyAPIView):
 class TotalNumberOfEmployeesAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         total = services.get_total_number_of_employees()
@@ -201,7 +207,7 @@ class TotalNumberOfEmployeesAPIView(APIView):
 class ForecastedRetireesAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         results = services.get_forecasted_retirees()
@@ -211,35 +217,40 @@ class ForecastedRetireesAPIView(APIView):
 class SearchEmployeeAPIView(generics.ListAPIView):
     serializer_class = serializers.EmployeeReadSerializer
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
-    pagination_class = LargeResultsSetPagination
+    # permission_classes = [IsAuthenticated]
+    pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
-        service_id = self.request.query_params.get("service_id")
-        name = self.request.query_params.get("name")
+        query = (
+            self.request.query_params.get("query")
+            .replace("\n", " ")
+            .replace("\r", " ")
+            .strip()
+        )
+
+        if not query:
+            return Employee.objects.none()
+
+        service_id = ""
+        name = ""
+
+        if query.isdigit():
+            service_id = query
+        else:
+            name = query
+
         qs = Employee.objects.all()
 
         if name:
-            search_query = SearchQuery(
-                name,
-                config="english",
-            )
+            search_query = SearchQuery(name)
             qs = (
                 qs.annotate(
-                    search=SearchVector(
-                        "last_name",
-                        "other_names",
-                    )
-                )
-                .annotate(
                     rank=SearchRank(
-                        F("search"),
+                        F("search_vector"),
                         search_query,
                     )
                 )
-                .filter(
-                    rank__gte=0.1,
-                )
+                .filter(search_vector=search_query)
                 .order_by("-rank")
             )
 
@@ -253,7 +264,7 @@ class SearchEmployeeAPIView(generics.ListAPIView):
 class CreateCategoryAPIView(generics.CreateAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -274,14 +285,14 @@ class RetrieveCategoryAPIView(generics.RetrieveAPIView):
     queryset = models.Category.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListCategoryAPIView(generics.ListAPIView):
     queryset = models.Category.objects.all()
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -289,7 +300,7 @@ class EditCategoryAPIView(generics.UpdateAPIView):
     queryset = models.Category.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -311,7 +322,7 @@ class DeleteCategoryAPIView(generics.DestroyAPIView):
     queryset = models.Category.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.CategorySerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -333,7 +344,7 @@ class DeleteCategoryAPIView(generics.DestroyAPIView):
 class CreateGradeAPIView(generics.CreateAPIView):
     queryset = models.Grades.objects.all()
     serializer_class = serializers.GradeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -364,14 +375,14 @@ class RetrieveGradeAPIView(generics.RetrieveAPIView):
     queryset = models.Grades.objects.select_related("rank", "structure")
     lookup_field = "pk"
     serializer_class = serializers.GradeReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListGradesAPIView(generics.ListAPIView):
     queryset = models.Grades.objects.select_related("rank", "structure")
     serializer_class = serializers.GradeReadSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -380,7 +391,7 @@ class EditGradeAPIView(generics.UpdateAPIView):
     queryset = models.Grades.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.GradeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -417,7 +428,7 @@ class DeleteGradeAPIView(generics.DestroyAPIView):
     queryset = models.Grades.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.GradeSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -439,7 +450,7 @@ class DeleteGradeAPIView(generics.DestroyAPIView):
 class CreateUnitAPIView(generics.CreateAPIView):
     queryset = models.Units.objects.all()
     serializer_class = serializers.UnitSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -460,14 +471,14 @@ class RetrieveUnitAPIView(generics.RetrieveAPIView):
     queryset = models.Units.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.UnitSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListUnitsAPIView(generics.ListAPIView):
     queryset = models.Units.objects.all()
     serializer_class = serializers.UnitSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
     pagination_class = StandardResultsSetPagination
 
@@ -475,7 +486,7 @@ class ListUnitsAPIView(generics.ListAPIView):
 class TotalEmployeesPerUnitAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         units = models.Units.objects.annotate(total_employees=Count("employee"))
@@ -487,7 +498,7 @@ class TotalEmployeesPerUnitAPIView(APIView):
 class RandomEmployeesPerUnitAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         units = models.Units.objects.annotate(total_employees=Count("employee"))
@@ -507,7 +518,7 @@ class EditUnitAPIView(generics.UpdateAPIView):
     queryset = models.Units.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.UnitSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -529,7 +540,7 @@ class DeleteUnitAPIView(generics.DestroyAPIView):
     queryset = models.Units.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.UnitSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -551,7 +562,7 @@ class DeleteUnitAPIView(generics.DestroyAPIView):
 class CreateGenderAPIView(generics.CreateAPIView):
     queryset = models.Gender.objects.all()
     serializer_class = serializers.GenderSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -572,14 +583,14 @@ class RetrieveGenderAPIView(generics.RetrieveAPIView):
     queryset = models.Gender.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.GenderSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListGendersAPIView(generics.ListAPIView):
     queryset = models.Gender.objects.all()
     serializer_class = serializers.GenderSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -587,7 +598,7 @@ class EditGenderAPIView(generics.UpdateAPIView):
     queryset = models.Gender.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.GenderSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -609,7 +620,7 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
     queryset = models.Gender.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.GenderSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -629,7 +640,7 @@ class DeleteGenderAPIView(generics.DestroyAPIView):
 
 class TotalMaleAndFemaleAPIView(APIView):
     http_method_names = ["get"]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
     def get(self, request, *args, **kwargs):
@@ -645,7 +656,7 @@ class TotalMaleAndFemaleAPIView(APIView):
 class CreateMaritalStatusAPIView(generics.CreateAPIView):
     queryset = models.MaritalStatus.objects.all()
     serializer_class = serializers.MaritalStatusSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -666,14 +677,14 @@ class RetrieveMaritalStatusAPIView(generics.RetrieveAPIView):
     queryset = models.MaritalStatus.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.MaritalStatusSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListMaritalStatusAPIView(generics.ListAPIView):
     queryset = models.MaritalStatus.objects.all()
     serializer_class = serializers.MaritalStatusSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -681,7 +692,7 @@ class EditMaritalStatusAPIView(generics.UpdateAPIView):
     queryset = models.MaritalStatus.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.MaritalStatusSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -703,7 +714,7 @@ class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
     queryset = models.MaritalStatus.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.MaritalStatusSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -725,7 +736,7 @@ class DeleteMaritalStatusAPIView(generics.DestroyAPIView):
 class CreateRegionAPIView(generics.CreateAPIView):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -746,14 +757,14 @@ class RetrieveRegionAPIView(generics.RetrieveAPIView):
     queryset = models.Region.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListRegionsAPIView(generics.ListAPIView):
     queryset = models.Region.objects.all()
     serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -761,7 +772,7 @@ class EditRegionAPIView(generics.UpdateAPIView):
     queryset = models.Region.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -783,7 +794,7 @@ class DeleteRegionAPIView(generics.DestroyAPIView):
     queryset = models.Region.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.RegionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -805,7 +816,7 @@ class DeleteRegionAPIView(generics.DestroyAPIView):
 class CreateReligionAPIView(generics.CreateAPIView):
     queryset = models.Religion.objects.all()
     serializer_class = serializers.ReligionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -826,14 +837,14 @@ class RetrieveReligionAPIView(generics.RetrieveAPIView):
     queryset = models.Religion.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.ReligionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListReligionsAPIView(generics.ListAPIView):
     queryset = models.Religion.objects.all()
     serializer_class = serializers.ReligionSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -841,7 +852,7 @@ class EditReligionAPIView(generics.UpdateAPIView):
     queryset = models.Religion.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.ReligionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -863,7 +874,7 @@ class DeleteReligionAPIView(generics.DestroyAPIView):
     queryset = models.Religion.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.ReligionSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -885,7 +896,7 @@ class DeleteReligionAPIView(generics.DestroyAPIView):
 class CreateStructureAPIView(generics.CreateAPIView):
     queryset = models.Structure.objects.all()
     serializer_class = serializers.StructureSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -906,14 +917,14 @@ class RetrieveStructureAPIView(generics.RetrieveAPIView):
     queryset = models.Structure.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.StructureSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListStructuresAPIView(generics.ListAPIView):
     queryset = models.Structure.objects.all()
     serializer_class = serializers.StructureSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -921,7 +932,7 @@ class EditStructureAPIView(generics.UpdateAPIView):
     queryset = models.Structure.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.StructureSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -943,7 +954,7 @@ class DeleteStructureAPIView(generics.DestroyAPIView):
     queryset = models.Structure.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.StructureSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -965,7 +976,7 @@ class DeleteStructureAPIView(generics.DestroyAPIView):
 class CreateBloodGroupAPIView(generics.CreateAPIView):
     queryset = models.BloodGroup.objects.all()
     serializer_class = serializers.BloodGroupSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -986,14 +997,14 @@ class RetrieveBloodGroupAPIView(generics.RetrieveAPIView):
     queryset = models.BloodGroup.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.BloodGroupSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListBloodGroupsAPIView(generics.ListAPIView):
     queryset = models.BloodGroup.objects.all()
     serializer_class = serializers.BloodGroupSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -1001,7 +1012,7 @@ class EditBloodGroupAPIView(generics.UpdateAPIView):
     queryset = models.BloodGroup.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.BloodGroupSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -1023,7 +1034,7 @@ class DeleteBloodGroupAPIView(generics.DestroyAPIView):
     queryset = models.BloodGroup.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.BloodGroupSerializer
-    permission_classes = [IsAuthenticated, IsAdminUser]
+    # permission_classes = [IsAuthenticated, IsAdminUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -1045,7 +1056,7 @@ class DeleteBloodGroupAPIView(generics.DestroyAPIView):
 class CreateDocumentFileAPIView(generics.CreateAPIView):
     queryset = models.DocumentFile.objects.all()
     serializer_class = serializers.DocumentFileSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_create(self, serializer):
@@ -1066,14 +1077,14 @@ class RetrieveDocumentFileAPIView(generics.RetrieveAPIView):
     queryset = models.DocumentFile.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DocumentFileSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
 class ListDocumentFileAPIView(generics.ListAPIView):
     queryset = models.DocumentFile.objects.all()
     serializer_class = serializers.DocumentFileSerializer
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     throttle_classes = []
 
 
@@ -1081,7 +1092,7 @@ class EditDocumentFileAPIView(generics.UpdateAPIView):
     queryset = models.DocumentFile.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DocumentFileSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_update(self, serializer):
@@ -1103,7 +1114,7 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
     queryset = models.DocumentFile.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.DocumentFileSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -1125,7 +1136,7 @@ class DeleteDocumentFileAPIView(generics.DestroyAPIView):
 class CreateUnregisteredEmployeeAPIView(generics.CreateAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
     serializer_class = serializers.UnregisteredEmployeesWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def create(self, request, *args, **kwargs):
@@ -1161,7 +1172,7 @@ class RetrieveUnregisteredEmployeeAPIView(generics.RetrieveAPIView):
     )
     lookup_field = "pk"
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
 
 
@@ -1170,7 +1181,7 @@ class ListUnregisteredEmployeesAPIView(generics.ListAPIView):
         "unit", "grade", "created_by", "updated_by"
     )
     serializer_class = serializers.UnregisteredEmployeeReadSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = []
     pagination_class = LargeResultsSetPagination
 
@@ -1179,7 +1190,7 @@ class EditUnregisteredEmployeeAPIView(generics.UpdateAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.UnregisteredEmployeesWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def update(self, request, *args, **kwargs):
@@ -1215,7 +1226,7 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
     queryset = models.UnregisteredEmployees.objects.all()
     lookup_field = "pk"
     serializer_class = serializers.UnregisteredEmployeesWriteSerializer
-    permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
+    # permission_classes = [IsAuthenticated, IsAdminUserOrStandardUser]
     throttle_classes = [UserRateThrottle]
 
     def perform_destroy(self, instance):
@@ -1240,7 +1251,7 @@ class DeleteUnregisteredEmployeeAPIView(generics.DestroyAPIView):
 class DashboardAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = [UserRateThrottle]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         users_per_role = services.get_users_per_role()
@@ -1284,7 +1295,7 @@ class DashboardAPIView(APIView):
 class ListDivisionsAndGradesAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         divisions = services.get_divisions()
@@ -1305,7 +1316,7 @@ class ListDivisionsAndGradesAPIView(APIView):
 class ListOptionsAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         structure = services.get_structure()
@@ -1344,7 +1355,7 @@ class ListOptionsAPIView(APIView):
 class AddEmployeeDropdownDataAPIView(APIView):
     http_method_names = ["get"]
     throttle_classes = []
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         structure = services.get_structure()

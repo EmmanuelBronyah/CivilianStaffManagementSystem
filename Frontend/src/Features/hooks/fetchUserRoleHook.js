@@ -9,7 +9,8 @@ export default function useFetchUserRole() {
 
   useEffect(() => {
     const fetchUserRole = async () => {
-      const userId = localStorage.getItem(USER_ID);
+      // const userId = localStorage.getItem(USER_ID);
+      const userId = 1;
       try {
         const res = await api.get(`api/users/${userId}/role/`);
         setRole(res.data.role);
