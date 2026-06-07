@@ -12,11 +12,9 @@ import { Outlet } from "react-router-dom";
 function HomePage() {
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
-  const [searchResults, setSearchResults] = useState([]);
   const [response, setResponse] = useState(null);
 
   const { theme } = useTheme();
-
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -46,13 +44,8 @@ function HomePage() {
       <div className={style.wrapper}>
         <SideBar open={open} setOpen={setOpen} setResponse={setResponse} />
         <div className={style.headerMainContainer}>
-          <Header
-            setOpen={setOpen}
-            setResponse={setResponse}
-            searchResults={searchResults}
-            setSearchResults={setSearchResults}
-          />
-          <Outlet context={{ searchResults, setSearchResults }} />
+          <Header setOpen={setOpen} setResponse={setResponse} />
+          <Outlet />
         </div>
       </div>
       <Notification isVisible={visible} response={response} />

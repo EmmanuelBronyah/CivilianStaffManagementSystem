@@ -2,10 +2,62 @@ import style from "../../../../styles/components/applyoccurrencecomponent.module
 import { useTheme } from "../../../../context/ThemeContext";
 import { useOutletContext } from "react-router-dom";
 import EmployeeInfo from "./EmployeeInfo";
+import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
+import ClipLoader from "react-spinners/ClipLoader";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import getResponseMessages from "../../../../utils/extractResponseMessage";
+import api from "../../../../api";
 
 export default function ApplyOccurrence() {
   const { theme } = useTheme();
-  const { searchResults } = useOutletContext();
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { setResponse } = useOutletContext();
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState("");
+
+  const page = searchParams.get("page") || 1;
+  const query = searchParams.get("q") || "";
+
+  useEffect(() => {
+    setLoading(true);
+
+    const searchEmployee = async () => {
+      try {
+        const res = await api.get(`api/employees/staff/search/`, {
+          params: { page: page, query: query },
+        });
+        setLoading(false);
+        console.log("SEARCH RESULTS -> ", res.data);
+
+        setResults(res.data);
+      } catch (error) {
+        setLoading(false);
+        setResponse({
+          message: getResponseMessages(error.response),
+          type: "error",
+          id: Date.now(),
+        });
+      }
+    };
+
+    searchEmployee();
+  }, [query, page]);
+
+  const goToNextPage = () => {
+    setSearchParams({
+      q: query,
+      page: Number(page) + 1,
+    });
+  };
+
+  const goToPreviousPage = () => {
+    setSearchParams({
+      q: query,
+      page: Math.max(Number(page) - 1, 1),
+    });
+  };
 
   return (
     <div
@@ -19,9 +71,24 @@ export default function ApplyOccurrence() {
           <div className={style.searchResultsTitle}>
             <p>Search Results</p>
           </div>
-          {searchResults.length !== 0 ? (
-            searchResults.map(({ service_id, last_name, other_names }) => (
+          <div
+            className={`${style.resultsCount} ${results.results?.length === 0 && style.displayNone}`}
+          >
+            <p>
+              <i>{results.count || ""}</i> record
+              {results.count === 1 ? "" : "s"}
+            </p>
+          </div>
+          {loading ? (
+            <ClipLoader
+              className={style.loadingSpinner}
+              size={30}
+              color={`${!theme ? "#808080" : "#004700"}`}
+            />
+          ) : results.results?.length !== 0 ? (
+            results.results?.map(({ service_id, last_name, other_names }) => (
               <EmployeeInfo
+                key={service_id}
                 serviceId={service_id}
                 lastName={last_name}
                 otherNames={other_names}
@@ -32,6 +99,25 @@ export default function ApplyOccurrence() {
               <p>Nothing to show</p>
             </div>
           )}
+          <div
+            className={`${style.navigateButtonsContainer} ${results.results?.length === 0 && style.displayNone}`}
+          >
+            <button disabled={!results.previous}>
+              <MdArrowBackIos
+                title="Previous"
+                className={style.navigateIcons}
+                onClick={goToPreviousPage}
+              />
+            </button>
+
+            <button disabled={!results.next}>
+              <MdArrowForwardIos
+                title="Next"
+                className={style.navigateIcons}
+                onClick={goToNextPage}
+              />
+            </button>
+          </div>
         </div>
         <hr className={style.separator} />
         <div className={style.selectedEmployeesContainer}>

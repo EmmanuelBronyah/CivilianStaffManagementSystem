@@ -8,20 +8,16 @@ import BaseSkeleton from "../Common/SkeletonComponent";
 import api from "../../api";
 import { USER_ID } from "../../constants";
 import getResponseMessages from "../../utils/extractResponseMessage";
-import { useLocation } from "react-router-dom";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function Header(props) {
   const [userInfo, setUserInfo] = useState(null);
   const [loadingUserInfo, setLoadingUserInfo] = useState(true);
-  const [searchItem, setSearchItem] = useState("");
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { theme } = useTheme();
-
   const [searchParams, setSearchParams] = useSearchParams();
-  const page = searchParams.get("page") || 1;
-  const query = searchParams.get("q") || "";
+  const [searchItem, setSearchItem] = useState(searchParams.get("q") || "");
+
+  const location = useLocation();
+  const { theme } = useTheme();
 
   useEffect(() => {
     const getUserInfo = async () => {
@@ -88,33 +84,6 @@ export default function Header(props) {
   );
   const activePage = activeRoute?.title || "Dashboard";
 
-  useEffect(() => {
-    const searchEmployee = async () => {
-      try {
-        const res = await api.get(`api/employees/staff/search`, {
-          params: { query: query },
-        });
-        console.log("SEARCH RESULTS -> ", res.data);
-
-        props.setSearchResults(res.data.results);
-      } catch (error) {
-        props.setResponse({
-          message: getResponseMessages(error.response),
-          type: "error",
-          id: Date.now(),
-        });
-      }
-    };
-
-    searchEmployee();
-  }, [query, page]);
-
-  const initiateSearch = () => {
-    navigate(
-      `/home/employees/apply/occurrence?q=${encodeURIComponent(searchItem)}&page=${page}`,
-    );
-  };
-
   return (
     <header className={!theme ? style.dark : ""}>
       <MdDehaze className={style.icon} onClick={() => props.setOpen(true)} />
@@ -126,11 +95,14 @@ export default function Header(props) {
           <input
             type="text"
             placeholder={"Search name or service number..."}
-            value={query}
+            value={searchItem}
             onChange={(e) => setSearchItem(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                initiateSearch();
+                setSearchParams({
+                  q: searchItem,
+                  page: 1,
+                });
               }
             }}
           />

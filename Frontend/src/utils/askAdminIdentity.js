@@ -72,7 +72,8 @@ export default async function verifyAdminProcess(
     return;
   }
 
-  const userID = localStorage.getItem(USER_ID);
+  // const userID = localStorage.getItem(USER_ID);
+  const userID = 1;
   const verificationData = {
     id: userID,
     adminPassword: result.value,

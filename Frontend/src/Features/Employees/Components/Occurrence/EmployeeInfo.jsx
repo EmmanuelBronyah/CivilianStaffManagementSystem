@@ -11,6 +11,9 @@ const EmployeeInfo = ({ serviceId, lastName, otherNames }) => {
           {lastName} {otherNames}
         </p>
       </div>
+      <div className={style.checkboxContainer}>
+        <input type="checkbox" />
+      </div>
     </div>
   );
 };

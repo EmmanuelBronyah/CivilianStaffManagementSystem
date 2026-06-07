@@ -216,11 +216,12 @@ class ForecastedRetireesAPIView(APIView):
 
 class SearchEmployeeAPIView(generics.ListAPIView):
     serializer_class = serializers.EmployeeReadSerializer
-    throttle_classes = [UserRateThrottle]
+    throttle_classes = []
     # permission_classes = [IsAuthenticated]
     pagination_class = SmallResultsSetPagination
 
     def get_queryset(self):
+        print("SEARCH PARAMS -> ", self.request.query_params)
         query = (
             self.request.query_params.get("query")
             .replace("\n", " ")
