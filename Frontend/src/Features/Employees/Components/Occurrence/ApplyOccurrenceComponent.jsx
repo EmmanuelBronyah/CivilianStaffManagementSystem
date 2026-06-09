@@ -15,7 +15,11 @@ export default function ApplyOccurrence() {
   const [searchParams, setSearchParams] = useSearchParams();
   const { setResponse } = useOutletContext();
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedEmployees, setSelectedEmployees] = useState(() => {
+    const storedEmployees = localStorage.getItem("selectedEmployees");
+    return storedEmployees ? JSON.parse(storedEmployees) : [];
+  });
 
   const page = searchParams.get("page") || 1;
   const query = searchParams.get("q") || "";
@@ -29,7 +33,6 @@ export default function ApplyOccurrence() {
           params: { page: page, query: query },
         });
         setLoading(false);
-        console.log("SEARCH RESULTS -> ", res.data);
 
         setResults(res.data);
       } catch (error) {
@@ -44,6 +47,23 @@ export default function ApplyOccurrence() {
 
     searchEmployee();
   }, [query, page]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "selectedEmployees",
+      JSON.stringify(selectedEmployees),
+    );
+  }, [selectedEmployees]);
+
+  const toggleEmployee = (employee) => {
+    setSelectedEmployees((prev) => {
+      const exists = prev.some((item) => item.serviceId === employee.serviceId);
+      if (exists) {
+        return prev.filter((item) => item.serviceId !== employee.serviceId);
+      }
+      return [...prev, employee];
+    });
+  };
 
   const goToNextPage = () => {
     setSearchParams({
@@ -92,6 +112,16 @@ export default function ApplyOccurrence() {
                 serviceId={service_id}
                 lastName={last_name}
                 otherNames={other_names}
+                onToggle={() =>
+                  toggleEmployee({
+                    serviceId: service_id,
+                    lastName: last_name,
+                    otherNames: other_names,
+                  })
+                }
+                checked={selectedEmployees.some(
+                  (employee) => service_id === employee.serviceId,
+                )}
               />
             ))
           ) : (
@@ -120,9 +150,30 @@ export default function ApplyOccurrence() {
           </div>
         </div>
         <hr className={style.separator} />
-        <div className={style.selectedEmployeesContainer}>
+        <div
+          className={`${style.selectedEmployeesContainer} ${selectedEmployees.length >= 20 ? style.overflow : ""}`}
+        >
           <div className={style.selectedEmployeesTitle}>
             <p>Selected Employees</p>
+          </div>
+          <div
+            className={`${style.resultsCount} ${selectedEmployees.length === 0 && style.displayNone}`}
+          >
+            <p>
+              <i>{selectedEmployees.length || ""}</i> record
+              {selectedEmployees.length === 1 ? "" : "s"}
+            </p>
+          </div>
+          <div>
+            {selectedEmployees.map(({ serviceId, lastName, otherNames }) => (
+              <EmployeeInfo
+                key={serviceId}
+                serviceId={serviceId}
+                lastName={lastName}
+                otherNames={otherNames}
+                showSelectedEmployees={true}
+              />
+            ))}
           </div>
         </div>
       </div>

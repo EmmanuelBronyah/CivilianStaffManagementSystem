@@ -12,6 +12,7 @@
   --navigateIcon-background-color: #0d3f0d;
   --navigateIcon-active-background-color: #002400;
   --button-text-color: white;
+  --employeeInfoSelected-backgroundColor: hsl(120, 65%, 90%);
 }
 
 .dark {
@@ -28,6 +29,7 @@
   --navigateIcon-background-color: grey;
   --navigateIcon-active-background-color: rgb(90, 90, 90);
   --button-text-color: rgb(30, 30, 30);
+  --employeeInfoSelected-backgroundColor: rgb(39, 39, 39);
 }
 .applyOccurrenceContainer {
   display: grid;
@@ -105,8 +107,15 @@ hr {
 }
 
 .selectedEmployeesContainer {
+  display: flex;
+  flex-direction: column;
   padding: 0.5rem;
   border-radius: 0.5rem;
+}
+
+.overflow {
+  height: 90rem;
+  overflow-y: auto;
 }
 
 .searchResultsTitle {
@@ -122,7 +131,6 @@ hr {
 
 .selectedEmployeesTitle {
   text-align: center;
-  margin-bottom: 1rem;
 
   p {
     margin: 0;
@@ -176,6 +184,41 @@ hr {
   }
 }
 
+.employeeInfoSelected {
+  display: flex;
+  flex-wrap: wrap;
+  width: 77%;
+  margin-inline: auto;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-left: 6px solid var(--employeeInfo-backgroundColor);
+  border-radius: 0.5rem;
+  background-color: var(--employeeInfoSelected-backgroundColor);
+  box-shadow: 0px 0px 10px 0px var(--employeeInfo-boxShadow);
+  margin-bottom: 1rem;
+  cursor: pointer;
+
+  p {
+    margin: 0;
+    padding: 0;
+    font-size: 1.125rem;
+
+    color: var(--text-color);
+  }
+}
+
+.employeeInfoSelected:hover {
+  opacity: 0.8;
+}
+
+.employeeInfoSelected:active {
+  background-color: var(--employeeInfo-active-backgroundColor);
+}
+
+.serviceIdContainer p {
+  font-weight: bold;
+}
+
 .nothing {
   width: fit-content;
   margin: auto;
@@ -193,4 +236,11 @@ hr {
 
 .displayNone {
   display: none;
+}
+
+@media screen and (max-width: 800px) {
+  .twoSectionContainers {
+    grid-template-rows: 1fr 1rem 1fr;
+    grid-template-columns: 1fr;
+  }
 }
