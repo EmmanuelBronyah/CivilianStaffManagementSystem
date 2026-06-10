@@ -31,6 +31,10 @@ from employees.serializers import ListGradesSerializer
 
 logger = logging.getLogger(__name__)
 
+# TODO: change all hard-coded names to self.request.user when able to log in.
+# TODO: re-activate authentication when able to log in.
+# TODO: On the frontend change all hard-coded USER_IDs to expect User from backend.
+
 
 # * OCCURRENCE
 class CreateOccurrenceAPIView(generics.CreateAPIView):
@@ -56,9 +60,7 @@ class CreateOccurrenceAPIView(generics.CreateAPIView):
 
     def perform_create(self, serializer):
         with transaction.atomic():
-            self.occurrence = serializer.save(
-                created_by=self.request.user, updated_by=self.request.user
-            )
+            self.occurrence = serializer.save()
             records = (
                 ", ".join([str(record) for record in self.occurrence])
                 if isinstance(self.occurrence, list)
@@ -68,24 +70,24 @@ class CreateOccurrenceAPIView(generics.CreateAPIView):
 
             if isinstance(self.occurrence, list):
                 for record in self.occurrence:
-                    ActivityFeeds.objects.create(
-                        creator=self.request.user,
-                        activity=(
-                            f"{self.request.user} added a new Occurrence(Service ID: {record.employee.service_id} — Authority: {record.authority} — Event: {record.event})"
-                        ),
-                    )
+                    # ActivityFeeds.objects.create(
+                    #     creator=self.request.user,
+                    #     activity=(
+                    #         f"Emmanuel added a new Occurrence(Service ID: {record.employee.service_id} — Authority: {record.authority} — Event: {record.event})"
+                    #     ),
+                    # )
                     logger.debug(
-                        f"Activity Feed({self.request.user} added a new Occurrence(Service ID: {record.employee.service_id} — Authority: {record.authority} — Event: {record.event}) created."
+                        f"Activity Feed(Emmanuel added a new Occurrence(Service ID: {record.employee.service_id} — Authority: {record.authority} — Event: {record.event}) created."
                     )
             else:
-                ActivityFeeds.objects.create(
-                    creator=self.request.user,
-                    activity=(
-                        f"{self.request.user} added a new Occurrence(Service ID: {self.occurrence.employee.service_id} — Authority: {self.occurrence.authority} — Event: {self.occurrence.event})"
-                    ),
-                )
+                # ActivityFeeds.objects.create(
+                #     creator=self.request.user,
+                #     activity=(
+                #         f"Emmanuel added a new Occurrence(Service ID: {self.occurrence.employee.service_id} — Authority: {self.occurrence.authority} — Event: {self.occurrence.event})"
+                #     ),
+                # )
                 logger.debug(
-                    f"Activity Feed({self.request.user} added a new Occurrence(Service ID: {self.occurrence.employee.service_id} — Authority: {self.occurrence.authority} — Event: {self.occurrence.event}) created."
+                    f"Activity Feed(Emmanuel added a new Occurrence(Service ID: {self.occurrence.employee.service_id} — Authority: {self.occurrence.authority} — Event: {self.occurrence.event}) created."
                 )
 
 

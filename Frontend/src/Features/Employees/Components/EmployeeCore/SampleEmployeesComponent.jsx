@@ -62,7 +62,7 @@ export default function SampleEmployees() {
           ) : (
             <button
               className={`${style.applyOccurrenceButton} ${!role || (role === "VIEWER" && style.displayNone)}`}
-              onClick={() => navigate("/home/employees/apply/occurrence/")}
+              onClick={() => navigate("/home/employees/form/occurrence/")}
             >
               Apply Occurrence
             </button>

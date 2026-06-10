@@ -5,7 +5,7 @@ import EmployeeInfo from "./EmployeeInfo";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import ClipLoader from "react-spinners/ClipLoader";
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import api from "../../../../api";
 
@@ -16,10 +16,12 @@ export default function ApplyOccurrence() {
   const { setResponse } = useOutletContext();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [occurrenceLoading, setOccurrenceLoading] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState(() => {
     const storedEmployees = localStorage.getItem("selectedEmployees");
     return storedEmployees ? JSON.parse(storedEmployees) : [];
   });
+  const navigate = useNavigate();
 
   const page = searchParams.get("page") || 1;
   const query = searchParams.get("q") || "";
@@ -55,6 +57,53 @@ export default function ApplyOccurrence() {
     );
   }, [selectedEmployees]);
 
+  const applyOccurrence = async () => {
+    setOccurrenceLoading(true);
+    const formData = JSON.parse(localStorage.getItem("occurrenceData"));
+    const occurrences = selectedEmployees.map(({ serviceId }) => ({
+      employee: serviceId,
+      grade: formData.grade.value,
+      authority: formData.authority,
+      level_step: formData.levelStep.value,
+      monthly_salary: formData.monthlySalary,
+      annual_salary: formData.annualSalary,
+      event: formData.event.value,
+      percentage_adjustment: formData?.percentageAdjustment?.label || null,
+      wef_date: formData.wefDate || null,
+      reason: formData.reason,
+    }));
+
+    try {
+      const res = await api.post("api/occurrence/create/", occurrences);
+      if (res.status === 201) {
+        setResponse({
+          message: `Updated Occurrences for ${selectedEmployees.length} employee records`,
+          id: Date.now(),
+        });
+
+        localStorage.removeItem("occurrenceData");
+        localStorage.removeItem("selectedEmployees");
+
+        setTimeout(() => {
+          navigate("/home/employees/form/occurrence");
+        }, 3000);
+      }
+      setOccurrenceLoading(false);
+    } catch (error) {
+      setOccurrenceLoading(false);
+      setResponse({
+        message: getResponseMessages(error.response),
+        type: "error",
+        id: Date.now(),
+      });
+
+      localStorage.removeItem("occurrenceData");
+      setTimeout(() => {
+        navigate("/home/employees/form/occurrence");
+      }, 3800);
+    }
+  };
+
   const toggleEmployee = (employee) => {
     setSelectedEmployees((prev) => {
       const exists = prev.some((item) => item.serviceId === employee.serviceId);
@@ -83,9 +132,26 @@ export default function ApplyOccurrence() {
     <div
       className={`${style.applyOccurrenceContainer} ${!theme ? style.dark : ""}`}
     >
-      <div className={style.applyOccurrenceTitle}>
-        <p>Apply Occurrence</p>
+      <div className={style.applyOccurrenceTitleAndButton}>
+        <div className={style.applyOccurrenceTitle}>
+          <p>Apply Occurrence</p>
+        </div>
+        {selectedEmployees.length > 0 && (
+          <div className={style.applyOccurrenceButton}>
+            <button onClick={applyOccurrence} disabled={occurrenceLoading}>
+              {occurrenceLoading ? (
+                <ClipLoader
+                  size={13}
+                  color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                />
+              ) : (
+                "Apply Occurrence"
+              )}
+            </button>
+          </div>
+        )}
       </div>
+
       <div className={style.twoSectionContainers}>
         <div className={style.searchResultsContainer}>
           <div className={style.searchResultsTitle}>
@@ -112,6 +178,7 @@ export default function ApplyOccurrence() {
                 serviceId={service_id}
                 lastName={last_name}
                 otherNames={other_names}
+                occurrenceLoading={occurrenceLoading}
                 onToggle={() =>
                   toggleEmployee({
                     serviceId: service_id,
@@ -132,7 +199,7 @@ export default function ApplyOccurrence() {
           <div
             className={`${style.navigateButtonsContainer} ${results.results?.length === 0 && style.displayNone}`}
           >
-            <button disabled={!results.previous}>
+            <button disabled={!results.previous || occurrenceLoading}>
               <MdArrowBackIos
                 title="Previous"
                 className={style.navigateIcons}
@@ -140,7 +207,7 @@ export default function ApplyOccurrence() {
               />
             </button>
 
-            <button disabled={!results.next}>
+            <button disabled={!results.next || occurrenceLoading}>
               <MdArrowForwardIos
                 title="Next"
                 className={style.navigateIcons}
@@ -171,6 +238,7 @@ export default function ApplyOccurrence() {
                 serviceId={serviceId}
                 lastName={lastName}
                 otherNames={otherNames}
+                occurrenceLoading={occurrenceLoading}
                 showSelectedEmployees={true}
               />
             ))}

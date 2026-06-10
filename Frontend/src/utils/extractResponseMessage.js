@@ -9,6 +9,12 @@ export default function getResponseMessages(response) {
 
     if (keyValuePairs) {
       for (const [key, value] of Object.entries(data)) {
+        if (typeof value === "object") {
+          const errorObject = Object.entries(value);
+          const [errorKey, errorMessage] = errorObject[0];
+          return errorMessage[0].replaceAll("_", " ");
+        }
+
         if (key === "detail") {
           messages.push(`${value}`);
         } else {

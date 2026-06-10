@@ -34,11 +34,38 @@
 .applyOccurrenceContainer {
   display: grid;
   grid-template-rows: 2rem 1fr;
+  gap: 1rem;
   height: 98.6%;
   padding: 0.5rem;
   border-radius: 0.5rem;
   background-color: var(--main-container-background-color);
   box-shadow: 0px 0px 10px 0px var(--card-box-shadow);
+}
+
+.applyOccurrenceTitleAndButton {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  button {
+    padding: 0.5rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 0.4rem;
+    background-color: var(--button-background-color);
+    font-weight: bold;
+    color: var(--button-text-color);
+    border: none;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.9;
+  }
+
+  button:active {
+    background-color: var(--button-active-background-color);
+    color: var(--button-text-color);
+  }
 }
 
 .applyOccurrenceTitle p {
