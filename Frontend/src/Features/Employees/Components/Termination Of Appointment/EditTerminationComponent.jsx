@@ -16,6 +16,7 @@ export default function EditTermination() {
   const [formData, setFormData] = useState({});
   const [loadingData, setLoadingData] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loadingDropdownData, setLoadingDropdownData] = useState(true);
   const navigate = useNavigate();
   const { setResponse } = useOutletContext();
   const { serviceId, terminationId } = useParams();
@@ -164,7 +165,7 @@ export default function EditTermination() {
     >
       <div className={style.occurrencePageButtonAndTableContainer}>
         <div className={style.addOccurrenceButtonContainer}>
-          {loadingData ? (
+          {loadingData || loadingDropdownData ? (
             <BaseSkeleton width={170} height={39} />
           ) : (
             <button
@@ -185,11 +186,13 @@ export default function EditTermination() {
           setResponse={setResponse}
           loadingData={loadingData}
           setLoadingData={setLoadingData}
+          loadingDropdownData={loadingDropdownData}
+          setLoadingDropdownData={setLoadingDropdownData}
         />
         <div className={style.editOccurrenceButtons}>
           <div className={style.emptyDiv}></div>
           <div className={style.updateCancelButtons}>
-            {loadingData ? (
+            {loadingData || loadingDropdownData ? (
               <BaseSkeleton width={120} height={38} />
             ) : (
               <button
@@ -206,7 +209,7 @@ export default function EditTermination() {
                 )}
               </button>
             )}
-            {loadingData ? (
+            {loadingData || loadingDropdownData ? (
               <BaseSkeleton width={120} height={38} />
             ) : (
               <button
@@ -217,7 +220,7 @@ export default function EditTermination() {
               </button>
             )}
           </div>
-          {loadingData ? (
+          {loadingData || loadingDropdownData ? (
             <BaseSkeleton width={40} />
           ) : (
             <MdDelete

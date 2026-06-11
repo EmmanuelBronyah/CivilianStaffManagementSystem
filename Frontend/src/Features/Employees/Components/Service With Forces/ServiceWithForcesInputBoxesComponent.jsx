@@ -32,6 +32,7 @@ export default function ServiceWithForcesInputBoxes(props) {
         );
         setMilitaryRanks(res.data.military_ranks || []);
         setUnits(res.data.units || []);
+        props.setLoadingDropdownData(false);
       } catch (error) {
         props.setResponse({
           message: getResponseMessages(error.response),
@@ -174,14 +175,14 @@ export default function ServiceWithForcesInputBoxes(props) {
   const fields = labelsAndInputType.map(([label, type, state]) => {
     return (
       <div key={label}>
-        {props.loadingData ? (
+        {props.loadingData || props.loadingDropdownData ? (
           <BaseSkeleton height={35} width={150} />
         ) : (
           <label>{label}</label>
         )}
         <div className={style.occurrenceInputContainer}>
           {state === "input" ? (
-            props.loadingData ? (
+            props.loadingData || props.loadingDropdownData ? (
               <BaseSkeleton height={45} />
             ) : (
               <input
@@ -198,7 +199,7 @@ export default function ServiceWithForcesInputBoxes(props) {
                 }}
               />
             )
-          ) : props.loadingData ? (
+          ) : props.loadingData || props.loadingDropdownData ? (
             <BaseSkeleton height={45} />
           ) : (
             createDropdown(label)
@@ -215,6 +216,7 @@ export default function ServiceWithForcesInputBoxes(props) {
         <ReadOnlyEmployeeData
           formData={props.formData}
           loading={props.loadingData}
+          loadingDropdownData={props.loadingDropdownData}
         />
       )}
     </div>

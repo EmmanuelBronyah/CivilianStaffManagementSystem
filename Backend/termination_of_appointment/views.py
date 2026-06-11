@@ -319,6 +319,7 @@ class DeleteTerminationStatusAPIView(generics.DestroyAPIView):
 # LIST CAUSES AND STATUS
 class ListCauseAndStatusAPIView(APIView):
     http_method_names = ["get"]
+    throttle_classes = []
 
     def get(self, request, *args, **kwargs):
         causes = models.CausesOfTermination.objects.all()

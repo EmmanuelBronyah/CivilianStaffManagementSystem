@@ -66,6 +66,7 @@ export default function OccurrenceInputBoxes(props) {
         setSalaryPercentageAdjustments(
           res.data.salary_adjustment_percentage || [],
         );
+        props.setLoadingDropdownData(false);
       } catch (error) {
         props.setResponse({
           message: getResponseMessages(error.response),
@@ -282,14 +283,14 @@ export default function OccurrenceInputBoxes(props) {
 
     return (
       <div key={label}>
-        {props.loadingData ? (
+        {props.loadingData || props.loadingDropdownData ? (
           <BaseSkeleton height={35} width={150} />
         ) : (
           <label>{label}</label>
         )}
         <div className={style.occurrenceInputContainer}>
           {state === "input" ? (
-            props.loadingData ? (
+            props.loadingData || props.loadingDropdownData ? (
               <BaseSkeleton height={45} />
             ) : (
               <input
@@ -305,7 +306,7 @@ export default function OccurrenceInputBoxes(props) {
                 }}
               />
             )
-          ) : props.loadingData ? (
+          ) : props.loadingData || props.loadingDropdownData ? (
             <BaseSkeleton height={45} />
           ) : (
             createDropdown(label)
@@ -314,7 +315,7 @@ export default function OccurrenceInputBoxes(props) {
             <>
               <MdEdit
                 className={`${style.editIcon}
-                 ${editStatus || props.loadingData ? style.displayNone : ""}
+                 ${editStatus || props.loadingData || props.loadingDropdownData ? style.displayNone : ""}
                  ${!role || (role === "VIEWER" && style.displayNone)}
                 `}
                 onClick={() => {
@@ -324,7 +325,7 @@ export default function OccurrenceInputBoxes(props) {
               <MdEditOff
                 className={`
                   ${style.editIcon} 
-                  ${props.loadingData && style.displayNone}
+                  ${(props.loadingData || props.loadingDropdownData) && style.displayNone}
                   ${editStatus ? "" : style.displayNone} 
                   ${!role || (role === "VIEWER" && style.displayNone)}
                   `}
@@ -346,6 +347,7 @@ export default function OccurrenceInputBoxes(props) {
         <ReadOnlyEmployeeData
           formData={props.formData}
           loading={props.loadingData}
+          loadingDropdownData={props.loadingDropdownData}
         />
       )}
     </div>

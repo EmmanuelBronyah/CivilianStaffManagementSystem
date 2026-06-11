@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import api from "../../../../api";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function ApplyOccurrence() {
   const { theme } = useTheme();
@@ -77,7 +78,7 @@ export default function ApplyOccurrence() {
       const res = await api.post("api/occurrence/create/", occurrences);
       if (res.status === 201) {
         setResponse({
-          message: `Updated Occurrences for ${selectedEmployees.length} employee records`,
+          message: `Updated Occurrences for ${selectedEmployees.length} employee record${selectedEmployees.length !== 1 ? "s" : ""}`,
           id: Date.now(),
         });
 
@@ -158,7 +159,7 @@ export default function ApplyOccurrence() {
             <p>Search Results</p>
           </div>
           <div
-            className={`${style.resultsCount} ${results.results?.length === 0 && style.displayNone}`}
+            className={`${style.resultsCount} ${results.results?.length > 0 && style.displayBlock}`}
           >
             <p>
               <i>{results.count || ""}</i> record

@@ -7,10 +7,12 @@ import api from "../../../../api";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import ClipLoader from "react-spinners/ClipLoader";
 import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function AddOccurrence() {
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadingDropdownData, setLoadingDropdownData] = useState(true);
   const { theme } = useTheme();
   const navigate = useNavigate();
   const { serviceId } = useParams();
@@ -79,12 +81,18 @@ export default function AddOccurrence() {
     >
       <div className={style.occurrencePageButtonAndTableContainer}>
         <div className={style.addOccurrenceButtonContainer}>
-          <button
-            className={style.addOccurrence}
-            onClick={() => navigate(`/home/employees/${serviceId}/occurrence`)}
-          >
-            All Occurrences
-          </button>
+          {loadingDropdownData ? (
+            <BaseSkeleton width={170} height={39} />
+          ) : (
+            <button
+              className={style.addOccurrence}
+              onClick={() =>
+                navigate(`/home/employees/${serviceId}/occurrence`)
+              }
+            >
+              All Occurrences
+            </button>
+          )}
         </div>
       </div>
       <div className={style.inputAndButtonsSection}>
@@ -92,30 +100,41 @@ export default function AddOccurrence() {
           formData={formData}
           setFormData={setFormData}
           setResponse={setResponse}
+          loadingDropdownData={loadingDropdownData}
+          setLoadingDropdownData={setLoadingDropdownData}
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button
-              className={!role || role === "VIEWER" ? style.displayNone : ""}
-              onClick={addOccurrence}
-            >
-              {loading ? (
-                <ClipLoader
-                  size={13}
-                  color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                />
-              ) : (
-                "Save Occurrence"
-              )}
-            </button>
-            <button
-              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
-              onClick={() =>
-                navigate(`/home/employees/${serviceId}/occurrence`)
-              }
-            >
-              Cancel
-            </button>
+            {loadingDropdownData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
+                onClick={addOccurrence}
+              >
+                {loading ? (
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
+                ) : (
+                  "Save Occurrence"
+                )}
+              </button>
+            )}
+
+            {loadingDropdownData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button
+                className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
+                onClick={() =>
+                  navigate(`/home/employees/${serviceId}/occurrence`)
+                }
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       </div>

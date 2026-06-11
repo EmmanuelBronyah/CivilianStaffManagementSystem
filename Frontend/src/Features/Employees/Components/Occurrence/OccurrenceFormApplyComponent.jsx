@@ -5,10 +5,12 @@ import { useState, useEffect } from "react";
 import OccurrenceInputBoxes from "./OccurrenceInputBoxesComponent";
 import ClipLoader from "react-spinners/ClipLoader";
 import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
+import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 const OccurrenceFormApply = () => {
-  const [formData, setFormData] = useState({});
   const { theme } = useTheme();
+  const [formData, setFormData] = useState({});
+  const [loadingDropdownData, setLoadingDropdownData] = useState(true);
   const navigate = useNavigate();
   const { setResponse } = useOutletContext();
   const { role, response } = useFetchUserRole();
@@ -68,30 +70,44 @@ const OccurrenceFormApply = () => {
       className={`${style.editEmployeeOccurrence} ${!theme ? style.dark : ""}`}
     >
       <div className={style.occurrencePageButtonAndTableContainer}>
-        <div className={style.occurrenceForm}>
-          <p>Occurrence Form</p>
-        </div>
+        {loadingDropdownData ? (
+          <BaseSkeleton width={190} height={39} />
+        ) : (
+          <div className={style.occurrenceForm}>
+            <p>Occurrence Form</p>
+          </div>
+        )}
       </div>
       <div className={style.inputAndButtonsSection}>
         <OccurrenceInputBoxes
           formData={formData}
           setFormData={setFormData}
           setResponse={setResponse}
+          loadingDropdownData={loadingDropdownData}
+          setLoadingDropdownData={setLoadingDropdownData}
         />
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button
-              className={!role || role === "VIEWER" ? style.displayNone : ""}
-              onClick={applyOccurrence}
-            >
-              Continue
-            </button>
-            <button
-              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
-              onClick={() => navigate(`/home/employees`)}
-            >
-              Cancel
-            </button>
+            {loadingDropdownData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
+                onClick={applyOccurrence}
+              >
+                Continue
+              </button>
+            )}
+            {loadingDropdownData ? (
+              <BaseSkeleton width={120} height={38} />
+            ) : (
+              <button
+                className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
+                onClick={() => navigate(`/home/employees`)}
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       </div>

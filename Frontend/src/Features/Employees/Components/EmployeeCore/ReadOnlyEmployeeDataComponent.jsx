@@ -1,7 +1,11 @@
 import style from "../../../../styles/components/employees.module.css";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
-export default function ReadOnlyEmployeeData({ loading, formData }) {
+export default function ReadOnlyEmployeeData({
+  loading,
+  formData,
+  loadingDropdownData,
+}) {
   const { createdAt, updatedAt, createdBy, updatedBy } = formData;
 
   const data = [
@@ -14,12 +18,12 @@ export default function ReadOnlyEmployeeData({ loading, formData }) {
   const fields = data.map(([label, field]) => {
     return (
       <div key={label}>
-        {loading ? (
+        {loading || loadingDropdownData ? (
           <BaseSkeleton height={30} width={150} />
         ) : (
           <label>{label}</label>
         )}
-        {loading ? (
+        {loading || loadingDropdownData ? (
           <BaseSkeleton height={40} />
         ) : (
           <input

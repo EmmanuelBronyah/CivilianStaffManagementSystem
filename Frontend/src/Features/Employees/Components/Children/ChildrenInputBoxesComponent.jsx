@@ -14,6 +14,8 @@ export default function ChildrenInputBoxes({
   formData,
   setFormData,
   setResponse,
+  loadingDropdownData,
+  setLoadingDropdownData,
 }) {
   const [gender, setGender] = useState([]);
   const isUpdatePage = useMatch(
@@ -31,6 +33,7 @@ export default function ChildrenInputBoxes({
       try {
         const res = await api.get("api/employees/genders/");
         setGender(res.data);
+        setLoadingDropdownData(false);
       } catch (error) {
         setResponse({
           message: getResponseMessages(error.response),
@@ -167,14 +170,14 @@ export default function ChildrenInputBoxes({
   const fields = labelsAndInputType.map(([label, type, state]) => {
     return (
       <div key={label} className={style.labelInputContainer}>
-        {loadingData ? (
+        {loadingData || loadingDropdownData ? (
           <BaseSkeleton height={30} width={150} />
         ) : (
           <label>{label}</label>
         )}
 
         {state === "input" ? (
-          loadingData ? (
+          loadingData || loadingDropdownData ? (
             <BaseSkeleton height={40} />
           ) : (
             <input
@@ -190,7 +193,7 @@ export default function ChildrenInputBoxes({
               }
             />
           )
-        ) : loadingData ? (
+        ) : loadingData || loadingDropdownData ? (
           <BaseSkeleton height={40} />
         ) : (
           createDropdown(label)
@@ -203,7 +206,11 @@ export default function ChildrenInputBoxes({
     <div className={style.addUserInputs}>
       {fields}
       {isUpdatePage && (
-        <ReadOnlyEmployeeData loading={loadingData} formData={formData} />
+        <ReadOnlyEmployeeData
+          loading={loadingData}
+          formData={formData}
+          loadingDropdownData={loadingDropdownData}
+        />
       )}
     </div>
   );

@@ -10,9 +10,10 @@ import useFetchUserRole from "../../../hooks/fetchUserRoleHook";
 import BaseSkeleton from "../../../../Components/Common/SkeletonComponent";
 
 export default function AddChildren() {
+  const { theme } = useTheme();
   const [formData, setFormData] = useState({});
   const [loading, setLoading] = useState(false);
-  const { theme } = useTheme();
+  const [loadingDropdownData, setLoadingDropdownData] = useState(true);
   const navigate = useNavigate();
   const { serviceId } = useParams();
   const { setResponse } = useOutletContext();
@@ -68,12 +69,16 @@ export default function AddChildren() {
     >
       <div className={style.occurrencePageButtonAndTableContainer}>
         <div className={style.addOccurrenceButtonContainer}>
-          <button
-            className={style.addOccurrence}
-            onClick={() => navigate(`/home/employees/${serviceId}/children`)}
-          >
-            All Children Records
-          </button>
+          {loadingDropdownData ? (
+            <BaseSkeleton width={180} height={39} />
+          ) : (
+            <button
+              className={style.addOccurrence}
+              onClick={() => navigate(`/home/employees/${serviceId}/children`)}
+            >
+              All Children Records
+            </button>
+          )}
         </div>
       </div>
       <div className={style.inputAndButtonsSection}>
@@ -81,29 +86,42 @@ export default function AddChildren() {
           formData={formData}
           setFormData={setFormData}
           setResponse={setResponse}
+          loadingDropdownData={loadingDropdownData}
+          setLoadingDropdownData={setLoadingDropdownData}
         />
 
         <div className={style.addOccurrenceButtons}>
           <div className={style.addCancelButtons}>
-            <button
-              onClick={addChild}
-              className={!role || role === "VIEWER" ? style.displayNone : ""}
-            >
-              {loading ? (
-                <ClipLoader
-                  size={13}
-                  color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
-                />
-              ) : (
-                "Save Child Record"
-              )}
-            </button>
-            <button
-              className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
-              onClick={() => navigate(`/home/employees/${serviceId}/children`)}
-            >
-              Cancel
-            </button>
+            {loadingDropdownData ? (
+              <BaseSkeleton width={130} height={38} />
+            ) : (
+              <button
+                onClick={addChild}
+                className={!role || role === "VIEWER" ? style.displayNone : ""}
+              >
+                {loading ? (
+                  <ClipLoader
+                    size={13}
+                    color={`${!theme ? "#1e1e1e" : "#d7fdd7"}`}
+                  />
+                ) : (
+                  "Save Child Record"
+                )}
+              </button>
+            )}
+
+            {loadingDropdownData ? (
+              <BaseSkeleton width={130} height={38} />
+            ) : (
+              <button
+                className={`${style.cancelButton} ${!role || role === "VIEWER" ? style.displayNone : ""}`}
+                onClick={() =>
+                  navigate(`/home/employees/${serviceId}/children`)
+                }
+              >
+                Cancel
+              </button>
+            )}
           </div>
         </div>
       </div>

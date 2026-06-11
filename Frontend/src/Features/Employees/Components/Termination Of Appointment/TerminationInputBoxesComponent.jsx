@@ -31,6 +31,7 @@ export default function TerminationInputBoxes(props) {
         );
         setStatus(res.data.statuses || []);
         setCause(res.data.causes || []);
+        props.setLoadingDropdownData(false);
       } catch (error) {
         props.setResponse({
           message: getResponseMessages(error.response),
@@ -173,14 +174,14 @@ export default function TerminationInputBoxes(props) {
   const fields = labelsAndInputType.map(([label, type, state]) => {
     return (
       <div key={label}>
-        {props.loadingData ? (
+        {props.loadingData || props.loadingDropdownData ? (
           <BaseSkeleton height={35} width={150} />
         ) : (
           <label>{label}</label>
         )}
         <div className={style.occurrenceInputContainer}>
           {state === "input" ? (
-            props.loadingData ? (
+            props.loadingData || props.loadingDropdownData ? (
               <BaseSkeleton height={45} />
             ) : (
               <input
@@ -197,7 +198,7 @@ export default function TerminationInputBoxes(props) {
                 }}
               />
             )
-          ) : props.loadingData ? (
+          ) : props.loadingData || props.loadingDropdownData ? (
             <BaseSkeleton height={45} />
           ) : (
             createDropdown(label)
@@ -214,6 +215,7 @@ export default function TerminationInputBoxes(props) {
         <ReadOnlyEmployeeData
           formData={props.formData}
           loading={props.loadingData}
+          loadingDropdownData={props.loadingDropdownData}
         />
       )}
     </div>
