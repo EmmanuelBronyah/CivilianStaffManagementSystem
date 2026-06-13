@@ -1,6 +1,4 @@
-from employees import models as employee_models
 from django.db.models import Q
-
 
 OPERATOR_MAP = {
     "iexact": "__iexact",

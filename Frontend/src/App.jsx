@@ -60,6 +60,7 @@ import EditPreviousGovernmentService from "./Features/Employees/Components/Previ
 import AddEmployee from "./Features/Employees/Components/AddEmployee/AddEmployeeComponent";
 import ApplyOccurrence from "./Features/Employees/Components/Occurrence/ApplyOccurrenceComponent";
 import OccurrenceFormApply from "./Features/Employees/Components/Occurrence/OccurrenceFormApplyComponent";
+import AdvancedSearch from "./Features/Employees/Components/AdvancedSearch/AdvancedSearch";
 
 function App() {
   return (
@@ -110,6 +111,7 @@ function App() {
             <Route index element={<SampleEmployees />} />
             <Route path="form/occurrence" element={<OccurrenceFormApply />} />
             <Route path="apply/occurrence" element={<ApplyOccurrence />} />
+            <Route path="advanced-search/" element={<AdvancedSearch />} />
             <Route path=":serviceId" element={<EmployeeDashboard />}>
               {/* PRIMARY */}
               <Route index element={<EmployeePrimary />} />

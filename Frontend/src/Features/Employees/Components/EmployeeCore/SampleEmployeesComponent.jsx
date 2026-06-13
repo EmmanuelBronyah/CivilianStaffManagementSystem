@@ -51,7 +51,10 @@ export default function SampleEmployees() {
               {loading ? (
                 <BaseSkeleton width={120} height={36} />
               ) : (
-                <button className={style.advancedSearchButton}>
+                <button
+                  className={style.advancedSearchButton}
+                  onClick={() => navigate("/home/employees/advanced-search/")}
+                >
                   Advanced Search
                 </button>
               )}
