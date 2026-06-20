@@ -1,27 +1,37 @@
 :root {
   --main-container-background-color: #d3ead3;
   --text-color: hsl(120, 100%, 7%);
+  --text-nothing-color: hsl(120, 63%, 13%);
   --card-box-shadow: #00470026;
   --recordButton-background-color: white;
   --recordButton-color: #156415;
   --recordButton-active-background-color: #156415;
   --recordButton-active-color: white;
+  --employeeInfo-boxShadow: #00470026;
+  --navigateButton-backgroundColor: #00470026;
+  --navigateButton-backgroundColor-active: hsla(120, 100%, 10%, 0.149);
+  --navigateIcon-active-background-color: #002400;
 }
 
 .dark {
   --main-container-background-color: rgb(49, 49, 49);
   --text-color: grey;
+  --text-nothing-color: hsl(0, 0%, 67%);
   --card-box-shadow: grey;
   --recordButton-background-color: grey;
   --recordButton-color: rgb(49, 49, 49);
   --recordButton-active-background-color: rgb(49, 49, 49);
   --recordButton-active-color: grey;
+  --employeeInfo-boxShadow: grey;
+  --navigateButton-backgroundColor: rgb(28, 28, 28);
+  --navigateButton-backgroundColor-active: hsl(0, 0%, 8%);
+  --navigateIcon-background-color: grey;
 }
 
 .advancedSearch {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1rem;
   height: 100%;
   border-radius: 0.5rem;
   padding: 0.5rem;
@@ -42,6 +52,13 @@
     font-weight: normal;
     font-size: 1rem;
   }
+}
+
+.searchMainArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  height: 100%;
 }
 
 .selectRecordsContainer {
@@ -83,4 +100,105 @@
 
 .recordButtonsContainer button:hover {
   opacity: 0.7;
+}
+
+.recordInputAndFiltersContainer {
+  display: flex;
+  gap: 1.5rem;
+  height: 100%;
+}
+
+hr {
+  border: 0.1px solid var(--employeeInfo-boxShadow);
+}
+
+.recordInputContainer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.fillFiltersTitle {
+  text-align: center;
+
+  p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.nothingToShow {
+  display: flex;
+  margin-inline: auto;
+  margin-top: 10rem;
+
+  p {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.05rem;
+    color: var(--text-nothing-color);
+  }
+}
+
+.recordTitle {
+  margin-bottom: 0.3rem;
+  i {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+  }
+}
+
+.filtersContainer {
+  flex: 1;
+}
+
+.previewFiltersTitle {
+  text-align: center;
+  p {
+    margin: 0;
+    font-size: 1.05rem;
+    color: var(--text-color);
+    font-weight: bold;
+  }
+}
+
+.navigateButtonsContainer {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+
+  button {
+    background-color: var(--navigateButton-backgroundColor);
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+  }
+
+  button:hover {
+    opacity: 0.8;
+  }
+
+  button:active {
+    background-color: var(--navigateButton-backgroundColor-active);
+  }
+
+  button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.navigateIcons {
+  font-size: 1.3rem;
+  color: var(--navigateIcon-background-color);
+}
+
+.displayNone {
+  display: none;
 }

@@ -225,7 +225,7 @@ export default function ApplyOccurrence() {
             <p>Selected Employees</p>
           </div>
           <div
-            className={`${style.resultsCount} ${selectedEmployees.length === 0 && style.displayNone}`}
+            className={`${style.resultsCount} ${selectedEmployees.length > 0 ? style.displayBlock : ""}`}
           >
             <p>
               <i>{selectedEmployees.length || ""}</i> record

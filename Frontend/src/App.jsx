@@ -61,6 +61,8 @@ import AddEmployee from "./Features/Employees/Components/AddEmployee/AddEmployee
 import ApplyOccurrence from "./Features/Employees/Components/Occurrence/ApplyOccurrenceComponent";
 import OccurrenceFormApply from "./Features/Employees/Components/Occurrence/OccurrenceFormApplyComponent";
 import AdvancedSearch from "./Features/Employees/Components/AdvancedSearch/AdvancedSearch";
+import EmployeeInput from "./Features/Employees/Components/AdvancedSearch/EmployeeInput/EmployeeInput";
+import OccurrenceInput from "./Features/Employees/Components/AdvancedSearch/OccurrenceInput/OccurrenceInput";
 
 function App() {
   return (
