@@ -6,6 +6,9 @@ from django.db.models import F
 from activity_feeds.models import ActivityFeeds
 from termination_of_appointment.models import TerminationOfAppointment
 from api.models import CustomUser, Divisions
+from occurance.models import Event, LevelStep, SalaryAdjustmentPercentage
+from service_with_forces.models import MilitaryRanks
+from termination_of_appointment.models import CausesOfTermination, TerminationStatus
 
 
 def get_users_per_role():
@@ -127,3 +130,27 @@ def get_religion():
 
 def get_blood_group():
     return models.BloodGroup.objects.all()
+
+
+def get_level_step():
+    return LevelStep.objects.all()
+
+
+def get_event():
+    return Event.objects.all()
+
+
+def get_military_ranks():
+    return MilitaryRanks.objects.all()
+
+
+def get_cause():
+    return CausesOfTermination.objects.all()
+
+
+def get_status():
+    return TerminationStatus.objects.all()
+
+
+def get_salary_percentage_adjustment():
+    return SalaryAdjustmentPercentage.objects.all()

@@ -28,6 +28,8 @@ from django.db import transaction
 from rest_framework.views import APIView
 from employees.services import get_grades
 from employees.serializers import ListGradesSerializer
+from api.services import get_users
+from api.serializers import AllUsersSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -607,6 +609,7 @@ class ListOccurrenceFormOptionsData(APIView):
         level_step = LevelStep.objects.all()
         event = Event.objects.all()
         salary_adjustment_percentage = SalaryAdjustmentPercentage.objects.all()
+        users = get_users()
 
         return Response(
             {
@@ -618,6 +621,7 @@ class ListOccurrenceFormOptionsData(APIView):
                 "salary_adjustment_percentage": serializers.SalaryAdjustmentPercentageSerializer(
                     salary_adjustment_percentage, many=True
                 ).data,
+                "users": AllUsersSerializer(users, many=True).data,
             },
             status=status.HTTP_200_OK,
         )

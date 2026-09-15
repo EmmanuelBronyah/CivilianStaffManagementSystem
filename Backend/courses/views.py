@@ -14,6 +14,9 @@ from rest_framework import status
 from flags.services import create_flag, delete_flag
 from employees.views import LargeResultsSetPagination
 from django.db import transaction
+from api.serializers import AllUsersSerializer
+from api.services import get_users
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -271,3 +274,18 @@ class DeleteIncompleteCourseRecordsAPIView(generics.DestroyAPIView):
 
             # Delete associated flags
             delete_flag(instance, course_id, self.request.user)
+
+
+class CoursesDropdownDataAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+
+        return Response(
+            {
+                "users": AllUsersSerializer(users, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )

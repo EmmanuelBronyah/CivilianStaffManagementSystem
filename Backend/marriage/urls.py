@@ -19,4 +19,9 @@ urlpatterns = [
         views.DeleteSpouseAPIView.as_view(),
         name="delete-spouse",
     ),
+    path(
+        "dropdown-data/",
+        views.SpouseOptionsAPIView.as_view(),
+        name="spouse-dropdown-data",
+    ),
 ]

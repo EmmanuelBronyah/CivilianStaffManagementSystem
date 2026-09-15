@@ -14,4 +14,9 @@ urlpatterns = [
         views.DeleteIdentityAPIView.as_view(),
         name="delete-identity",
     ),
+    path(
+        "dropdown-data/",
+        views.IdentityOptionsAPIView.as_view(),
+        name="identity-dropdown-data",
+    ),
 ]

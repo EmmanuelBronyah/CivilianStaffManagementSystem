@@ -3,7 +3,7 @@ from django.core.cache import cache
 import logging
 from celery import shared_task
 from django_otp.plugins.otp_email.models import EmailDevice
-
+from .models import CustomUser
 
 logger = logging.getLogger(__name__)
 
@@ -46,3 +46,7 @@ def send_otp_email_task(self, device_id):
 
     except Exception as e:
         raise self.retry(exc=e)
+
+
+def get_users():
+    return CustomUser.objects.all()

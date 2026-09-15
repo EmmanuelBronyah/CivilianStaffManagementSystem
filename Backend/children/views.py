@@ -14,6 +14,11 @@ from employees.views import LargeResultsSetPagination
 from rest_framework import status
 from rest_framework.response import Response
 from django.db import transaction
+from rest_framework.views import APIView
+from employees.serializers import ListGenderSerializer
+from api.serializers import AllUsersSerializer
+from employees.services import get_gender
+from api.services import get_users
 
 logger = logging.getLogger(__name__)
 
@@ -263,3 +268,20 @@ class DeleteInCompleteChildRecordsAPIView(generics.DestroyAPIView):
 
             # Delete associated flags
             delete_flag(instance, child_record_id, self.request.user)
+
+
+class ChildrenDropdownDataAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+        gender = get_gender()
+
+        return Response(
+            {
+                "users": AllUsersSerializer(users, many=True).data,
+                "gender": ListGenderSerializer(gender, many=True).data,
+            },
+            status=status.HTTP_200_OK,
+        )

@@ -48,7 +48,7 @@ export default function ChildrenInputBoxes({
 
   const labelsAndInputType = [
     ["Child Name", "text", "input"],
-    ["Date Of Birth", "date", "input"],
+    ["Date of Birth", "date", "input"],
     ["Gender", "text", "dropdown"],
     ["Other Parent", "text", "input"],
     ["Authority", "text", "input"],
@@ -154,7 +154,7 @@ export default function ChildrenInputBoxes({
     switch (label) {
       case "Child Name":
         return "childName";
-      case "Date Of Birth":
+      case "Date of Birth":
         return "dob";
       case "Gender":
         return "gender";

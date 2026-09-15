@@ -27,6 +27,11 @@ urlpatterns = [
         views.DeletePreviousGovernmentServiceAPIView.as_view(),
         name="delete-previous-government-service",
     ),
+    path(
+        "dropdown-data/",
+        views.PreviousGovernmentServiceRecordsOptionsAPIView.as_view(),
+        name="previous-government-service-dropdown-data",
+    ),
     # incomplete previous government service
     path(
         "incomplete-previous-government-service/create/",

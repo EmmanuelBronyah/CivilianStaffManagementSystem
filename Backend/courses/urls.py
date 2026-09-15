@@ -19,6 +19,11 @@ urlpatterns = [
         views.DeleteCourseAPIView.as_view(),
         name="delete-course",
     ),
+    path(
+        "dropdown-data/",
+        views.CoursesDropdownDataAPIView.as_view(),
+        name="courses-dropdown-data",
+    ),
     # incomplete course record
     path(
         "incomplete-course-record/create/",

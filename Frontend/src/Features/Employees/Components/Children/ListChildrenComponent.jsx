@@ -49,7 +49,7 @@ export default function ListChildren() {
               <thead>
                 <tr>
                   <th title="Child's Name">Child's Name</th>
-                  <th title="Date Of Birth">Date Of Birth</th>
+                  <th title="Date of Birth">Date of Birth</th>
                   <th title="Gender">Gender</th>
                   <th title="Name Of Other Parent">Name Of Other Parent</th>
                   <th title="Authority">Authority</th>

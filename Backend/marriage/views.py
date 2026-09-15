@@ -12,6 +12,9 @@ from .utils import spouse_record_changes
 from django.db import transaction
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.views import APIView
+from api.serializers import AllUsersSerializer
+from api.services import get_users
 
 logger = logging.getLogger(__name__)
 
@@ -125,3 +128,15 @@ class DeleteSpouseAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed(The Spouse({instance.spouse_name}) was deleted by {self.request.user}) created."
             )
+
+
+class SpouseOptionsAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+
+        return Response(
+            {"users": AllUsersSerializer(users, many=True)}, status=status.HTTP_200_OK
+        )

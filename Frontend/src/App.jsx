@@ -64,6 +64,8 @@ import AdvancedSearch from "./Features/Employees/Components/AdvancedSearch/Advan
 import EmployeeInput from "./Features/Employees/Components/AdvancedSearch/EmployeeInput/EmployeeInput";
 import OccurrenceInput from "./Features/Employees/Components/AdvancedSearch/OccurrenceInput/OccurrenceInput";
 
+// TODO: Protect routes meant for admin, standard user and viewers
+
 function App() {
   return (
     <BrowserRouter>
@@ -74,7 +76,7 @@ function App() {
           path="/auth/otp"
           element={
             <ProtectOtpRoute>
-              z<ResendAndVerifyOTP route="api/verify-otp-token/" />
+              <ResendAndVerifyOTP route="api/verify-otp-token/" />
             </ProtectOtpRoute>
           }
         />

@@ -20,6 +20,9 @@ from employees.views import LargeResultsSetPagination
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from api.serializers import AllUsersSerializer
+from api.services import get_users
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -291,3 +294,16 @@ class DeleteIncompletePreviousGovernmentServiceRecordsAPIView(generics.DestroyAP
 
             # Delete associated flags
             delete_flag(instance, government_service_id, self.request.user)
+
+
+class PreviousGovernmentServiceRecordsOptionsAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+
+        return Response(
+            {"users": AllUsersSerializer(users, many=True).data},
+            status=status.HTTP_200_OK,
+        )

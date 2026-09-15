@@ -2,6 +2,9 @@ from rest_framework import serializers
 from . import models
 from api.models import Divisions
 import logging
+from occurance.models import LevelStep, Event, SalaryAdjustmentPercentage
+from service_with_forces.models import MilitaryRanks
+from termination_of_appointment.models import TerminationStatus, CausesOfTermination
 
 logger = logging.getLogger(__name__)
 
@@ -880,3 +883,45 @@ class ListGenderSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Gender
         fields = ["id", "sex"]
+
+
+class ListEventSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Event
+        fields = ["id", "event_name"]
+
+
+class ListLevelStepSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = LevelStep
+        fields = ["id", "level_step"]
+
+
+class ListMilitaryRankSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = MilitaryRanks
+        fields = ["id", "rank", "branch"]
+
+
+class ListTerminationCauseSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CausesOfTermination
+        fields = ["id", "termination_cause"]
+
+
+class ListTerminationStatusSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = TerminationStatus
+        fields = ["id", "termination_status"]
+
+
+class ListPercentageAdjustmentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = SalaryAdjustmentPercentage
+        fields = ["id", "percentage_adjustment"]

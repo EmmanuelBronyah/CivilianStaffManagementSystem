@@ -19,6 +19,8 @@ from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 import random
 from . import services
 import random
+from api.services import get_users
+from api.serializers import AllUsersSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -1328,6 +1330,7 @@ class ListOptionsAPIView(APIView):
         religion = services.get_religion()
         blood_group = services.get_blood_group()
         gender = services.get_gender()
+        users = get_users()
 
         return Response(
             {
@@ -1347,6 +1350,7 @@ class ListOptionsAPIView(APIView):
                     blood_group, many=True
                 ).data,
                 "gender": serializers.ListGenderSerializer(gender, many=True).data,
+                "users": AllUsersSerializer(users, many=True).data,
             },
             status=status.HTTP_200_OK,
         )

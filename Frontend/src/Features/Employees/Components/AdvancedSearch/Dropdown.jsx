@@ -85,52 +85,52 @@ export default function Dropdown(props) {
 
     switch (record) {
       case "Employee":
-        return employeeLabels.map((label) => {
+        return employeeLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Occurrence":
-        return occurrenceLabels.map((label) => {
+        return occurrenceLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Children":
-        return childrenLabels.map((label) => {
+        return childrenLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Spouse":
-        return spouseLabels.map((label) => {
+        return spouseLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Identity":
-        return identityLabels.map((label) => {
+        return identityLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Termination Of Appointment":
-        return terminationOfAppointmentLabels.map((label) => {
+        return terminationOfAppointmentLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Service With Forces":
-        return serviceWithForcesLabels.map((label) => {
+        return serviceWithForcesLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Next Of Kin":
-        return nextOfKinLabels.map((label) => {
+        return nextOfKinLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Course":
-        return courseLabels.map((label) => {
+        return courseLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
       case "Previous Government Service":
-        return previousGovernmentServiceLabels.map((label) => {
+        return previousGovernmentServiceLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });
@@ -146,16 +146,8 @@ export default function Dropdown(props) {
       <Select
         styles={customSelectStyles}
         options={options}
-        // placeholder={`Select ${label}`}
-        // value={props.formData[labelKey(label)]}
-        // isDisabled={role ? adminAndStandardUserCanEdit(role) : true}
-        // readOnly={role ? adminAndStandardUserCanEdit(role) : true}
-        // onChange={(selected) =>
-        //   props.setFormData((prev) => ({
-        //     ...prev,
-        //     [labelKey(label)]: selected,
-        //   }))
-        // }
+        value={props.dropdownData}
+        onChange={(selected) => props.setDropdownData(selected)}
       />
     );
   }

@@ -21,6 +21,9 @@ from django.db import transaction
 from rest_framework.views import APIView
 from employees.models import Units
 from employees.serializers import ListUnitsSerializer
+from api.serializers import AllUsersSerializer
+from api.services import get_users
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -241,6 +244,7 @@ class ListMilitaryRanksAndUnits(APIView):
     def get(self, request, *args, **kwargs):
         units = Units.objects.all()
         military_ranks = MilitaryRanks.objects.all()
+        users = get_users()
 
         return Response(
             {
@@ -248,6 +252,7 @@ class ListMilitaryRanksAndUnits(APIView):
                 "military_ranks": serializers.MilitaryRanksSerializer(
                     military_ranks, many=True
                 ).data,
+                "users": AllUsersSerializer(users, many=True).data,
             }
         )
 

@@ -4,7 +4,6 @@ from django.contrib.auth.models import Group
 import logging
 from . import models
 
-
 logger = logging.getLogger(__name__)
 
 
@@ -192,3 +191,10 @@ class VerifyOTPSerializer(serializers.Serializer):
         for key in invalid_keys:
             del tokens[key]
         return data
+
+
+class AllUsersSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CustomUser
+        fields = ["id", "fullname"]

@@ -12,6 +12,9 @@ from .utils import next_of_kin_record_changes
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from api.serializers import AllUsersSerializer
+from api.services import get_users
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -131,3 +134,15 @@ class DeleteNextOfKinAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed(The Next Of Kin(Name: {instance.name} — Relation: {instance.relation}) was deleted by {self.request.user}) created."
             )
+
+
+class NextOfKinOptionsAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+
+        return Response(
+            {"users": AllUsersSerializer(users, many=True)}, status=status.HTTP_200_OK
+        )

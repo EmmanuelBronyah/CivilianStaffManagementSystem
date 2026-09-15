@@ -15,6 +15,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
 from rest_framework.views import APIView
+from api.serializers import AllUsersSerializer
+from api.services import get_users
+from rest_framework.views import APIView
 
 logger = logging.getLogger(__name__)
 
@@ -324,6 +327,7 @@ class ListCauseAndStatusAPIView(APIView):
     def get(self, request, *args, **kwargs):
         causes = models.CausesOfTermination.objects.all()
         statuses = models.TerminationStatus.objects.all()
+        users = get_users()
 
         return Response(
             {
@@ -333,6 +337,7 @@ class ListCauseAndStatusAPIView(APIView):
                 "statuses": serializers.TerminationStatusSerializer(
                     statuses, many=True
                 ).data,
+                "users": AllUsersSerializer(users, many=True).data,
             }
         )
 

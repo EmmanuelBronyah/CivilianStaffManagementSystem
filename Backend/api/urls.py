@@ -3,7 +3,6 @@ from . import views
 from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView
 
-
 urlpatterns = [
     # Register
     path("register/", views.CreateUserView.as_view(), name="register-user"),

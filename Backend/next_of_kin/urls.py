@@ -21,4 +21,9 @@ urlpatterns = [
         views.DeleteNextOfKinAPIView.as_view(),
         name="delete-next-of-kin",
     ),
+    path(
+        "dropdown-data/",
+        views.NextOfKinOptionsAPIView.as_view(),
+        name="next-of-kin-dropdown-data",
+    ),
 ]

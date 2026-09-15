@@ -20,6 +20,11 @@ urlpatterns = [
         views.DeleteChildRecordAPIView.as_view(),
         name="delete-child",
     ),
+    path(
+        "dropdown-data/",
+        views.ChildrenDropdownDataAPIView.as_view(),
+        name="children-dropdown-data",
+    ),
     # incomplete records
     path(
         "incomplete-child-record/create/",
