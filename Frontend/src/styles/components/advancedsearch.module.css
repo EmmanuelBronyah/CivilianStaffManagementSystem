@@ -106,6 +106,10 @@
   display: flex;
   gap: 1.5rem;
   height: 100%;
+
+  @media screen and (max-width: 600px) {
+    flex-direction: column;
+  }
 }
 
 hr {

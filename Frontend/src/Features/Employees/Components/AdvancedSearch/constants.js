@@ -147,7 +147,7 @@ export const nextOfKinLabels = [
 export const previousGovernmentServiceLabels = [
   ["Institution", "text", "input"],
   ["Position", "text", "input"],
-  ["Duration", "text", "input"],
+  ["Duration", "number", "input"],
   ["Created By", "text", "dropdown"],
   ["Updated By", "text", "dropdown"],
   ["Date Added", "date", "input"],
@@ -282,6 +282,13 @@ export const rangeLabelKey = {
   "Greater than": "greaterThan",
   Between: "between",
 };
+
+export const rangeDropdownOptions = [
+  { value: 1, label: "Equal to" },
+  { value: 2, label: "Less than" },
+  { value: 3, label: "Greater than" },
+  { value: 4, label: "Between" },
+];
 
 export const dropdownDataAPIEndpoints = {
   Employee: "api/employees/staff/options/",

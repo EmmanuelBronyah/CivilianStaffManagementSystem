@@ -5,7 +5,11 @@ import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import api from "../../../../api";
 import Select from "react-select";
-import { dropdownDataAPIEndpoints, dropdownConfig } from "./constants";
+import {
+  dropdownDataAPIEndpoints,
+  dropdownConfig,
+  rangeDropdownOptions,
+} from "./constants";
 
 export default function InputBox(props) {
   const [dropdownData, setDropdownData] = useState({});
@@ -15,7 +19,6 @@ export default function InputBox(props) {
     const fetchAllDropdownData = async () => {
       try {
         const res = await api.get(dropdownDataAPIEndpoints[props.record]);
-        console.log("All Options Data -> ", res.data);
         setDropdownData(res.data);
       } catch (error) {
         setResponse({
@@ -120,13 +123,6 @@ export default function InputBox(props) {
     }));
   };
 
-  const rangeDropdownOptions = [
-    { value: 1, label: "Equal to" },
-    { value: 2, label: "Less than" },
-    { value: 3, label: "Greater than" },
-    { value: 4, label: "Between" },
-  ];
-
   const createDropdown = (label) => {
     const options = createOptions(label);
 
@@ -164,6 +160,7 @@ export default function InputBox(props) {
   const isRangeField = (label) =>
     label.toLowerCase().includes("date") ||
     label.toLowerCase().includes("age") ||
+    label.toLowerCase().includes("salary") ||
     label.toLowerCase().includes("probation");
 
   return (
@@ -178,6 +175,7 @@ export default function InputBox(props) {
       ) : (
         <input
           className={inputType === "checkbox" ? style.checkbox : ""}
+          placeholder={props.label === "Duration" ? "Number of years..." : ""}
           type={inputType}
           {...(inputType === "checkbox"
             ? {
@@ -190,7 +188,7 @@ export default function InputBox(props) {
                   props.formData?.[props.record]?.[allLabelKeys[props.label]] ??
                   "",
               })}
-          onChange={(e) =>
+          onChange={(e) => {
             props.setFormData((prev) => ({
               ...prev,
               [props.record]: {
@@ -198,8 +196,8 @@ export default function InputBox(props) {
                 [allLabelKeys[props.label]]:
                   inputType === "checkbox" ? e.target.checked : e.target.value,
               },
-            }))
-          }
+            }));
+          }}
         />
       )}
     </div>

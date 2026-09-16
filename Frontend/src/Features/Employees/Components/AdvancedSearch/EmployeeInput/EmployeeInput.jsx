@@ -9,14 +9,6 @@ export default function EmployeeInput(props) {
   const [rangeOption, setRangeOption] = useState(null);
   const [fieldErrors, setFieldErrors] = useState(null);
 
-  // useEffect(() => {
-  //   console.log("dropdownData", dropdownData);
-  // }, [dropdownData]);
-
-  // useEffect(() => {
-  //   console.log("rangeOption", rangeOption);
-  // }, [rangeOption]);
-
   useEffect(() => {
     setRangeOption(null);
   }, [dropdownData]);

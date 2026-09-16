@@ -138,5 +138,6 @@ class SpouseOptionsAPIView(APIView):
         users = get_users()
 
         return Response(
-            {"users": AllUsersSerializer(users, many=True)}, status=status.HTTP_200_OK
+            {"users": AllUsersSerializer(users, many=True).data},
+            status=status.HTTP_200_OK,
         )

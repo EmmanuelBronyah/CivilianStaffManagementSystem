@@ -109,7 +109,7 @@ export default function Dropdown(props) {
           value = value + 1;
           return { value: value, label: label };
         });
-      case "Termination Of Appointment":
+      case "Termination of Appointment":
         return terminationOfAppointmentLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
@@ -119,7 +119,7 @@ export default function Dropdown(props) {
           value = value + 1;
           return { value: value, label: label };
         });
-      case "Next Of Kin":
+      case "Emergency | Next of Kin":
         return nextOfKinLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
