@@ -10,6 +10,7 @@ import {
   serviceWithForcesLabels,
   spouseLabels,
   terminationOfAppointmentLabels,
+  absencesLabels,
 } from "./constants";
 
 export default function Dropdown(props) {
@@ -101,6 +102,11 @@ export default function Dropdown(props) {
         });
       case "Spouse":
         return spouseLabels.map(([label]) => {
+          value = value + 1;
+          return { value: value, label: label };
+        });
+      case "Absence":
+        return absencesLabels.map(([label]) => {
           value = value + 1;
           return { value: value, label: label };
         });

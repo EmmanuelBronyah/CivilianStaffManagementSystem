@@ -2,12 +2,14 @@ import style from "../../../../styles/components/advancedsearch.module.css";
 import { useTheme } from "../../../../context/ThemeContext";
 import { useEffect, useState } from "react";
 import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
-import { components } from "./constants";
+import ParentInput from "./ParentInput";
+import PreviewFilters from "./PreviewFilters";
+import { BUTTON_STORAGE_KEY, FORMDATA_STORAGE_KEY } from "./constants";
 
 export default function AdvancedSearch() {
   const { theme } = useTheme();
   const [buttons, setButtons] = useState(() => {
-    const storedButtons = localStorage.getItem("buttons");
+    const storedButtons = localStorage.getItem(BUTTON_STORAGE_KEY);
     return storedButtons
       ? JSON.parse(storedButtons)
       : [
@@ -25,6 +27,10 @@ export default function AdvancedSearch() {
           },
           {
             name: "Course",
+            active: false,
+          },
+          {
+            name: "Absence",
             active: false,
           },
           {
@@ -54,18 +60,35 @@ export default function AdvancedSearch() {
         ];
   });
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+    const storedFormData = localStorage.getItem(FORMDATA_STORAGE_KEY);
+    return storedFormData ? JSON.parse(storedFormData) : {};
+  });
 
   // Names of buttons with a `true` active status
   const selectedButtons = buttons
     .filter((button) => button.active)
     .map((button) => button.name);
 
-  const CurrentComponent = components[selectedButtons[currentIndex]];
-
-  // Save buttons in localstorage every time `buttons` changes
   useEffect(() => {
-    localStorage.setItem("buttons", JSON.stringify(buttons));
+    localStorage.setItem(FORMDATA_STORAGE_KEY, JSON.stringify(formData));
+  }, [formData]);
+
+  // Set buttons in localstorage on change and delete deselected record's data in formData
+  useEffect(() => {
+    localStorage.setItem(BUTTON_STORAGE_KEY, JSON.stringify(buttons));
+
+    setFormData((prev) => {
+      const activeButtons = buttons
+        .filter(({ active }) => active)
+        .map(({ name }) => name);
+
+      return Object.fromEntries(
+        Object.entries(prev).filter(([record]) =>
+          activeButtons.includes(record),
+        ),
+      );
+    });
   }, [buttons]);
 
   useEffect(() => {
@@ -137,12 +160,11 @@ export default function AdvancedSearch() {
               </div>
             ) : (
               <div className={style.selectDataContainer}>
-                {CurrentComponent && (
-                  <CurrentComponent
-                    formData={formData}
-                    setFormData={setFormData}
-                  />
-                )}
+                <ParentInput
+                  formData={formData}
+                  setFormData={setFormData}
+                  record={selectedButtons[currentIndex]}
+                />
                 <div
                   className={`${style.navigateButtonsContainer} ${selectedButtons.length >= 1 ? "" : style.displayNone}`}
                 >
@@ -172,8 +194,11 @@ export default function AdvancedSearch() {
           <div className={style.filtersContainer}>
             <div className={style.previewFiltersTitle}>
               <p>Preview Filters</p>
+              <div>
+                <p></p>
+              </div>
             </div>
-            <div className={style.previewFilters}></div>
+            <PreviewFilters formData={formData} />
           </div>
         </div>
       </div>

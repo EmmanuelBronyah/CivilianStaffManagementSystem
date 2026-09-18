@@ -19,4 +19,9 @@ urlpatterns = [
         views.DeleteAbsencesAPIView.as_view(),
         name="delete-absences",
     ),
+    path(
+        "dropdown-data/",
+        views.AbsencesDropdownDataAPIView.as_view(),
+        name="absences-dropdown-data",
+    ),
 ]

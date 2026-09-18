@@ -1,5 +1,4 @@
 import style from "../../../../styles/components/advancedsearch.module.css";
-import { inputRecordData, allLabelKeys } from "./constants";
 import getResponseMessages from "../../../../utils/extractResponseMessage";
 import { useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
@@ -9,6 +8,8 @@ import {
   dropdownDataAPIEndpoints,
   dropdownConfig,
   rangeDropdownOptions,
+  inputRecordData,
+  allLabelKeys,
 } from "./constants";
 
 export default function InputBox(props) {
@@ -17,8 +18,12 @@ export default function InputBox(props) {
 
   useEffect(() => {
     const fetchAllDropdownData = async () => {
+      const endpoint = dropdownDataAPIEndpoints[props.record];
+
+      if (!endpoint) return;
+
       try {
-        const res = await api.get(dropdownDataAPIEndpoints[props.record]);
+        const res = await api.get(endpoint);
         setDropdownData(res.data);
       } catch (error) {
         setResponse({
@@ -33,7 +38,7 @@ export default function InputBox(props) {
     fetchAllDropdownData();
   }, [props.record]);
 
-  const inputData = inputRecordData[props.record].find(
+  const inputData = inputRecordData[props.record]?.find(
     ([label]) => props.label === label,
   );
   const [, inputType, inputStructure] = inputData || [];
@@ -130,8 +135,9 @@ export default function InputBox(props) {
       <Select
         styles={customSelectStyles}
         options={options}
+        isClearable
         value={
-          props.formData?.[props.record]?.[allLabelKeys[props.label]] || ""
+          props.formData?.[props.record]?.[allLabelKeys[props.label]] ?? null
         }
         onChange={(selected) =>
           props.setFormData((prev) => ({
@@ -151,8 +157,24 @@ export default function InputBox(props) {
       <Select
         styles={customSelectStyles}
         options={rangeDropdownOptions}
+        isClearable
         value={props.rangeOption}
-        onChange={(selected) => props.setRangeOption(selected)}
+        onChange={(selected) => {
+          props.setRangeOption(selected);
+
+          if (selected === null) {
+            props.setFormData((prev) => {
+              const updatedRecord = { ...prev[props.record] };
+
+              delete updatedRecord[allLabelKeys[props.label]];
+
+              return {
+                ...prev,
+                [props.record]: updatedRecord,
+              };
+            });
+          }
+        }}
       />
     );
   };
@@ -189,12 +211,34 @@ export default function InputBox(props) {
                   "",
               })}
           onChange={(e) => {
+            const value =
+              inputType === "checkbox" ? e.target.checked : e.target.value;
+
+            if (value === "") {
+              props.setFormData((prev) => {
+                const updatedRecord = { ...prev[props.record] };
+
+                delete updatedRecord[allLabelKeys[props.label]];
+
+                const updatedFormData = { ...prev };
+
+                if (Object.keys(updatedRecord).length === 0) {
+                  delete updatedFormData[props.record];
+                } else {
+                  updatedFormData[props.record] = updatedRecord;
+                }
+
+                return updatedFormData;
+              });
+
+              return;
+            }
+
             props.setFormData((prev) => ({
               ...prev,
               [props.record]: {
                 ...prev[props.record],
-                [allLabelKeys[props.label]]:
-                  inputType === "checkbox" ? e.target.checked : e.target.value,
+                [allLabelKeys[props.label]]: value,
               },
             }));
           }}

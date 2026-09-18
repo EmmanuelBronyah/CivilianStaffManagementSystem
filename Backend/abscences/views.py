@@ -12,6 +12,9 @@ from .utils import absences_changes
 from rest_framework.response import Response
 from rest_framework import status
 from django.db import transaction
+from rest_framework.views import APIView
+from api.services import get_users
+from api.serializers import AllUsersSerializer
 
 logger = logging.getLogger(__name__)
 
@@ -144,3 +147,16 @@ class DeleteAbsencesAPIView(generics.DestroyAPIView):
             logger.debug(
                 f"Activity feed(The Absences({instance.absence}) was deleted by {self.request.user}) created."
             )
+
+
+class AbsencesDropdownDataAPIView(APIView):
+    http_method_names = ["get"]
+    throttle_classes = []
+
+    def get(self, request):
+        users = get_users()
+
+        return Response(
+            {"users": AllUsersSerializer(users, many=True).data},
+            status=status.HTTP_200_OK,
+        )

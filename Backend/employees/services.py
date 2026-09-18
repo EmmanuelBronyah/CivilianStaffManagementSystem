@@ -9,6 +9,7 @@ from api.models import CustomUser, Divisions
 from occurance.models import Event, LevelStep, SalaryAdjustmentPercentage
 from service_with_forces.models import MilitaryRanks
 from termination_of_appointment.models import CausesOfTermination, TerminationStatus
+from abscences.models import Absences
 
 
 def get_users_per_role():
