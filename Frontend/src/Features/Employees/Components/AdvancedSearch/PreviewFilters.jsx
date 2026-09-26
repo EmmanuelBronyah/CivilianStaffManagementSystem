@@ -75,27 +75,33 @@ export default function PreviewFilters({ formData }) {
 
   return (
     <div className={style.previewFilters}>
-      {Object.entries(transformedData).map(([record, fields]) => (
-        <div key={record} className={style.singlePreviewContainer}>
-          <div className={style.previewRecordTitle}>
-            <i>
-              <b>{record}</b>
-            </i>
-          </div>
-          <div className={style.fieldValueContainer}>
-            {Object.entries(fields).map(([field, value]) => (
-              <div key={field} className={style.fieldAndValue}>
-                <div className={style.fieldContainer}>
-                  <i>
-                    <b className={style.field}>{field}</b>
-                  </i>
-                </div>
-                <b className={style.value}>{value}</b>
-              </div>
-            ))}
-          </div>
+      {Object.keys(formData).length === 0 ? (
+        <div className={style.nothingToShow}>
+          <p>Nothing to show</p>
         </div>
-      ))}
+      ) : (
+        Object.entries(transformedData).map(([record, fields]) => (
+          <div key={record} className={style.singlePreviewContainer}>
+            <div className={style.previewRecordTitle}>
+              <i>
+                <b>{record}</b>
+              </i>
+            </div>
+            <div className={style.fieldValueContainer}>
+              {Object.entries(fields).map(([field, value]) => (
+                <div key={field} className={style.fieldAndValue}>
+                  <div className={style.fieldContainer}>
+                    <i>
+                      <b className={style.field}>{field}</b>
+                    </i>
+                  </div>
+                  <b className={style.value}>{value}</b>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
     </div>
   );
 }

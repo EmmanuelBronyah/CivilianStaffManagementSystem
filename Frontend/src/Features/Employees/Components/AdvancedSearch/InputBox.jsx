@@ -139,15 +139,34 @@ export default function InputBox(props) {
         value={
           props.formData?.[props.record]?.[allLabelKeys[props.label]] ?? null
         }
-        onChange={(selected) =>
+        onChange={(selected) => {
+          if (selected === null) {
+            props.setFormData((prev) => {
+              const label = allLabelKeys[props.label];
+              const updatedRecord = { ...prev[props.record] };
+              const updatedFormData = { ...prev };
+
+              delete updatedRecord[label];
+
+              if (Object.keys(updatedRecord).length === 0) {
+                delete updatedFormData[props.record];
+              } else {
+                updatedFormData[props.record] = updatedRecord;
+              }
+
+              return updatedFormData;
+            });
+            return;
+          }
+
           props.setFormData((prev) => ({
             ...prev,
             [props.record]: {
               ...prev[props.record],
               [allLabelKeys[props.label]]: selected,
             },
-          }))
-        }
+          }));
+        }}
       />
     );
   };
@@ -163,15 +182,21 @@ export default function InputBox(props) {
           props.setRangeOption(selected);
 
           if (selected === null) {
+            props.setFieldErrors(null);
+
             props.setFormData((prev) => {
               const updatedRecord = { ...prev[props.record] };
+              const updatedFormData = { ...prev };
 
               delete updatedRecord[allLabelKeys[props.label]];
 
-              return {
-                ...prev,
-                [props.record]: updatedRecord,
-              };
+              if (Object.keys(updatedRecord).length === 0) {
+                delete updatedFormData[props.record];
+              } else {
+                updatedFormData[props.record] = updatedRecord;
+              }
+
+              return updatedFormData;
             });
           }
         }}

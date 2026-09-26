@@ -5,6 +5,8 @@ import { MdArrowBackIos, MdArrowForwardIos } from "react-icons/md";
 import ParentInput from "./ParentInput";
 import PreviewFilters from "./PreviewFilters";
 import { BUTTON_STORAGE_KEY, FORMDATA_STORAGE_KEY } from "./constants";
+import { validateFormData } from "../../utils/checkFormData";
+import { useOutletContext } from "react-router-dom";
 
 export default function AdvancedSearch() {
   const { theme } = useTheme();
@@ -14,11 +16,27 @@ export default function AdvancedSearch() {
       ? JSON.parse(storedButtons)
       : [
           {
+            name: "Emergency | Next of Kin",
+            active: false,
+          },
+          {
+            name: "Previous Government Service",
+            active: false,
+          },
+          {
+            name: "Service With Forces",
+            active: false,
+          },
+          {
             name: "Employee",
             active: false,
           },
           {
             name: "Occurrence",
+            active: false,
+          },
+          {
+            name: "Termination of Appointment",
             active: false,
           },
           {
@@ -41,22 +59,6 @@ export default function AdvancedSearch() {
             name: "Spouse",
             active: false,
           },
-          {
-            name: "Emergency | Next of Kin",
-            active: false,
-          },
-          {
-            name: "Previous Government Service",
-            active: false,
-          },
-          {
-            name: "Service With Forces",
-            active: false,
-          },
-          {
-            name: "Termination of Appointment",
-            active: false,
-          },
         ];
   });
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -64,6 +66,7 @@ export default function AdvancedSearch() {
     const storedFormData = localStorage.getItem(FORMDATA_STORAGE_KEY);
     return storedFormData ? JSON.parse(storedFormData) : {};
   });
+  const { setResponse } = useOutletContext();
 
   // Names of buttons with a `true` active status
   const selectedButtons = buttons
@@ -119,6 +122,18 @@ export default function AdvancedSearch() {
     }
   };
 
+  const performSearch = () => {
+    const response = validateFormData(formData);
+    if (response !== true) {
+      setResponse({
+        message: response,
+        type: "error",
+        id: Date.now(),
+      });
+      return;
+    }
+  };
+
   useEffect(() => {
     console.log("formdata -> ", formData);
   }, [formData]);
@@ -126,11 +141,18 @@ export default function AdvancedSearch() {
   return (
     <div className={`${style.advancedSearch} ${!theme ? style.dark : ""}`}>
       <div className={style.advancedSearchTitleAndInfo}>
-        <p>Advanced Search</p>
-        <i className={style.info}>
-          Search employees by their fields or refine results using related
-          records like absences, occurrences, courses and more
-        </i>
+        <div className={style.textSection}>
+          <p>Advanced Search</p>
+          <i className={style.info}>
+            Search employees by their fields or refine results using related
+            records like absences, occurrences, courses and more
+          </i>
+        </div>
+        <div
+          className={`${style.buttonSection} ${Object.keys(formData).length === 0 ? style.displayNone : ""}`}
+        >
+          <button onClick={performSearch}>Search</button>
+        </div>
       </div>
       <div className={style.searchMainArea}>
         <div className={style.selectRecordsContainer}>
@@ -194,9 +216,6 @@ export default function AdvancedSearch() {
           <div className={style.filtersContainer}>
             <div className={style.previewFiltersTitle}>
               <p>Preview Filters</p>
-              <div>
-                <p></p>
-              </div>
             </div>
             <PreviewFilters formData={formData} />
           </div>

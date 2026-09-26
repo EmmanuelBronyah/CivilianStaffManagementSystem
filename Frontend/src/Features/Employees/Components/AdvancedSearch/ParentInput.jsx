@@ -3,7 +3,7 @@ import Dropdown from "./Dropdown";
 import { useEffect, useState } from "react";
 import InputBox from "./InputBox";
 import RangeInputBox from "./RangeInputBox";
-
+// todo: make errors persist on the page
 export default function ParentInput(props) {
   const [dropdownData, setDropdownData] = useState(null);
   const [rangeOption, setRangeOption] = useState(null);
@@ -48,6 +48,7 @@ export default function ParentInput(props) {
             setFormData={props.setFormData}
             rangeOption={rangeOption}
             setRangeOption={setRangeOption}
+            setFieldErrors={setFieldErrors}
           />
         </>
       )}
